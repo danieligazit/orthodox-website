@@ -1,58 +1,60 @@
 import { useState, useEffect, useRef, useLayoutEffect } from 'react';
-import { ArrowLeft, Play, Disc, ShoppingBag } from 'lucide-react';
 import type { Album } from './types';
 import logoImage from './assets/orthodox-o-logo-transparent.png';
 
 // --- Configuration ---
-const HEADER_HEIGHT = 120; // px
+const HEADER_HEIGHT = 80; // px
 const ANIMATION_DISTANCE = 600; 
 
-// --- Mock Data ---
 const ALBUMS: Album[] = [
   {
     id: 1,
-    artist: "Henri Schaeffer",
-    title: "Object Sonore I",
-    year: "1958 (Reissue)",
-    coverType: "geometric",
-    description: "A foundational exploration of tape loops and railroad mechanics. Raw, industrial, and uncompromising.",
-    tracks: ["Etude aux Chemins", "Symphonie Pour Un Homme Seul", "Oiseau Trak", "Cinq Études de Bruits"]
+    artist: "Daniella Ljungsberg",
+    title: "I Do Care",
+    releaseDate: "2024-02-14",
+    cover: "i_do_care.jpg"
   },
   {
     id: 2,
-    artist: "Daphne Oram",
-    title: "Drawn Sound",
-    year: "1962",
-    coverType: "noise",
-    description: "Synthesized sounds created by drawing directly onto 35mm film stock. The visual becomes the auditory.",
-    tracks: ["Pulse Persephone", "Bird of Parallax", "Rockets in Ursa Major", "Four Aspects"]
+    artist: "Na'ama Zisser",
+    title: "From Behind the Door",
+    releaseDate: "2024-06-21",
+    cover: "from_behind_the_door.jpg"
   },
   {
     id: 3,
-    artist: "Basinski & The Decay",
-    title: "Disintegration Loops IV",
-    year: "2002",
-    coverType: "minimal",
-    description: "The sound of memory fading. Tape loops recorded as they physically deteriorate on the playhead.",
-    tracks: ["dlp 1.1", "dlp 2.2", "dlp 3", "dlp 4", "dlp 5", "dlp 6"]
+    artist: "Kashaiof",
+    title: "Days",
+    releaseDate: "2024-08-30",
+    cover: "days.jpg"
   },
   {
     id: 4,
-    artist: "Xenakis",
-    title: "Concrete Ph",
-    year: "1958",
-    coverType: "abstract",
-    description: "Mathematical stochastic synthesis applied to the sound of burning charcoal.",
-    tracks: ["Concret PH", "Diamorphoses", "Orient-Occident", "Bohor"]
+    artist: "Wackelkontakt",
+    title: "Change the Process",
+    releaseDate: "2024-10-25",
+    cover: "change_the_process.jpg"
   },
   {
     id: 5,
-    artist: "Delia Derbyshire",
-    title: "The Dreams",
-    year: "1964",
-    coverType: "lines",
-    description: "Collages of people describing their dreams, set to electronic textures constructed from single sine waves.",
-    tracks: ["Running", "Falling", "Land", "Sea", "Colour"]
+    artist: "Cadaver Eyes",
+    title: "Road Extends",
+    releaseDate: "2024-12-20",
+    cover: "road_extends.jpg"
+  },
+  {
+    id: 6,
+    artist: "Daniella Ljungsberg",
+    title: "Do I Care",
+    releaseDate: "2025-02-15",
+    cover: "do_i_care.jpg"
+  },
+  {
+    id: 7,
+    artist: "SEVELLE",
+    title: "Turn of a Millstone",
+    releaseDate: "2025-04-11",
+    cover: "turn_of_a_millstone.jpg"
   }
 ];
 
@@ -60,111 +62,29 @@ const ALBUMS: Album[] = [
 
 interface AlbumCardProps {
   album: Album;
-  onClick: (album: Album) => void;
 }
 
-const AlbumCard = ({ album, onClick }: AlbumCardProps) => {
+const AlbumCard = ({ album }: AlbumCardProps) => {
+  // Format release date to show year
+  const releaseYear = album.releaseDate ? new Date(album.releaseDate).getFullYear().toString() : '';
+  
   return (
     <div 
-      onClick={() => onClick(album)}
-      className="group relative cursor-pointer w-full max-w-md mx-auto mb-24 transition-transform duration-500 hover:scale-[1.02]"
+      className="group relative w-full transition-transform duration-500 hover:scale-[1.02]"
     >
       <div className="aspect-square w-full border-2 border-[#333] bg-[#dcdad3] relative overflow-hidden shadow-2xl">
-        {album.coverType === 'geometric' && (
-           <div className="absolute inset-0 bg-[#050505] flex items-center justify-center">
-             <div className="w-1/2 h-1/2 border-4 border-[#e8e6df] rounded-full mix-blend-difference animate-pulse"></div>
-           </div>
-        )}
-        {album.coverType === 'noise' && (
-           <div className="absolute inset-0 bg-[#1a1a1a] opacity-80" style={{backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.65\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")'}}></div>
-        )}
-        {album.coverType === 'minimal' && (
-           <div className="absolute inset-0 bg-[#e8e6df] flex flex-col justify-between p-4">
-             <div className="w-full h-1 bg-[#050505]"></div>
-             <div className="w-full h-px bg-[#050505] opacity-30"></div>
-           </div>
-        )}
-        {album.coverType === 'abstract' && (
-           <div className="absolute inset-0 bg-[#0a0a0a] flex items-center justify-center">
-             <div className="w-32 h-32 border border-[#e8e6df] rotate-45 mix-blend-exclusion"></div>
-             <div className="w-32 h-32 border border-[#e8e6df] -rotate-12 absolute mix-blend-exclusion"></div>
-           </div>
-        )}
-        {album.coverType === 'lines' && (
-           <div className="absolute inset-0 bg-[#dcdad3] flex flex-col justify-center space-y-2 p-8">
-             {[...Array(10)].map((_, i) => (
-               <div key={i} className="w-full bg-[#050505]" style={{height: `${Math.random() * 4 + 1}px`, opacity: Math.random()}}></div>
-             ))}
-           </div>
-        )}
-        
-        <div className="absolute inset-0 bg-[#050505]/0 group-hover:bg-[#050505]/90 transition-all duration-300 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 text-[#e8e6df] font-im-fell">
-            <span className="text-xl italic">Listen</span>
-            <Disc className="mt-2 w-6 h-6 animate-spin-slow" />
-        </div>
+        <img 
+          src={`/${album.cover}`}
+          alt={`${album.artist} - ${album.title}`}
+          className="w-full h-full object-cover transition-all duration-500 group-hover:invert group-hover:brightness-110"
+        />
       </div>
 
       <div className="mt-4 flex justify-between items-baseline font-im-fell uppercase tracking-widest text-sm">
         <span className="bg-[#050505] text-[#e8e6df] px-2 py-1 shadow-lg">{album.artist}</span>
-        <span className="bg-[#e8e6df] text-[#050505] px-2 py-1 border border-[#050505] shadow-lg">{album.year}</span>
+        <span className="bg-[#e8e6df] text-[#050505] px-2 py-0.25 border border-[#050505] shadow-lg">{releaseYear}</span>
       </div>
-      <h3 className="text-center mt-2 text-2xl font-im-fell mix-blend-difference text-[#444] font-bold">{album.title}</h3>
-    </div>
-  );
-};
-
-interface DetailViewProps {
-  album: Album;
-  onClose: () => void;
-}
-
-const DetailView = ({ album, onClose }: DetailViewProps) => {
-  return (
-    <div className="fixed inset-0 z-[60] flex flex-col md:flex-row animate-in fade-in slide-in-from-bottom-10 duration-500">
-      <div className="w-full md:w-1/2 bg-[#050505] text-[#e8e6df] h-full overflow-y-auto p-8 md:p-16 flex flex-col relative">
-        <button onClick={onClose} className="absolute top-8 left-8 hover:opacity-50 transition-opacity flex items-center gap-2 font-im-fell">
-          <ArrowLeft size={16} /> RETURN
-        </button>
-        
-        <div className="mt-20 md:mt-auto">
-          <h1 className="font-im-fell text-5xl md:text-7xl mb-4 leading-none">{album.title}</h1>
-          <h2 className="font-im-fell text-xl md:text-2xl italic text-[#666] mb-8">{album.artist} — {album.year}</h2>
-          
-          <p className="font-sans text-sm md:text-base leading-relaxed text-[#999] max-w-md border-l border-[#333] pl-6">
-            {album.description}
-          </p>
-
-          <div className="mt-12 flex gap-4">
-             <button className="px-8 py-3 bg-[#e8e6df] text-[#050505] font-im-fell hover:bg-[#dcdad3] transition-colors flex items-center gap-2">
-               <Play size={16} fill="currentColor" /> PLAY SIDES
-             </button>
-             <button className="px-8 py-3 border border-[#e8e6df] text-[#e8e6df] font-im-fell hover:bg-[#e8e6df]/10 transition-colors">
-               ADD TO CART
-             </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="w-full md:w-1/2 bg-[#e8e6df] text-[#050505] h-full overflow-y-auto p-8 md:p-16 relative">
-        <div className="h-full flex flex-col justify-center">
-          <div className="mb-8 font-im-fell text-xs tracking-[0.2em] border-b-2 border-[#050505] pb-2 uppercase">
-            Tracklist / Catalog No. ORTH-{album.id}00
-          </div>
-          
-          <ul className="space-y-6">
-            {album.tracks.map((track, i) => (
-              <li key={i} className="group flex items-center justify-between cursor-pointer border-b border-transparent hover:border-[#050505] transition-all pb-2">
-                <span className="font-im-fell text-2xl md:text-3xl text-[#999] group-hover:text-[#050505] transition-colors">
-                  {i + 1}. {track}
-                </span>
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-xs font-mono">
-                  0{Math.floor(Math.random() * 5) + 2}:00
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
+      <h3 className="text-center mt-2 text-2xl font-im-fell mix-blend-difference text-[#666] font-bold">{album.title}</h3>
     </div>
   );
 };
@@ -173,7 +93,6 @@ const DetailView = ({ album, onClose }: DetailViewProps) => {
 
 export default function App() {
   const [scrollY, setScrollY] = useState(0);
-  const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
   const [windowHeight, setWindowHeight] = useState(800);
 
   // --- NEW REFS & STATE FOR CENTERING ---
@@ -232,7 +151,7 @@ export default function App() {
 
   // 3. Logo Scaling
   const startScale = 0.75; // Smaller at start
-  const endScale = 0.3; // Bigger at end when merged
+  const endScale = 0.26; // Smaller at end when merged
   const currentScale = startScale - (easeProgress * (startScale - endScale));
 
   // 4. Logo Translation (Y Axis)
@@ -314,11 +233,6 @@ export default function App() {
          </div>
       </div>
 
-      {/* Detail Modal (Z-60) */}
-      {selectedAlbum && (
-        <DetailView album={selectedAlbum} onClose={() => setSelectedAlbum(null)} />
-      )}
-
       {/* --- LOGO LAYER (Z-50) --- */}
       <div 
         className="fixed z-50 pointer-events-none mix-blend-difference text-white w-full h-screen flex justify-center"
@@ -385,7 +299,7 @@ export default function App() {
 
       {/* --- HEADER CURTAIN (Z-30) --- */}
       <div 
-        className="fixed top-0 w-full h-[120px] z-30 bg-[#e8e6df]"
+        className="fixed top-0 w-full h-[80px] z-30 bg-[#e8e6df]"
         style={{ 
             opacity: headerOpacity, 
             willChange: 'opacity'
@@ -394,14 +308,19 @@ export default function App() {
 
       {/* --- HEADER CONTROLS (Z-40) --- */}
       <div 
-        className="fixed top-0 w-full z-40 flex justify-between px-8 items-center h-[120px] mix-blend-difference text-white pointer-events-none"
+        className="fixed top-0 w-full z-40 flex justify-between px-8 items-center h-[80px] mix-blend-difference text-white pointer-events-none"
         style={{ opacity: headerOpacity }}
       >
          <div className="w-1/3"></div> {/* Spacer for Logo */}
          <div className="flex gap-8 pointer-events-auto">
-             <span className="text-sm font-im-fell uppercase tracking-widest cursor-pointer hover:underline">About</span>
-             <span className="text-sm font-im-fell uppercase tracking-widest cursor-pointer hover:underline">Journal</span>
-             <ShoppingBag className="w-5 h-5 cursor-pointer" />
+             <span className="relative text-sm font-im-fell uppercase tracking-widest cursor-pointer group">
+                 ABOUT
+                 <span className="absolute left-0 top-1/2 w-full h-px bg-white transform -translate-y-1/2 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center"></span>
+             </span>
+             <span className="relative text-sm font-im-fell uppercase tracking-widest cursor-pointer group">
+                 PRESS
+                 <span className="absolute left-0 top-1/2 w-full h-px bg-white transform -translate-y-1/2 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center"></span>
+             </span>
          </div>
       </div>
 
@@ -414,7 +333,7 @@ export default function App() {
       </div> */}
 
       {/* --- CONTENT LAYER (Z-20) --- */}
-      <div className={`relative z-20 transition-opacity duration-500 ${selectedAlbum ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+      <div className="relative z-20">
         <main className="w-full">
             {/* Scroll Spacer - Matches the animation distance to prevent jumpiness */}
             <div style={{ height: `${ANIMATION_DISTANCE}px` }}></div>
@@ -432,25 +351,22 @@ export default function App() {
                 {/* Spacer between header and first row */}
                 <div className="h-48 md:h-64"></div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-32">
-                    {ALBUMS.map((album, index) => (
-                        <div 
-                        key={album.id} 
-                        className={`${index % 2 === 0 ? 'md:translate-x-12' : 'md:-translate-x-12 md:mt-48'}`}
-                        >
-                        <AlbumCard album={album} onClick={setSelectedAlbum} />
-                        </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
+                    {[...ALBUMS].sort((a, b) => {
+                        // Sort by releaseDate descending (newest first)
+                        return new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime();
+                    }).map((album) => (
+                        <AlbumCard key={album.id} album={album} />
                     ))}
                 </div>
             
                 {/* Footer */}
                 <div className="mt-48 text-center font-im-fell pb-12">
-                <div className="inline-block border-2 border-[#050505] bg-[#e8e6df] p-8 hover:bg-[#050505] hover:text-[#e8e6df] transition-colors duration-500 cursor-pointer shadow-lg group">
-                    <h3 className="text-2xl">SUBSCRIBE TO NEWSLETTER</h3>
-                    <p className="text-sm mt-2 italic group-hover:text-[#999]">Receive magnetic tape via post</p>
+                <div className="inline-block border-1 border-[#050505] bg-[#e8e6df] p-8 hover:bg-[#050505] hover:text-[#e8e6df] transition-colors duration-500 cursor-pointer shadow-lg group">
+                    <h3 className="text-lg">SUBSCRIBE TO NEWSLETTER</h3>
                 </div>
                 <div className="mt-12 text-[#444] text-xs tracking-widest uppercase mix-blend-difference">
-                    &copy; 2024 Orthodox Recordings. Musique Concrète.
+                    &copy; 2025 Orthodox Records.
                 </div>
                 </div>
             </div>
