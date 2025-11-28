@@ -228,8 +228,12 @@ export default function App() {
   const endXShift = -2.2; 
   const currentXShift = easeProgress * endXShift;
 
-  // 7. Logo Square Opacity
-  const squareOpacity = Math.min(Math.max(0, (easeProgress - 0.8) * 5), 1);
+  // 7. Logo Square Opacity - appears later and more gradually
+  const squareOpacityStart = 0.85; // Start appearing later (was 0.8)
+  const squareOpacityRange = 0.15; // Range over which it fades in
+  const squareOpacityRaw = Math.min(Math.max(0, (easeProgress - squareOpacityStart) / squareOpacityRange), 1);
+  // Apply smooth easing to make it more gradual with more intermediate states
+  const squareOpacity = squareOpacityRaw * squareOpacityRaw * (3 - 2 * squareOpacityRaw); // Smoothstep easing
 
   // 8. O Text Color Calculation
   const textColorVal = Math.round(255 - (squareOpacity * 255));
@@ -248,7 +252,17 @@ export default function App() {
   const contentOpacity = Math.min(Math.max(0, (scrollY - (ANIMATION_DISTANCE * 0.5)) / (ANIMATION_DISTANCE * 0.5)), 1);
 
   return (
-    <div className="min-h-screen w-full relative bg-[#e8e6df]">
+    <div className="min-h-screen w-full relative bg-[#e8e6df] overflow-x-hidden" style={{ width: '100%', maxWidth: '100vw' }}>
+      {/* Full coverage background to prevent white showing through */}
+      <div className="fixed bg-[#e8e6df] pointer-events-none z-[-1]" style={{ 
+        top: '-100px', 
+        left: '-100px', 
+        right: '-100px', 
+        bottom: '-100px',
+        width: 'calc(100vw + 200px)',
+        height: 'calc(100vh + 200px)'
+      }}></div>
+      
       {/* --- BACKGROUND LAYER (Z-0) --- */}
       <div className="fixed inset-0 flex items-center justify-center overflow-hidden pointer-events-none z-0">
         <div 
@@ -375,12 +389,12 @@ export default function App() {
       </div>
 
       {/* Scroll Indicator */}
-      <div 
+      {/* <div 
           className="fixed bottom-12 left-1/2 -translate-x-1/2 font-im-fell animate-bounce text-sm tracking-widest mix-blend-difference text-white z-40 pointer-events-none"
           style={{ opacity: Math.max(0, 1 - progress * 4) }}
         >
           SCROLL TO ROTATE
-      </div>
+      </div> */}
 
       {/* --- CONTENT LAYER (Z-20) --- */}
       <div className={`relative z-20 transition-opacity duration-500 ${selectedAlbum ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
