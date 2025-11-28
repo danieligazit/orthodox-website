@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { ArrowLeft, Play, Disc, ShoppingBag } from 'lucide-react';
 import type { Album } from './types';
 import logoImage from './assets/orthodox-o-logo-transparent.png';
@@ -175,20 +175,15 @@ export default function App() {
   const [scrollY, setScrollY] = useState(0);
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
   const [windowHeight, setWindowHeight] = useState(800);
-  const scrollYRef = useRef(0);
+
+  // --- NEW REFS & STATE FOR CENTERING ---
+  const logoSquareRef = useRef<HTMLDivElement>(null);
+  const textLabelRef = useRef<HTMLDivElement>(null);
+  const [finalOffset, setFinalOffset] = useState(0);
 
   useEffect(() => {
-    // Initial measure
     setWindowHeight(window.innerHeight);
-    scrollYRef.current = window.scrollY;
-    setScrollY(window.scrollY);
-
-    const handleScroll = () => {
-      const scroll = window.scrollY || document.documentElement.scrollTop || 0;
-      scrollYRef.current = scroll;
-      setScrollY(scroll);
-    };
-    
+    const handleScroll = () => setScrollY(window.scrollY);
     const handleResize = () => setWindowHeight(window.innerHeight);
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -197,6 +192,29 @@ export default function App() {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
     };
+  }, []);
+
+  // --- MEASUREMENT LOGIC ---
+  // Calculates where the logo *should* be when fully merged
+  useLayoutEffect(() => {
+    const calculateCenter = () => {
+      if (logoSquareRef.current && textLabelRef.current) {
+        const logoWidth = logoSquareRef.current.offsetWidth;
+        const textWidth = textLabelRef.current.offsetWidth;
+        
+        // The mass of the text is heavier. We calculate how much to shift LEFT
+        // so the midpoint of the entire word hits the center of the screen.
+        const diff = textWidth - logoWidth;
+        setFinalOffset(-(diff / 2));
+      }
+    };
+
+    calculateCenter();
+    window.addEventListener('resize', calculateCenter);
+    // document.fonts.ready ensures we measure after the custom font loads
+    document.fonts.ready.then(calculateCenter); 
+
+    return () => window.removeEventListener('resize', calculateCenter);
   }, []);
 
   // --- Animation Physics ---
@@ -222,14 +240,15 @@ export default function App() {
   const endLogoY = HEADER_HEIGHT / 2;
   const currentLogoY = startLogoY - (easeProgress * (startLogoY - endLogoY));
 
-  // 5. Logo Separation (Gap)
-  const startSeparation = 0.4; // Closer together at start
+  // Separation logic (Gap closing)
+  const startSeparation = 0.4; 
   const endSeparation = 0;
   const currentSeparation = startSeparation - (easeProgress * (startSeparation - endSeparation));
 
-  // 6. Centering Correction (Horizontal Shift)
-  const endXShift = -2.2; 
-  const currentXShift = easeProgress * endXShift;
+  // --- THE FIX: INTERPOLATED X SHIFT ---
+  // Start (0%): 0px shift (Gap is perfectly centered by CSS layout)
+  // End (100%): finalOffset (Optical center calculated by JS)
+  const currentXShiftPx = finalOffset * easeProgress;
 
   // 7. Logo Square Opacity - appears later and more gradually
   const squareOpacityStart = 0.85; // Start appearing later (was 0.8)
@@ -311,32 +330,30 @@ export default function App() {
             willChange: 'top, transform'
         }}
       >
-         {/* Inner container handles the font-size dependent translateX shift */}
          <div 
             className="w-full flex items-center font-im-fell leading-none whitespace-nowrap"
             style={{ 
               fontSize: 'clamp(1.5rem, 9vw, 7.5rem)',
-              transform: `translateX(${currentXShift}em)` // Apply centering shift here
+              // APPLY THE INTERPOLATED PIXEL SHIFT HERE
+              transform: `translateX(${currentXShiftPx}px)` 
             }}
          >
-            {/* LEFT SIDE (The O in a box) */}
+            {/* LEFT SIDE (The O) */}
             <div 
                 className="w-1/2 flex justify-end" 
                 style={{ paddingRight: `${currentSeparation}vw` }}
             >
-                {/* The Animated Square Wrapper */}
+                {/* ATTACH REF FOR MEASUREMENT */}
                 <div 
+                    ref={logoSquareRef}
                     className="flex items-center justify-center relative"
                     style={{
                         marginTop: '-0.1em',
                         marginRight: '0.04em',
                         width: '0.8em',
                         height: '0.8em',
-                        padding: '0.0em',
                         backgroundColor: `rgba(232, 230, 223, ${squareOpacity})`,
                         color: `rgb(${textColorVal}, ${textColorVal}, ${textColorVal})`,
-                        boxSizing: 'border-box',
-                        overflow: 'hidden'
                     }}
                 >
                     <img 
@@ -347,10 +364,6 @@ export default function App() {
                             width: '1.06em',
                             height: '1.06em',
                             objectFit: 'contain',
-                            marginTop: '-0.0em',
-                            marginBottom: '0.01em',
-                            marginLeft: '0.0em',
-                            marginRight: '0.0em',
                             filter: logoFilter,
                             mixBlendMode: squareOpacity > 0.4 ? 'normal' : 'difference',
                             transition: 'filter 0.2s ease, mix-blend-mode 0.2s ease'
@@ -359,12 +372,13 @@ export default function App() {
                 </div>
             </div>
 
-            {/* RIGHT SIDE (The rest) */}
+            {/* RIGHT SIDE (The Text) */}
             <div 
                 className="w-1/2 flex justify-start tracking-tighter" 
                 style={{ paddingLeft: `${currentSeparation}vw` }}
             >
-                <span>RTHODOX</span>
+                {/* ATTACH REF FOR MEASUREMENT */}
+                <span ref={textLabelRef}>RTHODOX</span>
             </div>
          </div>
       </div>
