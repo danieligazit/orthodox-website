@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Play, Disc, ShoppingBag } from 'lucide-react';
 import type { Album } from './types';
 import logoImage from './assets/orthodox-o-logo-transparent.png';
@@ -175,15 +175,18 @@ export default function App() {
   const [scrollY, setScrollY] = useState(0);
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
   const [windowHeight, setWindowHeight] = useState(800);
+  const scrollYRef = useRef(0);
 
   useEffect(() => {
     // Initial measure
     setWindowHeight(window.innerHeight);
+    scrollYRef.current = window.scrollY;
+    setScrollY(window.scrollY);
 
     const handleScroll = () => {
-      requestAnimationFrame(() => {
-        setScrollY(window.scrollY);
-      });
+      const scroll = window.scrollY || document.documentElement.scrollTop || 0;
+      scrollYRef.current = scroll;
+      setScrollY(scroll);
     };
     
     const handleResize = () => setWindowHeight(window.innerHeight);
@@ -252,15 +255,15 @@ export default function App() {
   const contentOpacity = Math.min(Math.max(0, (scrollY - (ANIMATION_DISTANCE * 0.5)) / (ANIMATION_DISTANCE * 0.5)), 1);
 
   return (
-    <div className="min-h-screen w-full relative bg-[#e8e6df] overflow-x-hidden" style={{ width: '100%', maxWidth: '100vw' }}>
-      {/* Full coverage background to prevent white showing through */}
-      <div className="fixed bg-[#e8e6df] pointer-events-none z-[-1]" style={{ 
-        top: '-100px', 
-        left: '-100px', 
-        right: '-100px', 
-        bottom: '-100px',
-        width: 'calc(100vw + 200px)',
-        height: 'calc(100vh + 200px)'
+    <div className="min-h-screen w-full relative bg-[#e8e6df]">
+      {/* Fixed background to prevent white showing through on scroll */}
+      <div className="fixed bg-[#e8e6df] -z-10 pointer-events-none" style={{
+        top: '-50px',
+        left: '-50px',
+        right: '-50px',
+        bottom: '-50px',
+        width: 'calc(100vw + 100px)',
+        height: 'calc(100vh + 100px)'
       }}></div>
       
       {/* --- BACKGROUND LAYER (Z-0) --- */}

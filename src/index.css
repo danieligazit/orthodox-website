@@ -5,21 +5,26 @@
 @tailwind utilities;
 
 html {
-  background-color: #e8e6df;
+  background: #e8e6df;
+  height: 100%;
+  overscroll-behavior: none;
 }
 
 body {
-  background-color: #e8e6df;
+  background: #e8e6df;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
   width: 100%;
+  min-height: 100%;
+  overscroll-behavior: none;
 }
 
 #root {
-  background-color: #e8e6df;
+  background: #e8e6df;
   min-height: 100vh;
   width: 100%;
+  position: relative;
 }
 
 .font-im-fell {
