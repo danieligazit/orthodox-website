@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Play, Disc, ShoppingBag } from 'lucide-react';
 import type { Album } from './types';
+import logoImage from './assets/orthodox-o-logo-transparent.png';
 
 // --- Configuration ---
 const HEADER_HEIGHT = 120; // px
@@ -232,6 +233,10 @@ export default function App() {
 
   // 8. O Text Color Calculation
   const textColorVal = Math.round(255 - (squareOpacity * 255));
+  
+  // Logo filter: make it white when square is fully opaque
+  // Invert to white when square opacity is high enough
+  const logoFilter = squareOpacity > 0.4 ? 'invert(1) brightness(2)' : 'none';
 
   // 9. HEADER & CURTAIN OPACITY
   // Linked directly to progress (starts at 75%, full at 100%)
@@ -311,7 +316,20 @@ export default function App() {
                         color: `rgb(${textColorVal}, ${textColorVal}, ${textColorVal})`
                     }}
                 >
-                    <span style={{ display: 'block', marginTop: '-0.02em' }}>O</span> 
+                    <img 
+                        src={logoImage} 
+                        alt="O" 
+                        style={{ 
+                            display: 'block', 
+                            width: '0.85em',
+                            height: '0.85em',
+                            objectFit: 'contain',
+                            marginTop: '-0.08em',
+                            filter: logoFilter,
+                            mixBlendMode: squareOpacity > 0.4 ? 'normal' : 'difference',
+                            transition: 'filter 0.2s ease, mix-blend-mode 0.2s ease'
+                        }} 
+                    />
                 </div>
             </div>
 
