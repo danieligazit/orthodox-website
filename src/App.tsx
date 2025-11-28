@@ -311,9 +311,13 @@ export default function App() {
                 <div 
                     className="flex items-center justify-center relative"
                     style={{
+                        width: '1em',
+                        height: '1em',
                         padding: '0.025em',
                         backgroundColor: `rgba(232, 230, 223, ${squareOpacity})`,
-                        color: `rgb(${textColorVal}, ${textColorVal}, ${textColorVal})`
+                        color: `rgb(${textColorVal}, ${textColorVal}, ${textColorVal})`,
+                        boxSizing: 'border-box',
+                        overflow: 'hidden'
                     }}
                 >
                     <img 
@@ -321,10 +325,13 @@ export default function App() {
                         alt="O" 
                         style={{ 
                             display: 'block', 
-                            width: '0.85em',
-                            height: '0.85em',
+                            width: '0.95em',
+                            height: '0.95em',
                             objectFit: 'contain',
-                            marginTop: '-0.08em',
+                            marginTop: '0.0em',
+                            marginBottom: '0.01em',
+                            marginLeft: '0.0em',
+                            marginRight: '0.0em',
                             filter: logoFilter,
                             mixBlendMode: squareOpacity > 0.4 ? 'normal' : 'difference',
                             transition: 'filter 0.2s ease, mix-blend-mode 0.2s ease'
