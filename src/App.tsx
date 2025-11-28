@@ -74,7 +74,7 @@ const AlbumCard = ({ album }: AlbumCardProps) => {
     >
       <div className="aspect-square w-full border-2 border-[#333] bg-[#dcdad3] relative overflow-hidden shadow-2xl">
         <img 
-          src={`/${album.cover}`}
+          src={`${import.meta.env.BASE_URL}${album.cover}`}
           alt={`${album.artist} - ${album.title}`}
           className="w-full h-full object-cover transition-all duration-500 group-hover:invert group-hover:brightness-110"
         />
