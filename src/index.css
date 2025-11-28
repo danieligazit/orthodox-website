@@ -1,11 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IM+Fell+DW+Pica:ital@0;1&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 .font-im-fell {
-  font-family: 'IM Fell English', serif;
+  font-family: 'IM Fell DW Pica', serif;
+  letter-spacing: 0.1em;
 }
 
 ::-webkit-scrollbar {

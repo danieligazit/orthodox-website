@@ -210,8 +210,8 @@ export default function App() {
   const bgTranslateY = easeProgress * -centerOffset;
 
   // 3. Logo Scaling
-  const startScale = 1; 
-  const endScale = 0.2; // Approximate scale down factor
+  const startScale = 0.75; // Smaller at start
+  const endScale = 0.3; // Bigger at end when merged
   const currentScale = startScale - (easeProgress * (startScale - endScale));
 
   // 4. Logo Translation (Y Axis)
@@ -220,7 +220,7 @@ export default function App() {
   const currentLogoY = startLogoY - (easeProgress * (startLogoY - endLogoY));
 
   // 5. Logo Separation (Gap)
-  const startSeparation = 1; 
+  const startSeparation = 0.4; // Closer together at start
   const endSeparation = 0;
   const currentSeparation = startSeparation - (easeProgress * (startSeparation - endSeparation));
 
@@ -298,7 +298,7 @@ export default function App() {
          <div 
             className="w-full flex items-center font-im-fell leading-none whitespace-nowrap"
             style={{ 
-              fontSize: 'clamp(2rem, 12vw, 10rem)',
+              fontSize: 'clamp(1.5rem, 9vw, 7.5rem)',
               transform: `translateX(${currentXShift}em)` // Apply centering shift here
             }}
          >
@@ -311,9 +311,11 @@ export default function App() {
                 <div 
                     className="flex items-center justify-center relative"
                     style={{
-                        width: '1em',
-                        height: '1em',
-                        padding: '0.025em',
+                        marginTop: '-0.1em',
+                        marginRight: '0.04em',
+                        width: '0.8em',
+                        height: '0.8em',
+                        padding: '0.0em',
                         backgroundColor: `rgba(232, 230, 223, ${squareOpacity})`,
                         color: `rgb(${textColorVal}, ${textColorVal}, ${textColorVal})`,
                         boxSizing: 'border-box',
@@ -325,10 +327,10 @@ export default function App() {
                         alt="O" 
                         style={{ 
                             display: 'block', 
-                            width: '0.95em',
-                            height: '0.95em',
+                            width: '1.06em',
+                            height: '1.06em',
                             objectFit: 'contain',
-                            marginTop: '0.0em',
+                            marginTop: '-0.0em',
                             marginBottom: '0.01em',
                             marginLeft: '0.0em',
                             marginRight: '0.0em',
