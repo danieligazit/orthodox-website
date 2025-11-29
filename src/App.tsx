@@ -5,10 +5,12 @@ import { AlbumPage } from './pages/AlbumPage';
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/album/:id" element={<AlbumPage />} />
-      </Routes>
+      <div className="min-h-screen w-full relative bg-[#e8e6df]"> {/* Add persistent background here */}
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/album/:id" element={<AlbumPage />} />
+        </Routes>
+      </div>
     </BrowserRouter>
   );
 }

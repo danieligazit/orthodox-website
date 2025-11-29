@@ -26,7 +26,7 @@ export function ContentSection({ scrollY }: ContentSectionProps) {
           }}
         >
           {/* Spacer between header and first row */}
-          <div className="h-48 md:h-64"></div>
+          <div className="h-48 md:h-32"></div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
             {getSortedAlbums().map((album) => (

@@ -103,7 +103,8 @@ export function LogoLayer({ easedProgress, windowHeight, onClick }: LogoLayerPro
                 mixBlendMode: squareOpacity > 0.4 ? 'normal' : 'difference',
                 transform: `rotate(${logoRotation}deg)`,
                 transformOrigin: 'center center',
-                transition: 'filter 0.2s ease, mix-blend-mode 0.2s ease',
+                // Remove the transition for filter and mix-blend-mode
+                // transition: 'filter 0.2s ease, mix-blend-mode 0.2s ease',
                 pointerEvents: 'none',
               }}
             />

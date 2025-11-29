@@ -29,7 +29,7 @@ export function AlbumPage() {
 
   if (!album) {
     return (
-      <div className="min-h-screen w-full relative bg-[#e8e6df] flex items-center justify-center">
+      <>
         <div className="text-center">
           <h1 className="text-2xl font-im-fell mb-4">Album not found</h1>
           <button
@@ -46,7 +46,7 @@ export function AlbumPage() {
             Back to Home
           </button>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -80,20 +80,7 @@ export function AlbumPage() {
   };
 
   return (
-    <div className="min-h-screen w-full relative bg-[#e8e6df]">
-      {/* Fixed background to prevent white showing through on scroll */}
-      <div
-        className="fixed bg-[#e8e6df] -z-10 pointer-events-none"
-        style={{
-          top: '-50px',
-          left: '-50px',
-          right: '-50px',
-          bottom: '-50px',
-          width: 'calc(100vw + 100px)',
-          height: 'calc(100vh + 100px)',
-        }}
-      />
-
+    <>
       {/* Background Layer */}
       <BackgroundLayer easedProgress={easedProgress} windowHeight={windowHeight} />
 
@@ -192,7 +179,7 @@ export function AlbumPage() {
           </div>
         </main>
       </div>
-    </div>
+    </>
   );
 }
 

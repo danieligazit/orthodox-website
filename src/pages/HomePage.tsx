@@ -70,7 +70,7 @@ export function HomePage() {
   }, [location.state, location.pathname]);
 
   return (
-    <div className="min-h-screen w-full relative bg-[#e8e6df]">
+    <>
       {/* Fixed background to prevent white showing through on scroll */}
       <div
         className="fixed bg-[#e8e6df] -z-10 pointer-events-none"
@@ -98,7 +98,7 @@ export function HomePage() {
 
       {/* Content Section */}
       <ContentSection scrollY={scrollY} />
-    </div>
+    </>
   );
 }
 
