@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState, useMemo, useRef } from 'react';
+import { useEffect, useLayoutEffect, useState, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { BackgroundLayer, GrainOverlay, LogoLayer, Header, ContentSection } from '../components';
 import { useScrollPosition } from '../hooks/useScrollPosition';
