@@ -4,7 +4,7 @@ import { AlbumPage } from './pages/AlbumPage';
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <div className="min-h-screen w-full relative bg-[#e8e6df]"> {/* Add persistent background here */}
         <Routes>
           <Route path="/" element={<HomePage />} />
