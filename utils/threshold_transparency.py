@@ -51,6 +51,6 @@ if __name__ == "__main__":
     # Example usage:
     # Ensure you have an image named 'input.jpg' or change the filename below.
     try:
-        filter_pixels("orthodox-o-logo.jpeg", "orthodox-o-logo-transparent.png", threshold=120)
+        filter_pixels("orthodox-o-logo-v2-inverted.png", "orthodox-o-logo-v2-transparent.png", threshold=120)
     except FileNotFoundError:
         print("Error: Could not find 'input.jpg'. Please check the file path.")

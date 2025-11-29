@@ -4,48 +4,62 @@
     "artist": "Daniella Ljungsberg",
     "title": "I Do Care",
     "releaseDate": "2024-02-14",
-    "cover": "i_do_care.jpg"
+    "cover": "i_do_care.jpg",
+    "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+    "bandcampUrl": "https://orthodoxrecords.bandcamp.com/album/i-do-care"
   },
   {
     "id": 2,
     "artist": "Na'ama Zisser",
     "title": "From Behind the Door",
     "releaseDate": "2024-06-21",
-    "cover": "from_behind_the_door.jpg"
+    "cover": "from_behind_the_door.jpg",
+    "description": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.",
+    "bandcampUrl": "https://orthodoxrecords.bandcamp.com/album/from-behind-the-door"
   },
   {
     "id": 3,
     "artist": "Kashaiof",
     "title": "Days",
     "releaseDate": "2024-08-30",
-    "cover": "days.jpg"
+    "cover": "days.jpg",
+    "description": "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.",
+    "bandcampUrl": "https://orthodoxrecords.bandcamp.com/album/days"
   },
   {
     "id": 4,
     "artist": "Wackelkontakt",
     "title": "Change the Process",
     "releaseDate": "2024-10-25",
-    "cover": "change_the_process.jpg"
+    "cover": "change_the_process.jpg",
+    "description": "Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus.",
+    "bandcampUrl": "https://orthodoxrecords.bandcamp.com/album/change-the-process"
   },
   {
     "id": 5,
     "artist": "Cadaver Eyes",
     "title": "Road Extends",
     "releaseDate": "2024-12-20",
-    "cover": "road_extends.jpg"
+    "cover": "road_extends.jpg",
+    "description": "Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat.",
+    "bandcampUrl": "https://orthodoxrecords.bandcamp.com/album/road-extends"
   },
   {
     "id": 6,
     "artist": "Daniella Ljungsberg",
     "title": "Do I Care",
     "releaseDate": "2025-02-15",
-    "cover": "do_i_care.jpg"
+    "cover": "do_i_care.jpg",
+    "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+    "bandcampUrl": "https://orthodoxrecords.bandcamp.com/album/do-i-care"
   },
   {
     "id": 7,
     "artist": "SEVELLE",
     "title": "Turn of a Millstone",
     "releaseDate": "2025-04-11",
-    "cover": "turn_of_a_millstone.jpg"
+    "cover": "turn_of_a_millstone.jpg",
+    "description": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.",
+    "bandcampUrl": "https://orthodoxrecords.bandcamp.com/album/turn-of-a-millstone"
   }
 ]

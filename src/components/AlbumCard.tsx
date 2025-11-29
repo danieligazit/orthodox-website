@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import type { Album } from '../types';
 
 interface AlbumCardProps {
@@ -5,12 +6,11 @@ interface AlbumCardProps {
 }
 
 export function AlbumCard({ album }: AlbumCardProps) {
-  const releaseYear = album.releaseDate
-    ? new Date(album.releaseDate).getFullYear().toString()
-    : '';
+  // Generate serial number from album id (ORTH001, ORTH002, etc.)
+  const serialNumber = `ORTH${album.id.toString().padStart(3, '0')}`;
 
   return (
-    <div className="group relative w-full transition-transform duration-500 hover:scale-[1.02]">
+    <Link to={`/album/${album.id}`} className="group relative w-full transition-transform duration-500 hover:scale-[1.02] block">
       <div className="aspect-square w-full border-2 border-[#333] bg-[#dcdad3] relative overflow-hidden shadow-2xl">
         <img
           src={`${import.meta.env.BASE_URL}${album.cover}`}
@@ -19,18 +19,18 @@ export function AlbumCard({ album }: AlbumCardProps) {
         />
       </div>
 
-      <div className="mt-4 flex justify-between items-baseline font-im-fell uppercase tracking-widest text-sm">
-        <span className="bg-[#050505] text-[#e8e6df] px-2 py-1 shadow-lg">
+      <div className="mt-4 font-im-fell uppercase tracking-widest text-sm flex items-center justify-between gap-2 w-full">
+        <span className="bg-[#050505] text-[#e8e6df] px-2 py-1 shadow-lg whitespace-nowrap flex-shrink-0">
           {album.artist}
         </span>
-        <span className="bg-[#e8e6df] text-[#050505] px-2 py-0.25 border border-[#050505] shadow-lg">
-          {releaseYear}
+        <span className="text-[#050505] px-2 py-1 flex-1 text-center font-bold">
+          {album.title}
+        </span>
+        <span className="bg-[#e8e6df] text-[#050505] px-2 py-1 border border-[#050505] shadow-lg whitespace-nowrap flex-shrink-0">
+          {serialNumber}
         </span>
       </div>
-      <h3 className="text-center mt-2 text-2xl font-im-fell mix-blend-difference text-[#666] font-bold">
-        {album.title}
-      </h3>
-    </div>
+    </Link>
   );
 }
 

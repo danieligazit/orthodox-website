@@ -12,3 +12,10 @@ export function getSortedAlbums(): Album[] {
     return new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime();
   });
 }
+
+/**
+ * Get an album by its ID
+ */
+export function getAlbumById(id: number): Album | undefined {
+  return ALBUMS.find(album => album.id === id);
+}

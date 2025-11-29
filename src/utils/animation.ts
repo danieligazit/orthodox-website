@@ -99,6 +99,13 @@ export function getLogoFilter(squareOpacity: number): string {
 }
 
 /**
+ * Calculates logo rotation angle (counter-clockwise)
+ */
+export function getLogoRotation(easedProgress: number): number {
+  return easedProgress * -90; // Rotate CCW from 0 to -90 degrees
+}
+
+/**
  * Calculates header opacity
  */
 export function getHeaderOpacity(progress: number): number {

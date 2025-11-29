@@ -4,5 +4,7 @@ export interface Album {
   title: string;
   releaseDate: string;
   cover: string;
+  description?: string;
+  bandcampUrl?: string;
 }
 
