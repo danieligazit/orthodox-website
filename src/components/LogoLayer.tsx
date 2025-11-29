@@ -47,14 +47,22 @@ export function LogoLayer({ easedProgress, windowHeight, onClick }: LogoLayerPro
           behavior: 'smooth',
         });
       } else {
-        // Navigate to homepage at top (unscrolled)
-        // Set sessionStorage as fallback
-        sessionStorage.setItem('scrollToCatalog', 'false');
-        navigate('/', { state: { scrollToCatalog: false } });
+        // Navigate to homepage.
+        // STRATEGY CHANGE: Do NOT start scrolled. Start at top, but trigger a visual-only animation.
+        // We remove scrollToCatalog: true to prevent the physical scroll jump.
+        sessionStorage.setItem('animateToTop', 'true');    
+        
+        navigate('/', { 
+            state: { 
+                scrollToCatalog: false, // Don't physically scroll
+                animateToTop: true      // Just animate the logo
+            } 
+        });
       }
     }
   };
 
+  
   return (
     <div
       className="fixed z-50 mix-blend-difference text-white w-full h-screen flex justify-center pointer-events-none"

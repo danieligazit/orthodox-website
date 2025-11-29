@@ -61,5 +61,14 @@
     "cover": "turn_of_a_millstone.jpg",
     "description": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.",
     "bandcampUrl": "https://orthodoxrecords.bandcamp.com/album/turn-of-a-millstone"
+  },
+  {
+    "id": 8,
+    "artist": "IMMA",
+    "title": "words don't come easy",
+    "releaseDate": "2025-10-10",
+    "cover": "words_dont_come_easy.jpg",
+    "description": ".",
+    "bandcampUrl": "https://iimmaa.bandcamp.com/album/words-dont-come-easy"
   }
 ]
