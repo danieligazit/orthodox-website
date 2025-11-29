@@ -1,0 +1,51 @@
+[
+  {
+    "id": 1,
+    "artist": "Daniella Ljungsberg",
+    "title": "I Do Care",
+    "releaseDate": "2024-02-14",
+    "cover": "i_do_care.jpg"
+  },
+  {
+    "id": 2,
+    "artist": "Na'ama Zisser",
+    "title": "From Behind the Door",
+    "releaseDate": "2024-06-21",
+    "cover": "from_behind_the_door.jpg"
+  },
+  {
+    "id": 3,
+    "artist": "Kashaiof",
+    "title": "Days",
+    "releaseDate": "2024-08-30",
+    "cover": "days.jpg"
+  },
+  {
+    "id": 4,
+    "artist": "Wackelkontakt",
+    "title": "Change the Process",
+    "releaseDate": "2024-10-25",
+    "cover": "change_the_process.jpg"
+  },
+  {
+    "id": 5,
+    "artist": "Cadaver Eyes",
+    "title": "Road Extends",
+    "releaseDate": "2024-12-20",
+    "cover": "road_extends.jpg"
+  },
+  {
+    "id": 6,
+    "artist": "Daniella Ljungsberg",
+    "title": "Do I Care",
+    "releaseDate": "2025-02-15",
+    "cover": "do_i_care.jpg"
+  },
+  {
+    "id": 7,
+    "artist": "SEVELLE",
+    "title": "Turn of a Millstone",
+    "releaseDate": "2025-04-11",
+    "cover": "turn_of_a_millstone.jpg"
+  }
+]
