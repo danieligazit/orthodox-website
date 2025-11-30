@@ -4,8 +4,8 @@ export interface Album {
   title: string;
   releaseDate: string;
   cover: string;
-  description?: {
-    patagraphs: string[];
+  description?: string | {
+    paragraphs: string[];
     credits: {
       artists: string[];
       additional: string[];
@@ -13,6 +13,6 @@ export interface Album {
       production: string[];
     };
   };
+  bandcampUrl?: string;
   bandcampEmbedId?: string;
 }
-
