@@ -6,31 +6,23 @@
   <title>Content Manager</title>
 </head>
 <body>
-  <!-- 1. Flag manual init -->
   <script>window.CMS_MANUAL_INIT = true;</script>
   
-  <!-- 2. Load NEWER script version -->
-  <script src="https://unpkg.com/decap-cms@3.3.3/dist/decap-cms.js"></script>
+  <!-- Let's go back to the standard distribution which is stable -->
+  <script src="https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js"></script>
   
-  <!-- 3. Init -->
   <script>
-    console.log('Initializing CMS manually...');
-    CMS.init({
-      load_config_file: false,
-      config: {
-        backend: {
-          name: 'github',
-          repo: 'danieligazit/orthodox-website',
-          branch: 'main',
-          auth_type: 'pkce', // This is the key
-          app_id: 'Ov23liBCC2xuzIwQ3irZ',
-        },
-        // Force the URL to be empty so it doesn't default to Netlify?
-        // No, pkce should handle it.
-        
-        media_folder: "public",
-        public_folder: "",
-        collections: [
+    const config = {
+      backend: {
+        name: 'github',
+        repo: 'danieligazit/orthodox-website',
+        branch: 'main',
+        auth_type: 'pkce',
+        app_id: 'Ov23liBCC2xuzIwQ3irZ',
+      },
+      media_folder: "public",
+      public_folder: "/",
+      collections: [
           {
             name: "data",
             label: "Data",
@@ -63,9 +55,12 @@
               }
             ]
           }
-        ]
-      }
-    });
+      ]
+    };
+
+    console.log('Initializing with config:', config);
+
+    CMS.init({ config: config });
   </script>
 </body>
 </html>
