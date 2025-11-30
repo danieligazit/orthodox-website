@@ -204,7 +204,7 @@ export function AlbumPage() {
                 )}
 
                 {/* --- NEW SECTION: Copyright Notice --- */}
-                <div className="pt-20 pb-10 text-center">
+                <div className="pt-20 pb-10">
                   <p className="font-im-fell text-sm text-[#e8e6df]/40 tracking-wider">
                     &copy; {new Date().getFullYear()} ORTHODOX
                   </p>

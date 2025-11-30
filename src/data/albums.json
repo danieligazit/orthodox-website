@@ -1,130 +1,112 @@
-[
-  {
-    "id": 1,
-    "artist": "Daniella Ljungsberg",
-    "title": "I Do Care",
-    "releaseDate": "2024-02-14",
-    "cover": "i_do_care.jpg",
-    "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-    "bandcampUrl": "https://orthodoxrecords.bandcamp.com/album/i-do-care"
-  },
-  {
-    "id": 2,
-    "artist": "Na'ama Zisser",
-    "title": "From Behind the Door",
-    "releaseDate": "2024-06-21",
-    "cover": "from_behind_the_door.jpg",
-    "description": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.",
-    "bandcampUrl": "https://orthodoxrecords.bandcamp.com/album/from-behind-the-door"
-  },
-  {
-    "id": 3,
-    "artist": "Kashaiof",
-    "title": "Days",
-    "releaseDate": "2024-08-30",
-    "cover": "days.jpg",
-    "description": "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.",
-    "bandcampUrl": "https://orthodoxrecords.bandcamp.com/album/days"
-  },
-  {
-    "id": 4,
-    "artist": "Wackelkontakt",
-    "title": "Change the Process",
-    "releaseDate": "2024-10-25",
-    "cover": "change_the_process.jpg",
-    "description": "Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus.",
-    "bandcampUrl": "https://orthodoxrecords.bandcamp.com/album/change-the-process"
-  },
-  {
-    "id": 5,
-    "artist": "Cadaver Eyes",
-    "title": "Road Extends",
-    "releaseDate": "2024-12-20",
-    "cover": "road_extends.jpg",
-    "description": "Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat.",
-    "bandcampUrl": "https://orthodoxrecords.bandcamp.com/album/road-extends"
-  },
-  {
-    "id": 6,
-    "artist": "Daniella Ljungsberg",
-    "title": "Do I Care",
-    "releaseDate": "2025-02-15",
-    "cover": "do_i_care.jpg",
-    "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-    "bandcampUrl": "https://orthodoxrecords.bandcamp.com/album/do-i-care"
-  },
-  {
-    "id": 7,
-    "artist": "SEVELLE",
-    "title": "Turn of a Millstone",
-    "releaseDate": "2025-04-11",
-    "cover": "turn_of_a_millstone.jpg",
-    "description": {
-      "paragraphs": [
-        "The wheel turns, the millstone grinds—an endless motion, eroding and renewing in equal measure. Turn of a Millstone is the debut studio album from SEVELLE, a trio consisting of sculptor and sound artist Niv Gafni (DIY bagpipe), musician and designer Daniel Treystman (drums), and musician Shaul Kohn (guitar).",
-        "Initially drawing their influences from Tony Conrad & Faust’s insights over drone minimalism and krautrock’s cosmic rhythm — Turn of a Millstone continue to rotate endlessly, paving the road of krautdrone’s foundations, they are opening a passage into an immersive dimension where minimalism becomes maximalism. The trio constructs parallel sonic plateaus—each locked in its own repetition, yet constantly evolving, grinding forward with a force that is both oppressive and liberating.",
-        "Their practice of continuous playing is a trial of physical and mental limits, a controlled collapse into chaos. The spiking drones and pounding rhythms resonate with the tension between order and entropy, structure and dissolution. In this space, Sevelle enacts a ritual of sonic self-sacrifice—driving themselves to exhaustion in pursuit of something beyond the self.",
-        "Like the turning of a grinding wheel, Turn of a Millstone is demanding yet deeply rewarding, revealing itself through endurance, through surrender. A meditation on repetition, failure, and transcendence—this is music at its breaking point.",
-        "Released as part of ROOMS, a new series on ORTHODOX dedicated to long-form sound works. Each release in this series is issued on cassette, with both sides carrying the same recording—an infinite loop of sound, a space to dwell in, leave, and return to."
-      ],
-      "credits": {
-        "artists":[
-          "Shaul Kohn - Guitar",
-          "Niv Gafni - DIY Bagpipes",
-          "Daniel Treystman - Drums"
+{
+  "albums": [
+    {
+      "urlPath": "do-i-care",
+      "id": 6,
+      "artist": "Daniella Ljungsberg",
+      "title": " Do I Care",
+      "bandcampEmbedId": 1641334869,
+      "description": {
+        "paragraphs": [
+          "Another year, another Valentine’s Day—Ljungsberg returns with Do I Care, a reimagining of her cult album I Do Care (ORTH001). Released exactly one year later, this album doesn’t just revisit its predecessor; it reflects on its emotional and structural foundations while questioning the role of music as an act of care in an uncertain world.",
+          "Originally conceived as a way to adapt I Do Care for live performance, the project quickly evolved into a deeper exploration: can a finished work remain open to transformation? Do I Care stretches and blurs the edges between flux, continuity, and reinvention—not a sequel, nor a departure, but a counterpoint embracing process and fluidity.",
+          "Ljungsberg’s background in Musique Concrète and electro-acoustic techniques remains central as she reshapes and manipulates her own pre-recorded songs. Fragmented loops weave through the melodies and textures of I Do Care, while her ethereal voice lingers—both grounding and re-evoking her intimate sonic world.",
+          "More than a reinterpretation, Do I Care signals a shift—introducing doubt into the emotional and creative process. It is a meditation on transformation, where care and uncertainty coexist, and music remains in a state of becoming."
         ],
-        "additional": [
-          "Special thanks:",
-          "Eyal Lally Bitton, Yoel Peled, Ori Kadishay, Marco Milevski, Tomer Damsky, Amit Drori, Svenja Steurer Jene, Eddie Botstein, Hazira Performance Art Arena, Musrarasonics"
-        ],
-        "production": [
-          "Mixed by Joe Talia | joetalia.com",
-          "Mastered by Amit Dagim | linktr.ee/amitdagim",
-          "Recorded by Ron Sheskin at HaZira",
-          "Graphics by Ashger Zamana | ashger.com"
-        ],
-        "coverArt": [
-          "Artwork by Or Shloman | orshloman.com"
-        ]
-      }
+        "credits": {
+          "artists": [
+            "All tracks composed, produced & mixed Daniella Ljungsberg",
+            "All songs written by Daniella Ljungsberg"
+          ],
+          "production": [
+            "Mastered by James Ginzburg"
+          ],
+          "coverArt": [
+            "Photography by Johan Ljungsberg"
+          ],
+          "additional": [
+            "Artistic direction by Itzik Gil Avizohar"
+          ]
+        }
+      },
+      "releaseDate": "2024-02-14",
+      "cover": "do_i_care.jpg"
     },
-    "bandcampEmbedId": 2873345491
-  },
-  {
-    "id": 8,
-    "artist": "IMMA",
-    "title": "words don't come easy",
-    "releaseDate": "2025-10-10",
-    "cover": "words_dont_come_easy.jpg",
-    "bandcampEmbedId": "3908082222",
-    "description": {
-      "paragraphs": [
-        "\"words don’t come easy\" is the first album by the new duo IMMA, rooted in a shared sonic curiosity between electroacoustic singer-songwriter Daniella Ljungsberg and multimedia artist and composer Itzik Gil Avizohar.",
-        "While each comes from a different musical world, one shaped by voice, intimacy, and traces of Nordic folklore; the other by distorted sound walls and sonic intensities drawn from a deep fascination with metal culture, their collaboration reveals a mutual attunement to the haunting presence of sound. Like distant echoes of traditions, this album is less about stylistic fusion than about an ever-evolving friendship.",
-        "Together, they hold polarities in tension with a consonant sensitivity: vast sonic spaces, emotional density, and the quiet pull of things held just before they collapse. Their music moves along blurred edges, between structured songs and polished sketches, free improvisation and defined form. Ljungsberg’s voice and subtly addictive melodies lead like a ray of light through the dense spectral fog shaped by Avizohar’s synthesis, sparsely unfolding across his repetitive basslines.",
-        "There is no central statement here. The songs announce themselves. They rest in unresolved moments, like fragments of eroded memory.",
-        "\"words don’t come easy\" is not a title, but a shared condition."
-      ],
-      "credits": {
-        "artists": [
-          "All songs written, produced, and recorded by IMMA",
-          "Daniella Ljungsberg – vocals, electronics",
-          "Itzik Gil Avizohar – bass guitar, electronics",
-          "Lyrics by Daniella Ljungsberg"
+    {
+      "id": 7,
+      "urlPath": "turn-of-a-millstone",
+      "artist": "SEVELLE",
+      "title": "Turn of a Millstone",
+      "releaseDate": "2025-04-11",
+      "cover": "turn_of_a_millstone.jpg",
+      "description": {
+        "paragraphs": [
+          "The wheel turns, the millstone grinds—an endless motion, eroding and renewing in equal measure. Turn of a Millstone is the debut studio album from SEVELLE, a trio consisting of sculptor and sound artist Niv Gafni (DIY bagpipe), musician and designer Daniel Treystman (drums), and musician Shaul Kohn (guitar).",
+          "Initially drawing their influences from Tony Conrad & Faust’s insights over drone minimalism and krautrock’s cosmic rhythm — Turn of a Millstone continue to rotate endlessly, paving the road of krautdrone’s foundations, they are opening a passage into an immersive dimension where minimalism becomes maximalism. The trio constructs parallel sonic plateaus—each locked in its own repetition, yet constantly evolving, grinding forward with a force that is both oppressive and liberating.",
+          "Their practice of continuous playing is a trial of physical and mental limits, a controlled collapse into chaos. The spiking drones and pounding rhythms resonate with the tension between order and entropy, structure and dissolution. In this space, Sevelle enacts a ritual of sonic self-sacrifice—driving themselves to exhaustion in pursuit of something beyond the self.",
+          "Like the turning of a grinding wheel, Turn of a Millstone is demanding yet deeply rewarding, revealing itself through endurance, through surrender. A meditation on repetition, failure, and transcendence—this is music at its breaking point.",
+          "Released as part of ROOMS, a new series on ORTHODOX dedicated to long-form sound works. Each release in this series is issued on cassette, with both sides carrying the same recording—an infinite loop of sound, a space to dwell in, leave, and return to."
         ],
-        "additional": [
-          "Additional vocals on fault song by MC Slice",
-          "Drums on watchman's song by Uri Rennert"
+        "credits": {
+          "artists": [
+            "Shaul Kohn - Guitar",
+            "Niv Gafni - DIY Bagpipes",
+            "Daniel Treystman - Drums"
+          ],
+          "additional": [
+            "Special thanks:",
+            "Eyal Lally Bitton, Yoel Peled, Ori Kadishay, Marco Milevski, Tomer Damsky, Amit Drori, Svenja Steurer Jene, Eddie Botstein, Hazira Performance Art Arena, Musrarasonics"
+          ],
+          "production": [
+            "Mixed by Joe Talia | joetalia.com",
+            "Mastered by Amit Dagim | linktr.ee/amitdagim",
+            "Recorded by Ron Sheskin at HaZira",
+            "Graphics by Ashger Zamana | ashger.com"
+          ],
+          "coverArt": [
+            "Artwork by Or Shloman | orshloman.com"
+          ]
+        }
+      },
+      "bandcampEmbedId": 2873345491
+    },
+    {
+      "id": 8,
+      "urlPath": "words-dont-come-easy",
+      "artist": "IMMA",
+      "title": "words don't come easy",
+      "releaseDate": "2025-10-10",
+      "cover": "words_dont_come_easy.jpg",
+      "bandcampEmbedId": 3908082222,
+      "description": {
+        "paragraphs": [
+          "\"words don’t come easy\" is the first album by the new duo IMMA, rooted in a shared sonic curiosity between electroacoustic singer-songwriter Daniella Ljungsberg and multimedia artist and composer Itzik Gil Avizohar.",
+          "While each comes from a different musical world, one shaped by voice, intimacy, and traces of Nordic folklore; the other by distorted sound walls and sonic intensities drawn from a deep fascination with metal culture, their collaboration reveals a mutual attunement to the haunting presence of sound. Like distant echoes of traditions, this album is less about stylistic fusion than about an ever-evolving friendship.",
+          "Together, they hold polarities in tension with a consonant sensitivity: vast sonic spaces, emotional density, and the quiet pull of things held just before they collapse. Their music moves along blurred edges, between structured songs and polished sketches, free improvisation and defined form. Ljungsberg’s voice and subtly addictive melodies lead like a ray of light through the dense spectral fog shaped by Avizohar’s synthesis, sparsely unfolding across his repetitive basslines.",
+          "There is no central statement here. The songs announce themselves. They rest in unresolved moments, like fragments of eroded memory.",
+          "\"words don’t come easy\" is not a title, but a shared condition."
         ],
-        "coverArt": [
-          "Album cover 'Ancestral Shrine' by Dana Weingart"
-        ],
-        "production": [
-          "Recorded at Studio St. Rémy",
-          "Mixed by Yair Elazar Glotman",
-          "Mastered by James Ginzburg"
-        ]
+        "credits": {
+          "artists": [
+            "All songs written, produced, and recorded by IMMA",
+            "Daniella Ljungsberg – vocals, electronics",
+            "Itzik Gil Avizohar – bass guitar, electronics",
+            "Lyrics by Daniella Ljungsberg"
+          ],
+          "additional": [
+            "Additional vocals on fault song by MC Slice",
+            "Drums on watchman's song by Uri Rennert"
+          ],
+          "coverArt": [
+            "Album cover 'Ancestral Shrine' by Dana Weingart"
+          ],
+          "production": [
+            "Recorded at Studio St. Rémy",
+            "Mixed by Yair Elazar Glotman",
+            "Mastered by James Ginzburg"
+          ]
+        }
       }
     }
-  }
-]
+  ]
+}

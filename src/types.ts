@@ -1,18 +1,18 @@
 export interface Album {
   id: number;
+  urlPath: string;
   artist: string;
   title: string;
   releaseDate: string;
   cover: string;
-  description?: string | {
+  description: {
     paragraphs: string[];
     credits: {
-      artists: string[];
-      additional: string[];
-      coverArt: string[];
-      production: string[];
+      artists?: string[];
+      additional?: string[];
+      coverArt?: string[];
+      production?: string[];
     };
   };
-  bandcampUrl?: string;
-  bandcampEmbedId?: string;
+  bandcampEmbedId?: number;
 }

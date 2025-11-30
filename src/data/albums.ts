@@ -2,7 +2,7 @@ import type { Album } from '../types';
 import albumsData from './albums.json';
 
 // Import albums from JSON file
-export const ALBUMS: Album[] = albumsData as Album[];
+export const ALBUMS: Album[] = albumsData.albums as Album[];
 
 /**
  * Get albums sorted by release date (newest first)
