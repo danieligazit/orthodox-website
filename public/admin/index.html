@@ -8,8 +8,8 @@
 <body>
   <script>window.CMS_MANUAL_INIT = true;</script>
   
-  <!-- Let's go back to the standard distribution which is stable -->
-  <script src="https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js"></script>
+  <!-- Use a specific, newer version known to support PKCE well -->
+  <script src="https://unpkg.com/decap-cms@3.3.3/dist/decap-cms.js"></script>
   
   <script>
     const config = {
@@ -58,9 +58,12 @@
       ]
     };
 
-    console.log('Initializing with config:', config);
+    console.log('Initializing CMS with config:', config);
 
-    CMS.init({ config: config });
+    CMS.init({ 
+      config: config,
+      load_config_file: false // Force it to ignore any file fetch attempts
+    });
   </script>
 </body>
 </html>
