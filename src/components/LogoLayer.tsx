@@ -90,7 +90,7 @@ export function LogoLayer({ easedProgress, windowHeight, onClick }: LogoLayerPro
             ref={logoSquareRef}
             className="flex items-center justify-center relative cursor-pointer"
             style={{
-              marginTop: '-0.1em',
+              marginTop: '0.06em',
               marginRight: '0.04em',
               width: '0.8em',
               height: '0.8em',
@@ -121,7 +121,7 @@ export function LogoLayer({ easedProgress, windowHeight, onClick }: LogoLayerPro
 
         {/* RIGHT SIDE (The Text) */}
         <div
-          className="w-1/2 flex justify-start tracking-tighter pointer-events-auto"
+          className="w-1/2 flex justify-start tracking-normal pointer-events-auto"
           style={{ paddingLeft: `${separation}vw` }}
         >
           <span 

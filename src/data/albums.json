@@ -59,8 +59,36 @@
     "title": "Turn of a Millstone",
     "releaseDate": "2025-04-11",
     "cover": "turn_of_a_millstone.jpg",
-    "description": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.",
-    "bandcampUrl": "https://orthodoxrecords.bandcamp.com/album/turn-of-a-millstone"
+    "description": {
+      "paragraphs": [
+        "The wheel turns, the millstone grinds—an endless motion, eroding and renewing in equal measure. Turn of a Millstone is the debut studio album from SEVELLE, a trio consisting of sculptor and sound artist Niv Gafni (DIY bagpipe), musician and designer Daniel Treystman (drums), and musician Shaul Kohn (guitar).",
+        "Initially drawing their influences from Tony Conrad & Faust’s insights over drone minimalism and krautrock’s cosmic rhythm — Turn of a Millstone continue to rotate endlessly, paving the road of krautdrone’s foundations, they are opening a passage into an immersive dimension where minimalism becomes maximalism. The trio constructs parallel sonic plateaus—each locked in its own repetition, yet constantly evolving, grinding forward with a force that is both oppressive and liberating.",
+        "Their practice of continuous playing is a trial of physical and mental limits, a controlled collapse into chaos. The spiking drones and pounding rhythms resonate with the tension between order and entropy, structure and dissolution. In this space, Sevelle enacts a ritual of sonic self-sacrifice—driving themselves to exhaustion in pursuit of something beyond the self.",
+        "Like the turning of a grinding wheel, Turn of a Millstone is demanding yet deeply rewarding, revealing itself through endurance, through surrender. A meditation on repetition, failure, and transcendence—this is music at its breaking point.",
+        "Released as part of ROOMS, a new series on ORTHODOX dedicated to long-form sound works. Each release in this series is issued on cassette, with both sides carrying the same recording—an infinite loop of sound, a space to dwell in, leave, and return to."
+      ],
+      "credits": {
+        "artists":[
+          "Shaul Kohn - Guitar",
+          "Niv Gafni - DIY Bagpipes",
+          "Daniel Treystman - Drums"
+        ],
+        "additional": [
+          "Special thanks:",
+          "Eyal Lally Bitton, Yoel Peled, Ori Kadishay, Marco Milevski, Tomer Damsky, Amit Drori, Svenja Steurer Jene, Eddie Botstein, Hazira Performance Art Arena, Musrarasonics"
+        ],
+        "production": [
+          "Mixed by Joe Talia | joetalia.com",
+          "Mastered by Amit Dagim | linktr.ee/amitdagim",
+          "Recorded by Ron Sheskin at HaZira",
+          "Graphics by Ashger Zamana | ashger.com"
+        ],
+        "coverArt": [
+          "Artwork by Or Shloman | orshloman.com"
+        ]
+      }
+    },
+    "bandcampEmbedId": 2873345491
   },
   {
     "id": 8,
@@ -68,7 +96,6 @@
     "title": "words don't come easy",
     "releaseDate": "2025-10-10",
     "cover": "words_dont_come_easy.jpg",
-    "bandcampUrl": "https://iimmaa.bandcamp.com/album/words-dont-come-easy",
     "bandcampEmbedId": "3908082222",
     "description": {
       "paragraphs": [
@@ -88,6 +115,9 @@
         "additional": [
           "Additional vocals on fault song by MC Slice",
           "Drums on watchman's song by Uri Rennert"
+        ],
+        "coverArt": [
+          "Album cover 'Ancestral Shrine' by Dana Weingart"
         ],
         "production": [
           "Recorded at Studio St. Rémy",

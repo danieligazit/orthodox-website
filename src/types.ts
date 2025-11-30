@@ -9,6 +9,7 @@ export interface Album {
     credits: {
       artists: string[];
       additional: string[];
+      coverArt: string[];
       production: string[];
     };
   };

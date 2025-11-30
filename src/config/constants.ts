@@ -2,12 +2,13 @@
 export const ANIMATION_CONFIG = {
   HEADER_HEIGHT: 90, // px
   DISTANCE: 800, // px - total scroll distance for animation
+  ALBUMS_PAGE_PATH_DISTANCE: 500,
   LOGO: {
     START_SCALE: 0.75,
-    END_SCALE: 0.39, // Increased for a bigger final logo
+    END_SCALE: 0.43, // Increased for a bigger final logo
   },
   SEPARATION: {
-    START: 0.4, // vw
+    START: 0.24, // vw
     END: 0,
   },
   OPACITY: {
