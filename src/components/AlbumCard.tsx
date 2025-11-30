@@ -19,14 +19,16 @@ export function AlbumCard({ album }: AlbumCardProps) {
         />
       </div>
 
-      <div className="mt-4 font-im-fell uppercase tracking-widest text-sm flex items-center justify-between gap-2 w-full">
-        <span className="bg-[#050505] text-[#e8e6df] px-2 py-1 shadow-lg whitespace-nowrap flex-shrink-0">
-          {album.artist}
-        </span>
-        <span className="text-[#050505] px-2 py-1 flex-1 text-center font-bold">
-          {album.title}
-        </span>
-        <span className="bg-[#e8e6df] text-[#050505] px-2 py-1 border border-[#050505] shadow-lg whitespace-nowrap flex-shrink-0">
+      <div className="mt-4 font-im-fell uppercase tracking-widest flex items-end justify-between gap-4 w-full">
+        <div className="flex flex-col items-start gap-1">
+          <span className="bg-[#050505] text-[#e8e6df] py-1 shadow-lg whitespace-nowrap text-xs">
+            {album.artist}
+          </span>
+          <span className="text-[#e8e6df] font-bold text-lg leading-none">
+            {album.title}
+          </span>
+        </div>
+        <span className="text-sm bg-[#e8e6df] text-[#050505] px-2 py-1 border border-[#050505] shadow-lg whitespace-nowrap flex-shrink-0">
           {serialNumber}
         </span>
       </div>

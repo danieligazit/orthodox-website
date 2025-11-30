@@ -5,6 +5,6 @@ export interface Album {
   releaseDate: string;
   cover: string;
   description?: string;
-  bandcampUrl?: string;
+  bandcampEmbedId?: string;
 }
 

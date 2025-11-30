@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useState, useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { BackgroundLayer, GrainOverlay, LogoLayer, Header, ContentSection } from '../components';
 import { useScrollPosition } from '../hooks/useScrollPosition';
 import { useWindowSize } from '../hooks/useWindowSize';
@@ -10,13 +10,17 @@ export function HomePage() {
   const scrollY = useScrollPosition();
   const windowHeight = useWindowSize();
   const location = useLocation();
+  const navigate = useNavigate();
 
   // 1. Determine if we are just starting in Catalog view (e.g. Back to Albums)
+  // We now also check the URL hash for '#albums'
+  const isCatalogView = location.hash === '#albums';
+
   const shouldStartScrolled = useMemo(() => {
      const state = location.state as { scrollToCatalog?: boolean } | null;
      const storage = typeof window !== 'undefined' ? sessionStorage.getItem('scrollToCatalog') : null;
-     return state?.scrollToCatalog === true || storage === 'true';
-  }, [location.state, location.key]);
+     return state?.scrollToCatalog === true || storage === 'true' || isCatalogView;
+  }, [location.state, location.key, isCatalogView]);
 
   // 2. Determine if we are doing the "Logo Click" animation (Virtual Animation)
   const shouldAnimateToTop = useMemo(() => {
@@ -30,10 +34,29 @@ export function HomePage() {
   const [virtualProgress, setVirtualProgress] = useState<number | null>(shouldAnimateToTop ? 1 : null);
   const [isForcedScrolled, setIsForcedScrolled] = useState(shouldStartScrolled);
 
+  // Update URL hash based on scroll position to save state
+  useEffect(() => {
+    // If we are currently "forcing" the scroll state (handling initial load/restore),
+    // do NOT update the URL hash yet. Wait until the user actually scrolls or the restoration settles.
+    if (isForcedScrolled) return;
+
+    // Add hash when scrolled past animation (inclusive of the end point)
+    if (scrollY >= ANIMATION_CONFIG.DISTANCE && location.hash !== '#albums') {
+      navigate('#albums', { replace: true });
+    } 
+    // Remove hash when back at top (intro view)
+    else if (scrollY < ANIMATION_CONFIG.DISTANCE && location.hash === '#albums') {
+      navigate(location.pathname, { replace: true });
+    }
+  }, [scrollY, location.hash, navigate, location.pathname, isForcedScrolled]);
+
   // Handle Physical Scroll (Back to Albums)
   useLayoutEffect(() => {
     if (shouldStartScrolled) {
-        window.scrollTo(0, ANIMATION_CONFIG.DISTANCE);
+        // Only force scroll if we aren't already scrolled (avoids fighting browser restoration)
+        if (window.scrollY < ANIMATION_CONFIG.DISTANCE) {
+            window.scrollTo(0, ANIMATION_CONFIG.DISTANCE);
+        }
         sessionStorage.removeItem('scrollToCatalog');
         requestAnimationFrame(() => setIsForcedScrolled(false));
     } else {
@@ -85,7 +108,9 @@ export function HomePage() {
   // Determine what to pass to visual components
   let effectiveEasedProgress = realEasedProgress;
 
-  if (isForcedScrolled) {
+  if (isForcedScrolled || isCatalogView) {
+      // Force "End State" visuals if we are forced OR if the URL indicates we are in catalog view.
+      // This prevents the "flash" of the intro animation on back-navigation/refresh.
       effectiveEasedProgress = 1;
   } else if (virtualProgress !== null) {
       // If we are virtually animating, use the virtual progress.
