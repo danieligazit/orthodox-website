@@ -6,10 +6,16 @@
   <title>Content Manager</title>
 </head>
 <body>
+  <!-- 1. Define the flag BEFORE loading the script -->
+  <script>
+    window.CMS_MANUAL_INIT = true;
+  </script>
+
+  <!-- 2. Load the CMS script -->
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
   
+  <!-- 3. Initialize manually -->
   <script>
-    // Manually initialize the CMS with your config
     CMS.init({
       config: {
         backend: {
@@ -19,7 +25,6 @@
           auth_type: 'pkce',
           app_id: 'Ov23liBCC2xuzIwQ3irZ',
         },
-        // local_backend: true, // Uncomment to test locally with npx decap-server
         media_folder: "public",
         public_folder: "",
         collections: [
