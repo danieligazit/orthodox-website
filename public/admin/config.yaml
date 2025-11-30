@@ -43,7 +43,6 @@ collections:
               # CHANGED: Explicitly number/int to match TypeScript
               - {label: "Bandcamp Embed ID", name: "bandcampEmbedId", widget: "number", value_type: "int", required: false}
 
-              # REMOVED: bandcampUrl (not in your types.ts anymore)
 
               - label: "Description"
                 name: "description"

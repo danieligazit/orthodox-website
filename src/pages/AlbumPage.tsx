@@ -222,7 +222,6 @@ export function AlbumPage() {
                         seamless
                         title={`${album.artist} - ${album.title}`}
                       >
-                        <a href={album.bandcampUrl}>{album.title} by {album.artist}</a>
                       </iframe>
                     </div>
                   ) : (
