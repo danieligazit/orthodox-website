@@ -1,5 +1,5 @@
 backend:
-  name: git-gatewaya
+  name: git-gateway
   # repo: danieligazit/orthodox-website
   branch: main
   site_url: https://heroic-lebkuchen-95d903.netlify.app
