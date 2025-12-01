@@ -4,9 +4,20 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Content Manager</title>
+  <!-- 1. Include the widget -->
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 <body>
-    <!-- Standard Auto-Init Mode -->
-    <script src="https://unpkg.com/decap-cms@^3.3.3/dist/decap-cms.js"></script>
-  </body>
+  <!-- Standard Auto-Init Mode -->
+  <script src="https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js"></script>
+
+  <!-- 2. Initialize it pointing to your Netlify site -->
+  <script>
+    if (window.netlifyIdentity) {
+      window.netlifyIdentity.init({
+        APIUrl: "https://heroic-lebkuchen-95d903.netlify.app/.netlify/identity"
+      });
+    }
+  </script>
+</body>
 </html>

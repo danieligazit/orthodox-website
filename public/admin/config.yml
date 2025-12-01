@@ -1,9 +1,11 @@
 backend:
-  name: github
-  repo: danieligazit/orthodox-website
+  name: git-gatewaya
+  # repo: danieligazit/orthodox-website
   branch: main
-  auth_type: pkce
-  app_id: Ov23liBCC2xuzIwQ3irZ
+  site_url: https://heroic-lebkuchen-95d903.netlify.app
+
+  # auth_type: pkce
+  # app_id: Ov23liBCC2xuzIwQ3irZ
 
 media_folder: "public"
 public_folder: "/"
