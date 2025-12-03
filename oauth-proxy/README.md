@@ -4,17 +4,27 @@ This Cloudflare Worker handles GitHub OAuth authentication for Decap CMS when ho
 
 ## Setup Instructions (Using GitHub Actions - Recommended)
 
-### 1. Get Cloudflare Credentials
+### 1. Register Workers.dev Subdomain (One-Time Setup)
+
+**Important:** You must register a workers.dev subdomain before deploying.
 
 1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com/)
 2. Select your account (or create one if needed)
 3. Go to **Workers & Pages** → **Overview**
-4. Note your **Account ID** (visible in the URL or sidebar)
-5. Go to **My Profile** → **API Tokens** → **Create Token**
-6. Use the **Edit Cloudflare Workers** template, or create a custom token with:
+4. Click **Get started** or look for **"Register a workers.dev subdomain"**
+5. Choose a subdomain (e.g., `decap-oauth-proxy`)
+6. Complete the registration
+
+After this one-time setup, all deployments will work automatically.
+
+### 2. Get Cloudflare Credentials
+
+1. In the Cloudflare Dashboard, go to **Workers & Pages** → **Overview**
+2. Note your **Account ID** (visible in the URL or sidebar)
+3. Go to **My Profile** → **API Tokens** → **Create Token**
+4. Use the **Edit Cloudflare Workers** template, or create a custom token with:
    - **Account** → **Workers Scripts** → **Edit**
-   - **Zone** → **Workers Routes** → **Edit** (if using custom domain)
-7. Copy the API token (you won't see it again!)
+5. Copy the API token (you won't see it again!)
 
 ### 2. Get GitHub OAuth Credentials
 
