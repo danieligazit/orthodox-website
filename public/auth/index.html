@@ -4,9 +4,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Authenticating...</title>
+  <!-- Point Decap CMS to the config file in the admin directory -->
+  <link href="/orthodox-website/admin/config.yml" type="text/yaml" rel="cms-config-url" />
 </head>
 <body>
   <!-- Decap CMS auth callback handler for PKCE authentication -->
+  <!-- Config is loaded from /admin/config.yml via the link tag above -->
   <script src="https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js"></script>
 </body>
 </html>
