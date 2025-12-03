@@ -2,9 +2,7 @@ backend:
   name: github
   repo: danieligazit/orthodox-records
   branch: main
-  auth_type: pkce
-  app_id: Ov23liBCC2xuzIwQ3irZ
-  base_url: https://danieligazit.github.io/orthodox-website
+  base_url: https://decap-oauth-proxy.danieligazit.workers.dev
 
 media_folder: "public"
 public_folder: "/"
