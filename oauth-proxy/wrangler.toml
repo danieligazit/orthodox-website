@@ -1,11 +1,10 @@
 name = "decap-oauth-proxy"
 main = "src/index.js"
 compatibility_date = "2024-01-01"
+# account_id will be set via CLOUDFLARE_ACCOUNT_ID environment variable
 
 # SITE_URL can be set as a regular variable (not a secret)
 # Secrets (GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET) must be set via Cloudflare Dashboard or wrangler CLI
 [env.production]
-vars = { 
-  SITE_URL = "https://danieligazit.github.io/orthodox-website"
-}
+vars = { SITE_URL = "https://danieligazit.github.io/orthodox-website" }
 
