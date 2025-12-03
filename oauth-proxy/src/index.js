@@ -73,7 +73,15 @@ export default {
         }
 
         // Redirect back to Decap CMS with the token
-        const redirectUrl = new URL(`${env.SITE_URL}/admin/`);
+        const siteUrl = env.SITE_URL || 'https://danieligazit.github.io/orthodox-website';
+        if (!siteUrl || typeof siteUrl !== 'string') {
+          return new Response('Error: SITE_URL environment variable is not set', {
+            status: 500,
+            headers: corsHeaders,
+          });
+        }
+        
+        const redirectUrl = new URL(`${siteUrl}/admin/`);
         redirectUrl.searchParams.set('access_token', tokenData.access_token);
         if (state) {
           redirectUrl.searchParams.set('state', state);
