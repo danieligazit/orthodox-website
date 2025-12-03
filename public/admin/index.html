@@ -6,7 +6,35 @@
   <title>Content Manager</title>
 </head>
 <body>
-  <!-- Include Decap CMS - it will handle GitHub PKCE authentication automatically -->
+  <!-- Handle OAuth callback token -->
+  <script>
+    // Read token from URL and store it for Decap CMS
+    const urlParams = new URLSearchParams(window.location.search);
+    const accessToken = urlParams.get('access_token');
+    const state = urlParams.get('state');
+    
+    if (accessToken) {
+      // Store token in localStorage for Decap CMS to access
+      localStorage.setItem('netlify-cms-auth-token', accessToken);
+      
+      // Also try setting it in the expected format
+      if (window.netlifyIdentity) {
+        window.netlifyIdentity.on('init', function(user) {
+          if (!user) {
+            window.netlifyIdentity.on('login', function() {
+              // Token should be available now
+            });
+          }
+        });
+      }
+      
+      // Clean up URL by removing token parameters
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+    }
+  </script>
+  
+  <!-- Include Decap CMS - it will handle GitHub authentication -->
   <script src="https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js"></script>
 </body>
 </html>
