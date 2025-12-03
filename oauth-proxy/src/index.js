@@ -81,10 +81,16 @@ export default {
           });
         }
         
+        // Redirect to admin page with token in query string
+        // Decap CMS will pick up the token from the URL
         const redirectUrl = new URL(`${siteUrl}/admin/`);
         redirectUrl.searchParams.set('access_token', tokenData.access_token);
         if (state) {
           redirectUrl.searchParams.set('state', state);
+        }
+        // Also include token_type if provided
+        if (tokenData.token_type) {
+          redirectUrl.searchParams.set('token_type', tokenData.token_type);
         }
 
         return Response.redirect(redirectUrl.toString(), 302);
