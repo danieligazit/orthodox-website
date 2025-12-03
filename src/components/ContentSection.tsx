@@ -1,4 +1,5 @@
 import { AlbumCard } from './AlbumCard';
+import { SocialLinks } from './SocialLinks';
 import { getSortedAlbums } from '../data/albums';
 import { ANIMATION_CONFIG } from '../config/constants';
 import { getContentOpacity, getContentTranslateY } from '../utils/animation';
@@ -47,6 +48,7 @@ function Footer() {
       <div className="inline-block border-1 border-[#050505] bg-[#e8e6df] p-8 hover:bg-[#050505] hover:text-[#e8e6df] transition-colors duration-500 cursor-pointer shadow-lg group">
         <h3 className="text-lg">SUBSCRIBE TO NEWSLETTER</h3>
       </div>
+      <SocialLinks />
       <div className="mt-12 text-[#444] text-xs tracking-widest uppercase mix-blend-difference">
         &copy; 2025 Orthodox Records.
       </div>
