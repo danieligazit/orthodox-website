@@ -6,11 +6,60 @@
   <title>Authenticating...</title>
   <!-- Point Decap CMS to the config file in the admin directory -->
   <link href="/orthodox-website/admin/config.yml" type="text/yaml" rel="cms-config-url" />
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+    #nc-root {
+      display: none !important;
+    }
+  </style>
 </head>
 <body>
+  <p>Completing authentication...</p>
+  <script>
+    // Check for OAuth callback parameters immediately
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
+    
+    // If no OAuth parameters, redirect to admin immediately (before loading CMS)
+    if (!code || !state) {
+      window.location.href = '/orthodox-website/admin/';
+    }
+  </script>
   <!-- Decap CMS auth callback handler for PKCE authentication -->
-  <!-- Config is loaded from /admin/config.yml via the link tag above -->
+  <!-- Only loads if we have OAuth callback parameters -->
   <script src="https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js"></script>
+  <script>
+    // Hide CMS UI and handle callback
+    window.addEventListener('load', function() {
+      // Hide any CMS UI that renders
+      const hideCMS = function() {
+        const cmsRoot = document.getElementById('nc-root');
+        if (cmsRoot) {
+          cmsRoot.style.display = 'none';
+        }
+        // Also hide by class/attribute selectors
+        const cmsElements = document.querySelectorAll('[data-netlify-cms], .nc-root, [class*="nc-"]');
+        cmsElements.forEach(el => el.style.display = 'none');
+      };
+      
+      // Hide immediately and keep checking
+      hideCMS();
+      setInterval(hideCMS, 100);
+      
+      // After processing callback, redirect to admin
+      setTimeout(function() {
+        window.location.href = '/orthodox-website/admin/';
+      }, 2000);
+    });
+  </script>
 </body>
 </html>
 
