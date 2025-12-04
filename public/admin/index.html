@@ -509,7 +509,7 @@
       setTimeout(setupAuth, 1000);
       
       // Watch for login button appearing and auto-authenticate if we have a token
-      const token = localStorage.getItem('netlify-cms-auth-token');
+      // Reuse the token variable from the outer scope
       if (token) {
         const observer = new MutationObserver(function(mutations) {
           const loginButton = document.querySelector('button[class*="Login"], a[class*="Login"], button:contains("Login"), a:contains("Login"), [aria-label*="Login"], [title*="Login"]');
