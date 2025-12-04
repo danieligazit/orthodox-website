@@ -61,3 +61,4 @@ collections:
                       - {label: "Production", name: "production", widget: "list", required: false, field: {label: "Line", name: "line", widget: "string"}}
                       - {label: "Cover Art Credits", name: "coverArt", widget: "list", required: false, field: {label: "Line", name: "line", widget: "string"}}
 
+
