@@ -4,253 +4,150 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Content Manager</title>
-  <!-- Point Decap CMS to the config file -->
+  
   <link href="/orthodox-website/admin/config.yml" type="text/yaml" rel="cms-config-url" />
 </head>
 <body>
-  <!-- Handle OAuth callback token -->
   <script>
-    // Read token from URL and store it
-    const urlParams = new URLSearchParams(window.location.search);
-    const accessToken = urlParams.get('access_token');
-    
-    if (accessToken) {
-      localStorage.setItem('netlify-cms-auth-token', accessToken);
-      // Clean up URL and reload
-      window.history.replaceState({}, document.title, window.location.pathname);
-      window.location.reload();
-      // Stop execution - reload happens above
+    console.log('[Decap Debug] Setting CMS_MANUAL_INIT = true');
+    window.CMS_MANUAL_INIT = true;
+  </script>
+  
+  <script src="https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js"></script>
+
+  <script>
+    const PROXY_URL = 'https://decap-oauth-proxy.danieligazit.workers.dev';
+
+    // Helper: Get token from URL (first load) or LocalStorage (subsequent loads)
+    function getAuthToken() {
+      console.log('[Decap Debug] getAuthToken() called');
+      const urlParams = new URLSearchParams(window.location.search);
+      const tokenFromUrl = urlParams.get('access_token');
+      
+      if (tokenFromUrl) {
+        console.log('[Decap Debug] Token found in URL. Saving to LocalStorage...');
+        localStorage.setItem('netlify-cms-auth-token', tokenFromUrl);
+        
+        // Clean the URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return tokenFromUrl;
+      }
+
+      const localToken = localStorage.getItem('netlify-cms-auth-token');
+      if (localToken) {
+        console.log('[Decap Debug] Token found in LocalStorage');
+      } else {
+        console.log('[Decap Debug] No token found in URL or LocalStorage');
+      }
+      return localToken;
     }
-  </script>
-  
-  <!-- Intercept network requests to add Authorization header -->
-  <script>
-    (function() {
-      const token = localStorage.getItem('netlify-cms-auth-token');
-      if (!token) return;
+
+    // Helper: Validate token with your Cloudflare Worker
+    async function fetchUser(token) {
+      console.log(`[Decap Debug] fetchUser() calling proxy: ${PROXY_URL}/user`);
       
-      const proxyUrl = 'https://decap-oauth-proxy.danieligazit.workers.dev';
-      
-      // Override fetch
-      const originalFetch = window.fetch;
-      window.fetch = function(url, options = {}) {
-        if (typeof url === 'string' && url.includes(proxyUrl)) {
-          options = options || {};
-          options.headers = options.headers || {};
-          if (options.headers instanceof Headers) {
-            if (!options.headers.has('Authorization')) {
-              options.headers.set('Authorization', `token ${token}`);
-            }
-          } else {
-            if (!options.headers['Authorization'] && !options.headers['authorization']) {
-              options.headers['Authorization'] = `token ${token}`;
-            }
-          }
-        }
-        return originalFetch.call(this, url, options);
-      };
-      
-      // Override XMLHttpRequest
-      const originalXHROpen = XMLHttpRequest.prototype.open;
-      const originalXHRSend = XMLHttpRequest.prototype.send;
-      const originalXHRSetRequestHeader = XMLHttpRequest.prototype.setRequestHeader;
-      
-      XMLHttpRequest.prototype.open = function(method, url, ...args) {
-        this._url = url;
-        return originalXHROpen.apply(this, [method, url, ...args]);
-      };
-      
-      XMLHttpRequest.prototype.setRequestHeader = function(name, value) {
-        if (!this._headers) this._headers = {};
-        this._headers[name.toLowerCase()] = value;
-        return originalXHRSetRequestHeader.apply(this, arguments);
-      };
-      
-      XMLHttpRequest.prototype.send = function(...args) {
-        const token = localStorage.getItem('netlify-cms-auth-token');
-        if (token && this._url && this._url.includes(proxyUrl)) {
-          if (!this._headers || !this._headers['authorization']) {
-            originalXHRSetRequestHeader.call(this, 'Authorization', `token ${token}`);
-          }
-        }
-        return originalXHRSend.apply(this, args);
-      };
-    })();
-  </script>
-  
-  <!-- Set up Decap CMS authentication -->
-  <script>
-    (function() {
-      const token = localStorage.getItem('netlify-cms-auth-token');
-      if (!token) {
-        // No token, load CMS normally (will show login)
-        loadCMS();
-        return;
-      }
-      
-      // Pre-fetch user data
-      const proxyUrl = 'https://decap-oauth-proxy.danieligazit.workers.dev';
-      fetch(`${proxyUrl}/user`, {
-        headers: { 'Authorization': `token ${token}` }
-      })
-      .then(response => {
-        if (response.ok) {
-          return response.json().then(userData => {
-            // Cache user data
-            window._decapCMSUserCache = {
-              token: token,
-              name: userData.login || userData.name,
-              login: userData.login,
-              avatar_url: userData.avatar_url,
-              email: userData.email
-            };
-            loadCMS();
-          });
-        } else {
-          localStorage.removeItem('netlify-cms-auth-token');
-          loadCMS();
-        }
-      })
-      .catch(err => {
-        console.log('Pre-fetch failed:', err);
-        loadCMS();
-      });
-      
-      function loadCMS() {
-        const script = document.createElement('script');
-        script.src = 'https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js';
-        script.onload = function() {
-          setTimeout(setupAuth, 100);
-        };
-        document.body.appendChild(script);
-      }
-      
-      function setupAuth() {
-        const CMS = window.CMS || window.netlifyCMS;
-        if (!CMS) {
-          setTimeout(setupAuth, 100);
-          return;
+      try {
+        const response = await fetch(`${PROXY_URL}/user`, {
+          headers: { 'Authorization': `token ${token}` }
+        });
+        
+        console.log('[Decap Debug] Proxy response status:', response.status);
+
+        if (!response.ok) {
+          console.error('[Decap Debug] Proxy returned error:', response.statusText);
+          throw new Error('Failed to fetch user');
         }
         
-        try {
-          const backend = CMS.getBackend('github');
-          if (!backend) {
-            setTimeout(setupAuth, 100);
-            return;
-          }
-          
-          if (backend._authSetup) return;
-          backend._authSetup = true;
-          
-          const token = localStorage.getItem('netlify-cms-auth-token');
-          if (!token) return;
-          
-          // Set cached user if available
-          if (window._decapCMSUserCache) {
-            backend.currentUser = window._decapCMSUserCache;
-            if (backend.user !== undefined) {
-              backend.user = window._decapCMSUserCache;
-            }
-          }
-          
-          // Override restoreUser
-          const originalRestoreUser = backend.restoreUser;
-          backend.restoreUser = function() {
-            const token = localStorage.getItem('netlify-cms-auth-token');
-            if (!token) {
-              backend.currentUser = null;
-              return originalRestoreUser ? originalRestoreUser.call(this) : Promise.reject('No token');
-            }
-            
-            // Return cached user if available
-            if (window._decapCMSUserCache && window._decapCMSUserCache.token === token) {
-              backend.currentUser = window._decapCMSUserCache;
-              if (backend.user !== undefined) {
-                backend.user = window._decapCMSUserCache;
-              }
-              return Promise.resolve(window._decapCMSUserCache);
-            }
-            
-            // Otherwise fetch user
-            const proxyUrl = 'https://decap-oauth-proxy.danieligazit.workers.dev';
-            return fetch(`${proxyUrl}/user`, {
-              headers: { 'Authorization': `token ${token}` }
-            })
-            .then(response => {
-              if (response.ok) {
-                return response.json().then(userData => {
-                  const user = {
-                    token: token,
-                    name: userData.login || userData.name,
-                    login: userData.login,
-                    avatar_url: userData.avatar_url,
-                    email: userData.email
-                  };
-                  window._decapCMSUserCache = user;
-                  backend.currentUser = user;
-                  if (backend.user !== undefined) {
-                    backend.user = user;
-                  }
-                  return user;
-                });
-              } else {
-                localStorage.removeItem('netlify-cms-auth-token');
-                backend.currentUser = null;
-                throw new Error('Token invalid');
-              }
-            })
-            .catch(error => {
-              backend.currentUser = null;
-              return originalRestoreUser ? originalRestoreUser.call(this) : Promise.reject(error);
-            });
-          };
-          
-          // Override authenticate to use existing token
-          const originalAuthenticate = backend.authenticate;
-          backend.authenticate = function() {
-            const token = localStorage.getItem('netlify-cms-auth-token');
-            if (token) {
-              return backend.restoreUser();
-            }
-            return originalAuthenticate ? originalAuthenticate.call(this) : Promise.reject('No token');
-          };
-          
-          // Call restoreUser to authenticate immediately
-          if (window._decapCMSUserCache) {
-            backend.restoreUser().then(function(user) {
-              console.log('Authenticated:', user);
-              
-              // Ensure CMS renders by updating Redux store
-              setTimeout(function() {
-                try {
-                  const CMS = window.CMS || window.netlifyCMS;
-                  if (CMS && CMS.getApp) {
-                    const app = CMS.getApp();
-                    if (app && app.store) {
-                      app.store.dispatch({ 
-                        type: 'AUTHENTICATE_USER_SUCCESS', 
-                        user: user,
-                        token: user.token 
-                      });
-                      app.store.dispatch({ 
-                        type: 'USER_RECEIVED', 
-                        user: user 
-                      });
-                    }
-                  }
-                } catch (e) {
-                  console.log('Could not update store:', e);
-                }
-              }, 200);
-            });
-          }
-        } catch (e) {
-          console.log('Auth setup error:', e);
-          setTimeout(setupAuth, 100);
-        }
+        const userData = await response.json();
+        console.log('[Decap Debug] User data received:', userData.login);
+        
+        return {
+          token: token, 
+          name: userData.name || userData.login,
+          login: userData.login,
+          avatar_url: userData.avatar_url,
+          email: userData.email
+        };
+      } catch (e) {
+        console.error('[Decap Debug] fetchUser failed:', e);
+        throw e;
       }
-    })();
+    }
+
+    // Main Setup Function
+    function registerCustomBackend() {
+      const CMS = window.CMS;
+      console.log('[Decap Debug] registerCustomBackend() started');
+      
+      const originalRegisterBackend = CMS.registerBackend;
+
+      // We intercept the registration of the 'github' backend
+      CMS.registerBackend = (name, BackendClass, options) => {
+        console.log(`[Decap Debug] CMS.registerBackend called for: ${name}`);
+
+        if (name === 'github') {
+          console.log('[Decap Debug] Intercepting GitHub backend registration');
+
+          class CustomGitHubBackend extends BackendClass {
+            
+            // Override 1: Login Button Click
+            authenticate(credentials) {
+              console.log('[Decap Debug] Backend.authenticate() triggered');
+              const token = getAuthToken();
+              
+              if (token) {
+                console.log('[Decap Debug] Token exists during authenticate(), attempting restoreUser() instead of popup');
+                return this.restoreUser();
+              }
+              
+              console.log('[Decap Debug] No token, proceeding with standard popup flow');
+              return super.authenticate(credentials);
+            }
+
+            // Override 2: Page Load
+            async restoreUser() {
+              console.log('[Decap Debug] Backend.restoreUser() triggered');
+              const token = getAuthToken();
+              
+              if (!token) {
+                console.log('[Decap Debug] No token available for restoreUser');
+                return Promise.reject();
+              }
+
+              try {
+                const user = await fetchUser(token);
+                console.log('[Decap Debug] restoreUser success. Logged in as:', user.login);
+                return user;
+              } catch (error) {
+                console.warn('[Decap Debug] restoreUser failed (invalid token). Clearing LocalStorage.');
+                localStorage.removeItem('netlify-cms-auth-token');
+                return Promise.reject();
+              }
+            }
+          }
+
+          // Register OUR class instead of the default one
+          originalRegisterBackend.call(CMS, name, CustomGitHubBackend, options);
+        } else {
+          originalRegisterBackend.call(CMS, name, BackendClass, options);
+        }
+      };
+    }
+
+    // 4. BOOTSTRAP
+    console.log('[Decap Debug] Waiting for window.CMS...');
+    const interval = setInterval(() => {
+      if (window.CMS) {
+        console.log('[Decap Debug] window.CMS detected!');
+        clearInterval(interval);
+        
+        registerCustomBackend();
+        
+        console.log('[Decap Debug] Calling CMS.init()...');
+        window.CMS.init();
+      }
+    }, 50);
+
   </script>
 </body>
 </html>
-
