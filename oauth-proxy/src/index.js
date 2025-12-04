@@ -102,37 +102,55 @@ export default {
       }
     }
 
-    // User endpoint - Decap CMS calls this to verify authentication
-    if (path === '/user' || path === '/user/') {
+    // Proxy all GitHub API requests
+    // When base_url is set, Decap CMS routes all GitHub API calls through the proxy
+    if (path.startsWith('/repos/') || path.startsWith('/user') || path.startsWith('/orgs/')) {
+      // Get token from Authorization header or query parameter
+      let token = null;
       const authHeader = request.headers.get('Authorization');
-      if (!authHeader || !authHeader.startsWith('token ')) {
-        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      if (authHeader && authHeader.startsWith('token ')) {
+        token = authHeader.replace('token ', '');
+      } else if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.replace('Bearer ', '');
+      } else {
+        // Try to get from query params (for initial auth)
+        token = url.searchParams.get('access_token');
+      }
+      
+      if (!token) {
+        return new Response(JSON.stringify({ error: 'Unauthorized - no token provided' }), {
           status: 401,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
       
-      const token = authHeader.replace('token ', '');
-      
       try {
-        // Verify token by fetching user info from GitHub
-        const userResponse = await fetch('https://api.github.com/user', {
+        // Proxy the request to GitHub API
+        const githubUrl = `https://api.github.com${path}${url.search}`;
+        const githubResponse = await fetch(githubUrl, {
+          method: request.method,
           headers: {
             'Authorization': `token ${token}`,
             'Accept': 'application/vnd.github.v3+json',
+            'User-Agent': 'Decap-CMS',
+            ...(request.headers.get('Content-Type') && {
+              'Content-Type': request.headers.get('Content-Type'),
+            }),
           },
+          body: request.method !== 'GET' && request.method !== 'HEAD' 
+            ? await request.text() 
+            : undefined,
         });
         
-        if (!userResponse.ok) {
-          return new Response(JSON.stringify({ error: 'Invalid token' }), {
-            status: 401,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
-        }
+        const responseData = await githubResponse.text();
+        const contentType = githubResponse.headers.get('Content-Type') || 'application/json';
         
-        const userData = await userResponse.json();
-        return new Response(JSON.stringify(userData), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        return new Response(responseData, {
+          status: githubResponse.status,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': contentType,
+          },
         });
       } catch (error) {
         return new Response(JSON.stringify({ error: error.message }), {
