@@ -7,6 +7,52 @@
   <link href="/orthodox-website/admin/config.yml" type="text/yaml" rel="cms-config-url" />
 </head>
 <body>
+  <script>
+    (function() {
+      // 1. Get the current URL
+      const currentUrl = window.location.href;
+      
+      // 2. ROBUST REGEX: Finds 'access_token=...' and stops at '&' OR '#'
+      // This fixes the issue where '#/' gets stuck to the token
+      const match = currentUrl.match(/access_token=([^&#]+)/);
+      const token = match ? match[1] : null;
+
+      // 3. If we found a token, we are definitely in the Popup
+      if (token) {
+        // A. Send token to the Main Window (the one that opened this popup)
+        if (window.opener) {
+          console.log('[Decap Popup] Sending token to opener...');
+          
+          // Send as pure string (Custom listener)
+          window.opener.postMessage(token, "*");
+          
+          // Send as JSON (Standard Decap listener)
+          const msg = JSON.stringify({
+            authorization: { provider: "github", token: token }
+          });
+          window.opener.postMessage("authorization:github:success:" + msg, "*");
+        }
+
+        // B. Visual feedback for you
+        document.body.innerHTML = `
+          <div style="font-family:sans-serif; text-align:center; margin-top:50px;">
+            <h1>Login Successful!</h1>
+            <p>Token captured.</p>
+            <p>Closing window...</p>
+          </div>
+        `;
+
+        // C. Close this popup
+        setTimeout(() => window.close(), 500);
+
+        // D. CRITICAL: Stop the rest of the page from loading
+        // This prevents the CMS from initializing inside this popup window
+        window.stop();
+      }
+    })();
+  </script>
+
   <script src="https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js"></script>
+  
 </body>
 </html>
