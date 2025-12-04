@@ -23,8 +23,8 @@
       window.history.replaceState({}, document.title, cleanUrl);
       
       // Force page reload to ensure Decap CMS picks up the token
+      // Note: reload() stops execution automatically, no return needed
       window.location.reload();
-      return; // Stop execution to allow reload
     }
   </script>
   
