@@ -27,6 +27,7 @@
 
     // Poll for CMS availability
     const checkCMS = setInterval(() => {
+      // Ensure 'github' backend exists before we touch it
       if (window.CMS && window.CMS.getBackend && window.CMS.getBackend('github')) {
         clearInterval(checkCMS);
         initializeCustomBackend();
@@ -34,100 +35,88 @@
     }, 100);
 
     function initializeCustomBackend() {
-      console.log('[Decap Debug] CMS Ready. Creating Proxy Wrapper...');
+      console.log('[Decap Debug] CMS Ready. Patching GitHub backend object...');
       
       const CMS = window.CMS;
-      const OriginalGitHub = CMS.getBackend('github');
+      
+      // 1. Get the actual Instance Object (since it's not a class)
+      const githubInstance = CMS.getBackend('github');
 
-      // We use a Standard Class (No 'extends')
+      // 2. Define our custom logic
+      const customAuthenticate = function(credentials) {
+        console.log('[Decap Debug] Custom authenticate called');
+        const token = localStorage.getItem('cms-token');
+        if (token) return this.validate(token);
+
+        return new Promise((resolve, reject) => {
+          const width = 600, height = 600;
+          const left = (window.innerWidth / 2) - (width / 2);
+          const top = (window.innerHeight / 2) - (height / 2);
+          const authUrl = `${PROXY_URL}/auth?provider=github&site_id=orthodox-website`;
+          
+          window.open(authUrl, 'auth', `width=${width},height=${height},top=${top},left=${left}`);
+
+          const listener = (event) => {
+            if (typeof event.data === 'string' && event.data.startsWith('gho_')) {
+              window.removeEventListener('message', listener);
+              localStorage.setItem('cms-token', event.data);
+              this.validate(event.data).then(resolve).catch(reject);
+            }
+          };
+          window.addEventListener('message', listener);
+        });
+      };
+
+      const customValidate = async function(token) {
+        try {
+          const response = await fetch(`${PROXY_URL}/user`, {
+            headers: { 'Authorization': `token ${token}` }
+          });
+          if (!response.ok) throw new Error('Invalid token');
+          
+          const user = await response.json();
+          
+          // CRITICAL: Update the internal token of the original instance
+          // This ensures standard Git operations work later
+          this.token = token; 
+          
+          return {
+            token: token,
+            name: user.name || user.login,
+            login: user.login,
+            avatar_url: user.avatar_url
+          };
+        } catch (e) {
+          localStorage.removeItem('cms-token');
+          throw e;
+        }
+      };
+
+      // 3. OVERWRITE methods directly on the original object
+      // We bind them to 'githubInstance' to ensure 'this' always points to the real backend
+      githubInstance.authenticate = customAuthenticate.bind(githubInstance);
+      githubInstance.validate = customValidate.bind(githubInstance);
+      
+      // Also patch logout to clear our token
+      const originalLogout = githubInstance.logout;
+      githubInstance.logout = function() {
+        localStorage.removeItem('cms-token');
+        if (originalLogout) return originalLogout.call(githubInstance);
+      }.bind(githubInstance);
+
+      // 4. Create a "Fake" Constructor
+      // When Decap tries to "new ProxyBackend()", we just hand it the already-patched object.
       class ProxyBackend {
         constructor(config) {
-          // 1. Initialize the internal "Real" Backend
-          // We try to 'new' it. If that fails (because it's an object), we use it as is.
-          try {
-            this.gh = new OriginalGitHub(config);
-          } catch (e) {
-            this.gh = OriginalGitHub;
+          // Pass the new config to the instance if it has a configure method
+          if (githubInstance.configure) {
+            githubInstance.configure(config);
           }
-
-          // 2. Bind our custom methods
-          this.authenticate = this.authenticate.bind(this);
-          this.validate = this.validate.bind(this);
-          this.restoreUser = this.restoreUser.bind(this);
-
-          // 3. RETURN A PROXY (Magic)
-          // This intercepts every call to this class.
-          return new Proxy(this, {
-            get: (target, prop) => {
-              // Priority 1: If WE have the method (authenticate/restoreUser), use ours.
-              if (prop in target) {
-                return target[prop];
-              }
-              // Priority 2: Otherwise, forward it to the internal GitHub backend.
-              // We must bind it so 'this' inside the original backend works correctly.
-              const value = target.gh[prop];
-              return typeof value === 'function' ? value.bind(target.gh) : value;
-            }
-          });
-        }
-
-        // OUR CUSTOM AUTH LOGIC
-        authenticate(credentials) {
-          const token = localStorage.getItem('cms-token');
-          if (token) return this.validate(token);
-
-          return new Promise((resolve, reject) => {
-            const width = 600, height = 600;
-            const left = (window.innerWidth / 2) - (width / 2);
-            const top = (window.innerHeight / 2) - (height / 2);
-            const authUrl = `${PROXY_URL}/auth?provider=github&site_id=orthodox-website`;
-            
-            window.open(authUrl, 'auth', `width=${width},height=${height},top=${top},left=${left}`);
-
-            const listener = (event) => {
-              if (typeof event.data === 'string' && event.data.startsWith('gho_')) {
-                window.removeEventListener('message', listener);
-                localStorage.setItem('cms-token', event.data);
-                this.validate(event.data).then(resolve).catch(reject);
-              }
-            };
-            window.addEventListener('message', listener);
-          });
-        }
-
-        // OUR CUSTOM RESTORE LOGIC
-        restoreUser(user) {
-          return this.authenticate();
-        }
-
-        async validate(token) {
-          try {
-            const response = await fetch(`${PROXY_URL}/user`, {
-              headers: { 'Authorization': `token ${token}` }
-            });
-            if (!response.ok) throw new Error('Invalid token');
-            
-            const user = await response.json();
-            return {
-              token: token,
-              name: user.name || user.login,
-              login: user.login,
-              avatar_url: user.avatar_url
-            };
-          } catch (e) {
-            localStorage.removeItem('cms-token');
-            throw e;
-          }
-        }
-        
-        logout() {
-          localStorage.removeItem('cms-token');
-          // Forward logout to original if it exists, otherwise just return
-          if (this.gh.logout) return this.gh.logout();
+          return githubInstance;
         }
       }
 
-      // Register and Start
+      // 5. Register and Start
       console.log('[Decap Debug] Registering "github-proxy"...');
       CMS.registerBackend('github-proxy', ProxyBackend);
       
