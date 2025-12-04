@@ -104,45 +104,6 @@
     })();
   </script>
   
-  <script>
-    // Intercept backend registration BEFORE Decap CMS loads
-    // This ensures our override is in place before Decap CMS initializes
-    (function() {
-      const token = localStorage.getItem('netlify-cms-auth-token');
-      
-      if (!token) {
-        return;
-      }
-      
-      // Store original registerBackend if it exists
-      const originalRegisterBackend = window.CMS && window.CMS.registerBackend;
-      
-      // Override registerBackend to intercept GitHub backend registration
-      if (window.CMS) {
-        const originalRegister = window.CMS.registerBackend;
-        window.CMS.registerBackend = function(name, BackendClass) {
-          const result = originalRegister.apply(this, arguments);
-          
-          // If this is the GitHub backend, wrap its methods immediately
-          if (name === 'github') {
-            setTimeout(function() {
-              try {
-                const backend = window.CMS.getBackend('github');
-                if (backend && !backend._authOverrideSet) {
-                  setupBackendAuth(backend);
-                }
-              } catch (e) {
-                console.log('Error setting up backend auth:', e);
-              }
-            }, 0);
-          }
-          
-          return result;
-        };
-      }
-    })();
-  </script>
-  
   <!-- Pre-fetch user data before Decap CMS loads -->
   <script>
     // Pre-fetch and cache user data BEFORE Decap CMS loads
@@ -150,10 +111,116 @@
     (function() {
       const token = localStorage.getItem('netlify-cms-auth-token');
       
-      if (token) {
-        // Initialize global cache
-        window._decapCMSUserCache = null;
+      // Initialize global cache
+      window._decapCMSUserCache = null;
+      
+      // Function to load Decap CMS and set up authentication
+      function loadDecapCMS() {
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js';
         
+        // Set up authentication immediately after Decap CMS loads
+        script.onload = function() {
+          // Wait a tick for Decap CMS to initialize
+          setTimeout(function() {
+            const CMS = window.CMS || window.netlifyCMS;
+            if (CMS) {
+              // Intercept registerBackend to set up auth immediately when GitHub backend is registered
+              const originalRegisterBackend = CMS.registerBackend;
+              CMS.registerBackend = function(name, BackendClass) {
+                const result = originalRegisterBackend.apply(this, arguments);
+                
+                // If this is the GitHub backend, set up authentication immediately
+                if (name === 'github') {
+                  // Try to get backend immediately - it might not be available yet
+                  // If not, use setTimeout as fallback
+                  let backend;
+                  try {
+                    backend = CMS.getBackend('github');
+                  } catch (e) {
+                    backend = null;
+                  }
+                  
+                  if (backend && !backend._authOverrideSet) {
+                    // Set currentUser immediately if we have cached user
+                    // This ensures Decap CMS sees authenticated state synchronously
+                    if (window._decapCMSUserCache) {
+                      backend.currentUser = window._decapCMSUserCache;
+                      if (backend.user !== undefined) {
+                        backend.user = window._decapCMSUserCache;
+                      }
+                    }
+                    
+                    // Set up authentication overrides
+                    setupBackendAuth(backend);
+                    
+                    // Call restoreUser to ensure authentication state is properly set
+                    if (window._decapCMSUserCache) {
+                      backend.restoreUser().then(function(user) {
+                        console.log('Backend authenticated on registration:', user);
+                      }).catch(function(err) {
+                        console.log('Auth on registration failed:', err);
+                      });
+                    }
+                  } else if (!backend) {
+                    // Backend not available yet, try again after a short delay
+                    setTimeout(function() {
+                      try {
+                        const backend = CMS.getBackend('github');
+                        if (backend && !backend._authOverrideSet) {
+                          if (window._decapCMSUserCache) {
+                            backend.currentUser = window._decapCMSUserCache;
+                            if (backend.user !== undefined) {
+                              backend.user = window._decapCMSUserCache;
+                            }
+                          }
+                          setupBackendAuth(backend);
+                          if (window._decapCMSUserCache) {
+                            backend.restoreUser().then(function(user) {
+                              console.log('Backend authenticated on registration (delayed):', user);
+                            });
+                          }
+                        }
+                      } catch (e) {
+                        console.log('Error setting up backend auth (delayed):', e);
+                      }
+                    }, 0);
+                  }
+                }
+                
+                return result;
+              };
+              
+              // If backend is already registered, set it up now
+              try {
+                const backend = CMS.getBackend('github');
+                if (backend && !backend._authOverrideSet) {
+                  // Set currentUser immediately if we have cached user
+                  if (window._decapCMSUserCache) {
+                    backend.currentUser = window._decapCMSUserCache;
+                    if (backend.user !== undefined) {
+                      backend.user = window._decapCMSUserCache;
+                    }
+                  }
+                  
+                  setupBackendAuth(backend);
+                  if (window._decapCMSUserCache) {
+                    backend.restoreUser().then(function(user) {
+                      console.log('Backend authenticated immediately:', user);
+                    });
+                  }
+                }
+              } catch (e) {
+                // Backend not registered yet, will be caught by registerBackend interceptor
+              }
+            }
+          }, 0);
+        };
+        
+        document.body.appendChild(script);
+      }
+      
+      if (token) {
         // Pre-fetch user data immediately
         const proxyUrl = 'https://decap-oauth-proxy.danieligazit.workers.dev';
         fetch(`${proxyUrl}/user`, {
@@ -176,30 +243,22 @@
               window._decapCMSUserCache = user;
               console.log('User pre-fetched and cached before CMS load:', user);
               
-              // Now load Decap CMS - it will find the cached user immediately
-              const script = document.createElement('script');
-              script.src = 'https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js';
-              document.body.appendChild(script);
+              // Now load Decap CMS
+              loadDecapCMS();
             });
           } else {
             // Token invalid, clear it and load CMS normally
             localStorage.removeItem('netlify-cms-auth-token');
-            const script = document.createElement('script');
-            script.src = 'https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js';
-            document.body.appendChild(script);
+            loadDecapCMS();
           }
         })
         .catch(err => {
           console.log('Pre-fetch failed, loading CMS anyway:', err);
-          const script = document.createElement('script');
-          script.src = 'https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js';
-          document.body.appendChild(script);
+          loadDecapCMS();
         });
       } else {
         // No token, load immediately
-        const script = document.createElement('script');
-        script.src = 'https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js';
-        document.body.appendChild(script);
+        loadDecapCMS();
       }
     })();
   </script>
@@ -221,45 +280,56 @@
         return;
       }
       
+      // Set currentUser immediately if we have cached user
+      // This ensures Decap CMS sees authenticated state synchronously
+      if (window._decapCMSUserCache) {
+        backend.currentUser = window._decapCMSUserCache;
+        if (backend.user !== undefined) {
+          backend.user = window._decapCMSUserCache;
+        }
+      }
+      
       // Store original methods
       const originalRestoreUser = backend.restoreUser;
       const originalAuthenticate = backend.authenticate;
       
-      // Pre-fetch and cache user data immediately
+      // Pre-fetch and cache user data if not already cached
       // This ensures restoreUser can return synchronously when Decap CMS calls it
-      const proxyUrl = 'https://decap-oauth-proxy.danieligazit.workers.dev';
-      fetch(`${proxyUrl}/user`, {
-        headers: {
-          'Authorization': `token ${token}`
-        }
-      })
-      .then(response => {
-        if (response.ok) {
-          return response.json().then(userData => {
-            const user = {
-              token: token,
-              name: userData.login || userData.name,
-              login: userData.login,
-              avatar_url: userData.avatar_url,
-              email: userData.email
-            };
-            
-            // Cache user globally for immediate return in restoreUser
-            window._decapCMSUserCache = user;
-            
-            console.log('Pre-authenticated user:', user);
-            
-            // Set currentUser immediately so Decap CMS sees authenticated state
-            backend.currentUser = user;
-            if (backend.user !== undefined) {
-              backend.user = user;
-            }
-          });
-        }
-      })
-      .catch(err => {
-        console.log('Pre-auth check failed, will retry:', err);
-      });
+      if (!window._decapCMSUserCache) {
+        const proxyUrl = 'https://decap-oauth-proxy.danieligazit.workers.dev';
+        fetch(`${proxyUrl}/user`, {
+          headers: {
+            'Authorization': `token ${token}`
+          }
+        })
+        .then(response => {
+          if (response.ok) {
+            return response.json().then(userData => {
+              const user = {
+                token: token,
+                name: userData.login || userData.name,
+                login: userData.login,
+                avatar_url: userData.avatar_url,
+                email: userData.email
+              };
+              
+              // Cache user globally for immediate return in restoreUser
+              window._decapCMSUserCache = user;
+              
+              console.log('Pre-authenticated user:', user);
+              
+              // Set currentUser immediately so Decap CMS sees authenticated state
+              backend.currentUser = user;
+              if (backend.user !== undefined) {
+                backend.user = user;
+              }
+            });
+          }
+        })
+        .catch(err => {
+          console.log('Pre-auth check failed, will retry:', err);
+        });
+      }
       
       // Override restoreUser - return cached user immediately if available
       backend.restoreUser = function() {
@@ -351,6 +421,7 @@
     }
     
     // Configure Decap CMS authentication after it loads
+    // This is a fallback in case the onload handler didn't catch it
     (function() {
       const token = localStorage.getItem('netlify-cms-auth-token');
       
@@ -368,291 +439,23 @@
             return false;
           }
           
+          // Only set up if not already done
+          if (backend._authOverrideSet) {
+            return true;
+          }
+          
+          // Set up backend authentication overrides
           setupBackendAuth(backend);
           
-          // Call restoreUser to ensure authentication state is set
-          // Decap CMS should call this automatically during init, but we call it too
-          const authPromise = backend.restoreUser()
-            .then(function(user) {
-              console.log('User authenticated:', user);
-              
-              // Force CMS content to be visible immediately
-              function showCMS() {
-                const cmsRoot = document.getElementById('nc-root') || document.querySelector('[data-netlify-cms]');
-                if (cmsRoot) {
-                  cmsRoot.style.display = 'block';
-                  cmsRoot.style.visibility = 'visible';
-                  cmsRoot.style.opacity = '1';
-                  cmsRoot.style.height = 'auto';
-                  cmsRoot.style.minHeight = '100vh';
-                  
-                  // Remove any hidden classes
-                  cmsRoot.classList.remove('hidden');
-                  cmsRoot.removeAttribute('hidden');
-                  
-                  console.log('CMS root made visible');
-                }
-                
-                // Also check for any CMS content containers and make them visible
-                const cmsContainers = document.querySelectorAll('[class*="cms"], [class*="CMS"], [id*="cms"]');
-                cmsContainers.forEach(function(container) {
-                  container.style.display = 'block';
-                  container.style.visibility = 'visible';
-                  container.style.opacity = '1';
-                });
-                
-                // Don't hide login screen - instead, trigger Decap CMS to authenticate
-                // Hiding it prevents Decap CMS from rendering the CMS interface
-                const loginScreen = document.querySelector('[class*="LoginPage"], [class*="login-page"], [class*="AuthenticationPage"]');
-                if (loginScreen) {
-                  // Instead of hiding, try to trigger authentication
-                  console.log('Login screen found, triggering authentication...');
-                  
-                  // Try to find and click the login button programmatically
-                  // This will trigger our overridden authenticate() method
-                  const loginButton = loginScreen.querySelector('button, a, [role="button"]');
-                  if (loginButton && backend && backend.currentUser) {
-                    // Simulate click to trigger authenticate
-                    setTimeout(function() {
-                      loginButton.click();
-                    }, 100);
-                  }
-                }
-                
-                // Check if there's CMS content that should be shown
-                const cmsContent = document.querySelector('[class*="Collection"], [class*="collection"], [class*="Editor"], [class*="editor"], [class*="App"], [class*="app"]');
-                if (cmsContent) {
-                  cmsContent.style.display = 'block';
-                  console.log('CMS content found and made visible');
-                } else {
-                  console.log('CMS content not found in DOM yet - Decap CMS may not have rendered authenticated interface');
-                  
-                  // Try to force Decap CMS to re-check authentication and render
-                  const CMS = window.CMS || window.netlifyCMS;
-                  if (CMS && CMS.getApp) {
-                    const app = CMS.getApp();
-                    if (app && app.store) {
-                      // Force a complete re-render by dispatching a state change
-                      app.store.dispatch({ type: 'AUTHENTICATION_SUCCESS', user: user });
-                      app.store.dispatch({ type: 'USER_RECEIVED', user: user });
-                      
-                      // Try to trigger a re-render
-                      const state = app.store.getState();
-                      console.log('Current CMS state:', state);
-                    }
-                  }
-                }
-              }
-              
-              // Show immediately
-              showCMS();
-              
-              // Also show after a delay in case CMS is still rendering
-              setTimeout(showCMS, 500);
-              setTimeout(showCMS, 1000);
-              setTimeout(showCMS, 2000);
-              
-              // Try to manually trigger Decap CMS authentication flow
-              // This simulates what happens when user clicks "Login with GitHub"
-              setTimeout(function() {
-                try {
-                  const CMS = window.CMS || window.netlifyCMS;
-                  
-                  // Try to access the CMS app instance and force re-render
-                  if (CMS.getApp) {
-                    const app = CMS.getApp();
-                    if (app && app.store) {
-                      // Get current state
-                      const state = app.store.getState();
-                      
-                      // Dispatch authentication success action
-                      app.store.dispatch({ type: 'AUTHENTICATION_SUCCESS', user: user });
-                      
-                      // Also try to dispatch a user received action
-                      app.store.dispatch({ type: 'USER_RECEIVED', user: user });
-                      
-                      // Try to dispatch LOGIN_SUCCESS
-                      app.store.dispatch({ type: 'LOGIN_SUCCESS', user: user });
-                      
-                      // Try to set auth state directly
-                      if (state.auth !== undefined) {
-                        app.store.dispatch({ 
-                          type: 'AUTHENTICATE_USER_SUCCESS', 
-                          user: user,
-                          token: user.token 
-                        });
-                      }
-                      
-                      // Try to dispatch config loaded action to trigger CMS render
-                      if (state.config) {
-                        app.store.dispatch({ type: 'CONFIG_LOADED', config: state.config });
-                      }
-                      
-                      // Force a state update by dispatching an empty action
-                      app.store.dispatch({ type: '@@INIT' });
-                    }
-                  }
-                  
-                  // Also try to access the CMS registry and trigger render
-                  if (CMS.getRegistry) {
-                    const registry = CMS.getRegistry();
-                    if (registry && registry.getWidgets) {
-                      // Force widgets to re-register
-                      console.log('CMS registry available');
-                    }
-                  }
-                  
-                  // Try to access the backend's status and force it to update
-                  const backend = CMS.getBackend('github');
-                  if (backend) {
-                    // Set the user on the backend
-                    backend.currentUser = user;
-                    backend.user = user;
-                    
-                    // Try to call any status/check methods
-                    if (typeof backend.status === 'function') {
-                      backend.status();
-                    }
-                    if (typeof backend.checkBackendHealth === 'function') {
-                      backend.checkBackendHealth();
-                    }
-                    
-                    // Try calling authenticate again to trigger UI update
-                    if (backend.currentUser) {
-                      backend.authenticate().catch(() => {});
-                    }
-                  }
-                  
-                  // Try to find and trigger the authentication component
-                  // Decap CMS uses React, so we might need to trigger a re-render
-                  const rootElement = document.getElementById('nc-root') || document.querySelector('[data-netlify-cms]');
-                  if (rootElement) {
-                    // Trigger a custom event that might cause re-render
-                    const event = new CustomEvent('netlify-cms-auth-success', { 
-                      detail: { user: user },
-                      bubbles: true 
-                    });
-                    rootElement.dispatchEvent(event);
-                  }
-                } catch (e) {
-                  console.log('Could not force UI update:', e);
-                }
-              }, 100);
-              
-              // Also try after a longer delay in case CMS is still initializing
-              setTimeout(function() {
-                try {
-                  const CMS = window.CMS || window.netlifyCMS;
-                  const backend = CMS.getBackend('github');
-                  if (backend && backend.currentUser) {
-                    // Try to trigger authentication again
-                    backend.authenticate().then(function(u) {
-                      console.log('Re-authenticated:', u);
-                    }).catch(function(e) {
-                      console.log('Re-auth failed:', e);
-                    });
-                  }
-                  
-                  // Check if login button is still visible and try to hide it or trigger auth
-                  const loginButton = document.querySelector('button[class*="Login"], a[class*="Login"], [class*="login-button"], button[class*="login"], a[class*="login"]') ||
-                                      Array.from(document.querySelectorAll('button, a')).find(el => 
-                                        el.textContent && el.textContent.includes('Login')
-                                      );
-                  if (loginButton && backend && backend.currentUser) {
-                    console.log('Login button still visible, attempting to force authentication state...');
-                    
-                    // Try to access React internals to force state update
-                    try {
-                      // Find React root and force update
-                      const reactRoot = loginButton._reactInternalFiber || loginButton._reactInternalInstance;
-                      if (reactRoot) {
-                        // Try to find the component and force update
-                        let fiber = reactRoot;
-                        while (fiber) {
-                          if (fiber.memoizedState || fiber.stateNode) {
-                            const component = fiber.stateNode;
-                            if (component && typeof component.forceUpdate === 'function') {
-                              component.forceUpdate();
-                            }
-                          }
-                          fiber = fiber.return;
-                        }
-                      }
-                    } catch (e) {
-                      console.log('Could not access React internals:', e);
-                    }
-                    
-                    // Hide the login button and show CMS content instead
-                    loginButton.style.display = 'none';
-                    
-                    // Show CMS content - it might be hidden
-                    const cmsRoot = document.getElementById('nc-root') || document.querySelector('[data-netlify-cms]');
-                    if (cmsRoot) {
-                      cmsRoot.style.display = 'block';
-                      cmsRoot.style.visibility = 'visible';
-                      cmsRoot.style.opacity = '1';
-                    }
-                    
-                    // Try to find and show CMS collections/content
-                    const cmsContent = document.querySelector('[class*="cms"], [class*="CMS"], [id*="cms"], [id*="cms-content"]');
-                    if (cmsContent) {
-                      cmsContent.style.display = 'block';
-                      cmsContent.style.visibility = 'visible';
-                    }
-                    
-                    // Force a page refresh as last resort
-                    setTimeout(function() {
-                      const stillVisible = document.querySelector('button[class*="Login"], a[class*="Login"], button[class*="login"], a[class*="login"]') ||
-                                          Array.from(document.querySelectorAll('button, a')).find(el => 
-                                            el.textContent && el.textContent.includes('Login')
-                                          );
-                      if (stillVisible) {
-                        console.log('Login button still visible after attempts, refreshing page...');
-                        window.location.reload();
-                      }
-                    }, 3000);
-                  }
-                } catch (e) {
-                  console.log('Delayed auth update failed:', e);
-                }
-              }, 2000);
-              
-              // One more attempt after even longer delay
-              setTimeout(function() {
-                try {
-                  const CMS = window.CMS || window.netlifyCMS;
-                  const backend = CMS.getBackend('github');
-                  if (backend && backend.currentUser) {
-                    // Force a full re-authentication
-                    backend.authenticate().then(function(u) {
-                      console.log('Final re-authentication:', u);
-                    });
-                  }
-                } catch (e) {
-                  console.log('Final auth attempt failed:', e);
-                }
-              }, 5000);
-            })
-            .catch(function(error) {
-              console.log('Authentication check failed:', error);
-            });
-          
-          // Also ensure currentUser is set even if restoreUser hasn't completed
-          if (backend.currentUser) {
-            // User already set, try to trigger update
-            setTimeout(function() {
-              try {
-                const CMS = window.CMS || window.netlifyCMS;
-                if (CMS.getApp) {
-                  const app = CMS.getApp();
-                  if (app && app.store) {
-                    app.store.dispatch({ type: 'AUTHENTICATION_SUCCESS', user: backend.currentUser });
-                  }
-                }
-              } catch (e) {
-                console.log('Could not trigger update with existing user:', e);
-              }
-            }, 100);
+          // Ensure user is authenticated
+          if (window._decapCMSUserCache) {
+            backend.restoreUser()
+              .then(function(user) {
+                console.log('User authenticated via setupAuth:', user);
+              })
+              .catch(function(error) {
+                console.log('Authentication check failed:', error);
+              });
           }
           
           return true;
@@ -676,100 +479,8 @@
       }
       
       window.addEventListener('DOMContentLoaded', setupAuth);
-      setTimeout(setupAuth, 1000);
-      
-      // Watch for login button appearing and auto-authenticate if we have a token
-      // Reuse the token variable from the outer scope
-      if (token) {
-        const observer = new MutationObserver(function(mutations) {
-          // Find login button using valid CSS selectors
-          const loginButton = document.querySelector('button[class*="Login"], a[class*="Login"], [aria-label*="Login"], [title*="Login"], button[class*="login"], a[class*="login"]') ||
-                              Array.from(document.querySelectorAll('button, a')).find(el => 
-                                el.textContent && el.textContent.includes('Login')
-                              );
-          if (loginButton) {
-            console.log('Login button detected, checking authentication...');
-            const CMS = window.CMS || window.netlifyCMS;
-            if (CMS) {
-              const backend = CMS.getBackend('github');
-              if (backend && backend.currentUser) {
-                console.log('User already authenticated, hiding login button...');
-                loginButton.style.display = 'none';
-                loginButton.remove();
-                
-                // Force CMS content to be visible
-                const cmsRoot = document.getElementById('nc-root') || document.querySelector('[data-netlify-cms]');
-                if (cmsRoot) {
-                  cmsRoot.style.display = 'block';
-                  cmsRoot.style.visibility = 'visible';
-                  cmsRoot.style.opacity = '1';
-                }
-                
-                // Try to trigger CMS to show content
-                setTimeout(function() {
-                  backend.authenticate().then(function(user) {
-                    console.log('Auto-authenticated via observer:', user);
-                    // Force CMS to re-render
-                    const CMS = window.CMS || window.netlifyCMS;
-                    if (CMS && CMS.getApp) {
-                      const app = CMS.getApp();
-                      if (app && app.store) {
-                        app.store.dispatch({ type: 'AUTHENTICATION_SUCCESS', user: user });
-                        app.store.dispatch({ type: 'USER_RECEIVED', user: user });
-                        app.store.dispatch({ type: 'LOGIN_SUCCESS', user: user });
-                      }
-                    }
-                    
-                    // Force CMS root to be visible
-                    const cmsRoot = document.getElementById('nc-root') || document.querySelector('[data-netlify-cms]');
-                    if (cmsRoot) {
-                      cmsRoot.style.display = 'block';
-                      cmsRoot.style.visibility = 'visible';
-                      cmsRoot.style.opacity = '1';
-                      cmsRoot.style.height = 'auto';
-                      cmsRoot.style.minHeight = '100vh';
-                    }
-                  });
-                }, 100);
-              }
-            }
-          }
-        });
-        
-        // Start observing
-        observer.observe(document.body, {
-          childList: true,
-          subtree: true,
-          attributes: true,
-          attributeFilter: ['class', 'style']
-        });
-        
-        // Also check immediately
-        setTimeout(function() {
-          const loginButton = document.querySelector('button[class*="Login"], a[class*="Login"], [aria-label*="Login"], [title*="Login"], button[class*="login"], a[class*="login"]') ||
-                              Array.from(document.querySelectorAll('button, a')).find(el => 
-                                el.textContent && el.textContent.includes('Login')
-                              );
-          if (loginButton) {
-            const CMS = window.CMS || window.netlifyCMS;
-            if (CMS) {
-              const backend = CMS.getBackend('github');
-              if (backend && backend.currentUser) {
-                loginButton.style.display = 'none';
-                loginButton.remove();
-                
-                // Force CMS content to be visible
-                const cmsRoot = document.getElementById('nc-root') || document.querySelector('[data-netlify-cms]');
-                if (cmsRoot) {
-                  cmsRoot.style.display = 'block';
-                  cmsRoot.style.visibility = 'visible';
-                  cmsRoot.style.opacity = '1';
-                }
-              }
-            }
-          }
-        }, 2000);
-      }
+      setTimeout(setupAuth, 100);
+      setTimeout(setupAuth, 500);
     })();
   </script>
 </body>
