@@ -9,136 +9,128 @@
   <script>
     if (window.location.search.includes('access_token')) {
       const token = new URLSearchParams(window.location.search).get('access_token');
-      
-      // 1. Send to Opener
       if (window.opener) {
         window.opener.postMessage(token, "*"); 
       }
-      
-      // 2. Save for backup polling
       localStorage.setItem('cms-token', token);
-      
-      document.body.innerHTML = '<div style="display:flex;height:100vh;align-items:center;justify-content:center;font-family:sans-serif;"><h1>Login success. Closing...</h1></div>';
+      document.body.innerHTML = '<h1>Login success. Closing...</h1>';
       setTimeout(() => window.close(), 500);
       throw new Error('Stop execution');
     }
   </script>
 
+  <script>window.CMS_MANUAL_INIT = true;</script>
+  <script src="https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js"></script>
+
   <script>
-    window.CMS_MANUAL_INIT = true;
     const PROXY_URL = 'https://decap-oauth-proxy.danieligazit.workers.dev';
 
-    // We define window.CMS *before* Decap loads.
-    // This allows us to catch the registerBackend function.
-    let _cms;
-    Object.defineProperty(window, 'CMS', {
-      get: function() { return _cms; },
-      set: function(cmsInstance) {
-        _cms = cmsInstance;
-        
-        if (_cms && _cms.registerBackend) {
-          const originalRegister = _cms.registerBackend;
+    // Poll for CMS availability
+    const checkCMS = setInterval(() => {
+      // Ensure 'github' backend exists
+      if (window.CMS && window.CMS.getBackend && window.CMS.getBackend('github')) {
+        clearInterval(checkCMS);
+        initializeCustomBackend();
+      }
+    }, 100);
+
+    function initializeCustomBackend() {
+      console.log('[Decap Debug] CMS Ready. Initializing Composite Backend...');
+      
+      const CMS = window.CMS;
+      
+      // 1. Get the Logic (Instance) and the UI (Class)
+      const githubInstance = CMS.getBackend('github');
+      const GitHubClass = githubInstance.constructor;
+
+      // 2. Define our Custom Auth Logic
+      const customAuthenticate = function(credentials) {
+        console.log('[Decap Debug] Custom authenticate triggered');
+        const token = localStorage.getItem('cms-token');
+        if (token) return this.validate(token);
+
+        return new Promise((resolve, reject) => {
+          const width = 600, height = 600;
+          const left = (window.innerWidth / 2) - (width / 2);
+          const top = (window.innerHeight / 2) - (height / 2);
+          const authUrl = `${PROXY_URL}/auth?provider=github&site_id=orthodox-website`;
           
-          // We override the register function
-          _cms.registerBackend = function(name, BackendClass, options) {
-            
-            // 1. Allow the standard registration to proceed
-            originalRegister.call(this, name, BackendClass, options);
+          window.open(authUrl, 'auth', `width=${width},height=${height},top=${top},left=${left}`);
 
-            // 2. Detect when the 'github' backend is being registered
-            if (name === 'github') {
-              console.log('[Decap Setup] Intercepted GitHub Class! Creating github-proxy...');
-
-              // NOW we have the real Class Constructor (BackendClass)
-              // We can safely extend it to inherit the UI (authComponent)
-              class ProxyBackend extends BackendClass {
-                constructor(config) {
-                  super(config);
-                }
-
-                authenticate(credentials) {
-                  const token = localStorage.getItem('cms-token');
-                  if (token) return this.validate(token);
-
-                  return new Promise((resolve, reject) => {
-                    // A. Open Popup
-                    const width = 600, height = 600;
-                    const left = (window.innerWidth / 2) - (width / 2);
-                    const top = (window.innerHeight / 2) - (height / 2);
-                    const authUrl = `${PROXY_URL}/auth?provider=github&site_id=orthodox-website`;
-                    
-                    window.open(authUrl, 'auth', `width=${width},height=${height},top=${top},left=${left}`);
-
-                    // B. Listen for Token (PostMessage)
-                    const msgListener = (event) => {
-                      if (typeof event.data === 'string' && event.data.startsWith('gho_')) {
-                        cleanup();
-                        localStorage.setItem('cms-token', event.data);
-                        this.validate(event.data).then(resolve).catch(reject);
-                      }
-                    };
-
-                    // C. Poll LocalStorage (Backup)
-                    const poll = setInterval(() => {
-                      const t = localStorage.getItem('cms-token');
-                      if (t) {
-                        cleanup();
-                        this.validate(t).then(resolve).catch(reject);
-                      }
-                    }, 500);
-
-                    const cleanup = () => {
-                      window.removeEventListener('message', msgListener);
-                      clearInterval(poll);
-                    };
-
-                    window.addEventListener('message', msgListener);
-                  });
-                }
-
-                async validate(token) {
-                  try {
-                    const response = await fetch(`${PROXY_URL}/user`, {
-                      headers: { 'Authorization': `token ${token}` }
-                    });
-                    if (!response.ok) throw new Error('Invalid token');
-                    
-                    const user = await response.json();
-                    return {
-                      token: token,
-                      name: user.name || user.login,
-                      login: user.login,
-                      avatar_url: user.avatar_url
-                    };
-                  } catch (e) {
-                    console.error('Validation failed', e);
-                    localStorage.removeItem('cms-token');
-                    throw e;
-                  }
-                }
-
-                logout() {
-                  localStorage.removeItem('cms-token');
-                  return super.logout();
-                }
-              }
-
-              // 3. Register OUR backend as 'github-proxy'
-              console.log('[Decap Setup] Registering github-proxy subclass...');
-              _cms.registerBackend('github-proxy', ProxyBackend);
-              
-              // 4. Start the CMS
-              setTimeout(() => {
-                console.log('[Decap Setup] Starting CMS...');
-                _cms.init();
-              }, 100);
+          const listener = (event) => {
+            if (typeof event.data === 'string' && event.data.startsWith('gho_')) {
+              window.removeEventListener('message', listener);
+              localStorage.setItem('cms-token', event.data);
+              this.validate(event.data).then(resolve).catch(reject);
             }
           };
+          window.addEventListener('message', listener);
+        });
+      };
+
+      const customValidate = async function(token) {
+        try {
+          const response = await fetch(`${PROXY_URL}/user`, {
+            headers: { 'Authorization': `token ${token}` }
+          });
+          if (!response.ok) throw new Error('Invalid token');
+          
+          const user = await response.json();
+          // Important: Update the instance's internal token for Git operations
+          this.token = token; 
+          return {
+            token: token,
+            name: user.name || user.login,
+            login: user.login,
+            avatar_url: user.avatar_url
+          };
+        } catch (e) {
+          localStorage.removeItem('cms-token');
+          throw e;
+        }
+      };
+
+      // 3. Mutate the existing Instance to use our logic
+      githubInstance.authenticate = customAuthenticate.bind(githubInstance);
+      githubInstance.validate = customValidate.bind(githubInstance);
+      
+      // Patch logout
+      const originalLogout = githubInstance.logout;
+      githubInstance.logout = function() {
+        localStorage.removeItem('cms-token');
+        if (originalLogout) return originalLogout.call(githubInstance);
+      }.bind(githubInstance);
+
+      // 4. Create the Proxy Class
+      class ProxyBackend {
+        constructor(config) {
+          // When Decap asks for a new backend, give it the one we just patched
+          // We assume 'config' is compatible since it's just a proxy wrapper
+          if (githubInstance.configure) {
+             githubInstance.configure(config);
+          }
+          return githubInstance;
         }
       }
-    });
-  </script>
 
-  <script src="https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js"></script>
+      // 5. CRITICAL FIX: Copy the UI Component from the Original Class
+      // This solves "authComponent is not a function"
+      if (GitHubClass && GitHubClass.authComponent) {
+        console.log('[Decap Debug] Copying authComponent from GitHub Class...');
+        ProxyBackend.authComponent = GitHubClass.authComponent;
+      } else {
+        console.warn('[Decap Debug] Could not find authComponent. Using fallback.');
+        // Minimal fallback just in case
+        ProxyBackend.authComponent = () => "Login with GitHub";
+      }
+
+      // 6. Register and Start
+      console.log('[Decap Debug] Registering "github-proxy"...');
+      CMS.registerBackend('github-proxy', ProxyBackend);
+      
+      console.log('[Decap Debug] Starting CMS...');
+      CMS.init();
+    }
+  </script>
 </body>
 </html>
