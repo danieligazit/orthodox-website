@@ -8,45 +8,24 @@
 </head>
 <body>
   <script>
-    // ---------------------------------------------------------
-    // 1. POPUP HANDLING (The Fix for the "Infinite Loop")
-    // ---------------------------------------------------------
-    // If we are in the popup (have a token in URL), save it and CLOSE.
-    // We do this immediately before loading any CMS scripts.
     (function() {
       const params = new URLSearchParams(window.location.search);
       const token = params.get('access_token');
-      
       if (token) {
-        console.log('[Decap Popup] Token detected:', token);
+        console.log('[Decap Popup] Token detected. Saving and closing.');
         localStorage.setItem('netlify-cms-auth-token', token);
-        
-        document.body.innerHTML = '<div style="display:flex;height:100vh;justify-content:center;align-items:center;font-family:sans-serif;"><h1>Login successful. Closing...</h1></div>';
-        
-        // Notify the opener (Main Window) if possible
-        if (window.opener) {
-            window.opener.postMessage("authorization:github:success:" + token, "*");
-        }
-        
-        // Close this window
-        setTimeout(() => {
-            window.close();
-        }, 500);
-        
-        // STOP EXECUTION HERE. Do not load the CMS.
-        throw new Error('[Decap Popup] Token saved, stopping execution to prevent CMS load.');
+        document.body.innerHTML = '<div style="display:flex;height:100vh;align-items:center;justify-content:center;font-family:sans-serif;"><h1>Login successful. Closing...</h1></div>';
+        setTimeout(() => window.close(), 500);
+        throw new Error('Stop execution'); // Stop CMS form loading in popup
       }
     })();
   </script>
 
-  <script>window.CMS_MANUAL_INIT = true;</script>
-  
-  <script src="https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js"></script>
-
   <script>
+    window.CMS_MANUAL_INIT = true;
     const PROXY_URL = 'https://decap-oauth-proxy.danieligazit.workers.dev';
 
-    // Helper: Validates the token against your worker
+    // Helper: Validates token
     async function fetchUser(token) {
       const response = await fetch(`${PROXY_URL}/user`, {
         headers: { 'Authorization': `token ${token}` }
@@ -62,100 +41,87 @@
       };
     }
 
-    // ---------------------------------------------------------
-    // 3. OVERWRITE BACKEND LOGIC
-    // ---------------------------------------------------------
-    const registerCustomBackend = () => {
-      console.log('[Decap Debug] Starting backend registration...');
-      
-      const CMS = window.CMS;
-      
-      // We explicitly GET the class to extend it
-      const GitHubBackend = CMS.getBackend('github');
-      
-      if (!GitHubBackend) {
-         console.error('[Decap Debug] Could not find default "github" backend to extend.');
-         return;
-      }
+    // This variable will hold the real CMS object
+    let _cms;
 
-      // Create our Custom Class
-      class CustomGitHubBackend extends GitHubBackend {
-        constructor(config, ...args) {
-          super(config, ...args);
-        }
+    // We define window.CMS *before* the script loads. 
+    // When Decap tries to set window.CMS, our 'set' function runs.
+    Object.defineProperty(window, 'CMS', {
+      get: function() { return _cms; },
+      set: function(cmsInstance) {
+        _cms = cmsInstance;
+        console.log('[Decap Trap] CMS object captured!');
 
-        // 1. Authenticate (The "Login" button click)
-        authenticate(credentials) {
-          console.log('[Decap Debug] Authenticate clicked');
+        if (_cms && _cms.registerBackend) {
+          const originalRegister = _cms.registerBackend;
           
-          // Check if we have a valid token already
-          const token = localStorage.getItem('netlify-cms-auth-token');
-          if (token) {
-            return this.restoreUser();
-          }
-
-          // If no token, we trigger the standard popup flow.
-          // BUT, we start a poller to watch for the token appearing in localStorage
-          // because our Popup script (at the top of this file) puts it there.
-          const authPromise = super.authenticate(credentials);
-          
-          return new Promise((resolve, reject) => {
-            // Check LocalStorage every 200ms
-            const poll = setInterval(() => {
-              const localToken = localStorage.getItem('netlify-cms-auth-token');
-              if (localToken) {
-                clearInterval(poll);
-                console.log('[Decap Debug] Token found via polling! Logging in...');
-                // Token found, verify it and log in
-                fetchUser(localToken).then(resolve).catch(reject);
-              }
-            }, 200);
-
-            // Also allow the standard promise to resolve (in case standard postMessage works)
-            authPromise.then(resolve).catch((err) => {
-               // Ignore errors if we are polling, or handle them
-               console.log('[Decap Debug] Standard auth flow finished:', err);
-            });
+          // We override registerBackend immediately
+          _cms.registerBackend = function(name, BackendClass, options) {
             
-            // Timeout after 2 minutes
-            setTimeout(() => clearInterval(poll), 120000);
-          });
-        }
+            // If the CMS is trying to register 'github', we intercept it!
+            if (name === 'github') {
+              console.log('[Decap Trap] Intercepted GitHub registration. Class captured.');
+              
+              // Now we have the REAL 'BackendClass' constructor (before it got lost)
+              class CustomGitHubBackend extends BackendClass {
+                
+                authenticate(credentials) {
+                  const token = localStorage.getItem('netlify-cms-auth-token');
+                  if (token) return this.restoreUser();
 
-        // 2. Restore User (Page Refresh)
-        async restoreUser() {
-          const token = localStorage.getItem('netlify-cms-auth-token');
-          if (!token) return Promise.reject();
-          
-          console.log('[Decap Debug] Restoring user from LocalStorage...');
-          try {
-            return await fetchUser(token);
-          } catch (e) {
-            localStorage.removeItem('netlify-cms-auth-token');
-            return Promise.reject();
-          }
+                  // Polling logic for Popup
+                  const authPromise = super.authenticate(credentials);
+                  return new Promise((resolve, reject) => {
+                    const poll = setInterval(() => {
+                      const localToken = localStorage.getItem('netlify-cms-auth-token');
+                      if (localToken) {
+                        clearInterval(poll);
+                        fetchUser(localToken).then(resolve).catch(reject);
+                      }
+                    }, 500);
+                    // Also listen to standard flow
+                    authPromise.then(resolve).catch(err => console.log('Standard auth waiting...', err));
+                    setTimeout(() => clearInterval(poll), 120000); // 2 min timeout
+                  });
+                }
+
+                async restoreUser() {
+                  const token = localStorage.getItem('netlify-cms-auth-token');
+                  if (!token) return Promise.reject();
+                  console.log('[Decap Trap] restoring user...');
+                  try {
+                    return await fetchUser(token);
+                  } catch (e) {
+                    localStorage.removeItem('netlify-cms-auth-token');
+                    return Promise.reject();
+                  }
+                }
+              }
+
+              // Register OUR modified class
+              originalRegister.call(this, name, CustomGitHubBackend, options);
+              console.log('[Decap Trap] Custom GitHub Backend registered successfully.');
+            } else {
+              // Pass everything else through normally
+              originalRegister.call(this, name, BackendClass, options);
+            }
+          };
         }
       }
+    });
+  </script>
 
-      // EXPLICITLY OVERWRITE 'github'
-      // This forces Decap to use our class, even if it registered the default one internally
-      CMS.registerBackend('github', CustomGitHubBackend);
-      console.log('[Decap Debug] "github" backend overwritten successfully.');
-    };
+  <script src="https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js"></script>
 
-    // 4. BOOTSTRAP
+  <script>
+    // Wait for the trap to spring and the CMS to load
     const interval = setInterval(() => {
       if (window.CMS) {
         clearInterval(interval);
-        
-        // 1. Register logic
-        registerCustomBackend();
-        
-        // 2. Start CMS
-        console.log('[Decap Debug] CMS.init()');
+        console.log('[Decap Debug] Starting CMS...');
         window.CMS.init();
       }
-    }, 50);
+    }, 100);
   </script>
 </body>
 </html>
