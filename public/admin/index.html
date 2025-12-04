@@ -4,6 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Content Manager</title>
+  <!-- Point Decap CMS to the config file -->
+  <link href="/orthodox-website/admin/config.yml" type="text/yaml" rel="cms-config-url" />
 </head>
 <body>
   <!-- Handle OAuth callback token -->
@@ -14,7 +16,6 @@
     
     if (accessToken) {
       // Store token for Decap CMS
-      // Decap CMS with base_url expects token to be sent with API requests
       localStorage.setItem('netlify-cms-auth-token', accessToken);
       
       // Clean up URL
@@ -22,13 +23,136 @@
       window.history.replaceState({}, document.title, cleanUrl);
       
       // Force page reload to ensure Decap CMS picks up the token
-      // This ensures Decap CMS initializes with the token available
       window.location.reload();
       return; // Stop execution to allow reload
     }
   </script>
   
-  <!-- Include Decap CMS - it will handle GitHub authentication -->
+  <script>
+    // Intercept ALL network requests BEFORE Decap CMS loads to ensure token is always sent
+    // This must run before Decap CMS initializes
+    (function() {
+      // Store original fetch immediately
+      const originalFetch = window.fetch;
+      
+      // Override fetch to add Authorization header for proxy requests
+      window.fetch = function(url, options = {}) {
+        // Always check for token (in case it was just stored)
+        const token = localStorage.getItem('netlify-cms-auth-token');
+        
+        // If this is a request to our OAuth proxy, add the token
+        if (token && typeof url === 'string' && url.includes('decap-oauth-proxy')) {
+          options = options || {};
+          
+          // Handle both Headers object and plain object
+          if (options.headers instanceof Headers) {
+            if (!options.headers.has('Authorization')) {
+              options.headers.set('Authorization', `token ${token}`);
+            }
+          } else {
+            options.headers = options.headers || {};
+            // Check both cases
+            if (!options.headers['Authorization'] && !options.headers['authorization']) {
+              options.headers['Authorization'] = `token ${token}`;
+            }
+          }
+        }
+        
+        return originalFetch.call(this, url, options);
+      };
+      
+      // Also intercept XMLHttpRequest (some libraries use this instead of fetch)
+      const originalXHROpen = XMLHttpRequest.prototype.open;
+      const originalXHRSend = XMLHttpRequest.prototype.send;
+      const originalXHRSetRequestHeader = XMLHttpRequest.prototype.setRequestHeader;
+      
+      XMLHttpRequest.prototype.open = function(method, url, ...args) {
+        this._url = url;
+        return originalXHROpen.apply(this, [method, url, ...args]);
+      };
+      
+      XMLHttpRequest.prototype.setRequestHeader = function(name, value) {
+        // Store headers to check later
+        if (!this._headers) {
+          this._headers = {};
+        }
+        this._headers[name.toLowerCase()] = value;
+        return originalXHRSetRequestHeader.apply(this, arguments);
+      };
+      
+      XMLHttpRequest.prototype.send = function(...args) {
+        const token = localStorage.getItem('netlify-cms-auth-token');
+        if (token && this._url && this._url.includes('decap-oauth-proxy')) {
+          // Check if Authorization header is already set
+          if (!this._headers || !this._headers['authorization']) {
+            originalXHRSetRequestHeader.call(this, 'Authorization', `token ${token}`);
+          }
+        }
+        return originalXHRSend.apply(this, args);
+      };
+    })();
+  </script>
+  
+  <!-- Include Decap CMS -->
   <script src="https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js"></script>
+  
+  <script>
+    // Configure Decap CMS authentication after it loads
+    window.addEventListener('DOMContentLoaded', function() {
+      // Wait for Decap CMS to be available
+      const checkCMS = setInterval(function() {
+        const CMS = window.CMS || window.netlifyCMS;
+        if (!CMS) return;
+        
+        clearInterval(checkCMS);
+        
+        const token = localStorage.getItem('netlify-cms-auth-token');
+        
+        if (token) {
+          try {
+            // Get the GitHub backend
+            const backend = CMS.getBackend('github');
+            
+            if (backend) {
+              // Override the backend's authenticate method to use our token
+              const originalAuthenticate = backend.authenticate;
+              backend.authenticate = function() {
+                // Return a resolved promise with token info
+                return Promise.resolve({
+                  token: token,
+                  provider: 'github'
+                });
+              };
+              
+              // Override restoreUser to restore from localStorage
+              const originalRestoreUser = backend.restoreUser;
+              backend.restoreUser = function() {
+                const storedToken = localStorage.getItem('netlify-cms-auth-token');
+                if (storedToken) {
+                  return Promise.resolve({
+                    token: storedToken,
+                    provider: 'github'
+                  });
+                }
+                return originalRestoreUser ? originalRestoreUser.call(this) : Promise.reject();
+              };
+              
+              // Try to restore user immediately
+              backend.restoreUser().catch(function() {
+                console.log('Could not restore user session');
+              });
+            }
+          } catch (error) {
+            console.error('Error configuring Decap CMS authentication:', error);
+          }
+        }
+      }, 50);
+      
+      // Stop checking after 5 seconds
+      setTimeout(function() {
+        clearInterval(checkCMS);
+      }, 5000);
+    });
+  </script>
 </body>
 </html>
