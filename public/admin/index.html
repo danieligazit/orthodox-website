@@ -439,12 +439,6 @@
                     // Hide the login button and show CMS content instead
                     loginButton.style.display = 'none';
                     
-                    // Try to find and show the CMS content area
-                    const cmsContent = document.querySelector('[class*="cms"], [class*="CMS"], [id*="cms"]');
-                    if (cmsContent) {
-                      cmsContent.style.display = 'block';
-                    }
-                    
                     // Show CMS content - it might be hidden
                     const cmsRoot = document.getElementById('nc-root') || document.querySelector('[data-netlify-cms]');
                     if (cmsRoot) {
@@ -454,7 +448,7 @@
                     }
                     
                     // Try to find and show CMS collections/content
-                    const cmsContent = document.querySelector('[class*="cms"], [class*="CMS"], [id*="cms-content"]');
+                    const cmsContent = document.querySelector('[class*="cms"], [class*="CMS"], [id*="cms"], [id*="cms-content"]');
                     if (cmsContent) {
                       cmsContent.style.display = 'block';
                       cmsContent.style.visibility = 'visible';
