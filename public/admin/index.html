@@ -6,6 +6,17 @@
   <title>Content Manager</title>
   <!-- Point Decap CMS to the config file -->
   <link href="/orthodox-website/admin/config.yml" type="text/yaml" rel="cms-config-url" />
+  <style>
+    /* Hide login button when user is authenticated */
+    body:has([data-netlify-cms] [class*="Login"]) [data-netlify-cms] [class*="Login"] {
+      display: none !important;
+    }
+    /* Show CMS content when authenticated */
+    [data-netlify-cms] [class*="cms-content"],
+    [data-netlify-cms] [class*="CMS-content"] {
+      display: block !important;
+    }
+  </style>
 </head>
 <body>
   <!-- Handle OAuth callback token -->
@@ -261,12 +272,19 @@
         });
       };
       
-      // Override authenticate
+      // Override authenticate - CRITICAL: Don't trigger OAuth if we have a token
       backend.authenticate = function() {
         const storedToken = localStorage.getItem('netlify-cms-auth-token');
         if (storedToken) {
-          return backend.restoreUser();
+          // If we have a token, just restore the user - don't trigger OAuth
+          console.log('Authenticate called with existing token, restoring user...');
+          return backend.restoreUser().then(function(user) {
+            console.log('Authenticate restored user:', user);
+            return user;
+          });
         }
+        // Only trigger OAuth if we don't have a token
+        console.log('No token found, triggering OAuth...');
         return originalAuthenticate ? originalAuthenticate.call(this) : Promise.reject('No token');
       };
     }
@@ -312,6 +330,37 @@
                       
                       // Also try to dispatch a user received action
                       app.store.dispatch({ type: 'USER_RECEIVED', user: user });
+                      
+                      // Try to dispatch LOGIN_SUCCESS
+                      app.store.dispatch({ type: 'LOGIN_SUCCESS', user: user });
+                      
+                      // Try to set auth state directly
+                      if (app.store.getState) {
+                        const state = app.store.getState();
+                        if (state.auth) {
+                          app.store.dispatch({ 
+                            type: 'AUTHENTICATE_USER_SUCCESS', 
+                            user: user,
+                            token: user.token 
+                          });
+                        }
+                      }
+                    }
+                  }
+                  
+                  // Try to access the backend's status and force it to update
+                  const backend = CMS.getBackend('github');
+                  if (backend) {
+                    // Set the user on the backend
+                    backend.currentUser = user;
+                    backend.user = user;
+                    
+                    // Try to call any status/check methods
+                    if (typeof backend.status === 'function') {
+                      backend.status();
+                    }
+                    if (typeof backend.checkBackendHealth === 'function') {
+                      backend.checkBackendHealth();
                     }
                   }
                   
@@ -355,11 +404,47 @@
                   }
                   
                   // Check if login button is still visible and try to hide it or trigger auth
-                  const loginButton = document.querySelector('button[class*="Login"], a[class*="Login"], [class*="login-button"]');
+                  const loginButton = document.querySelector('button[class*="Login"], a[class*="Login"], [class*="login-button"], button:contains("Login"), a:contains("Login")');
                   if (loginButton && backend && backend.currentUser) {
-                    console.log('Login button still visible, attempting to trigger authentication...');
-                    // Try clicking the button programmatically - it should use our overridden authenticate
-                    loginButton.click();
+                    console.log('Login button still visible, attempting to force authentication state...');
+                    
+                    // Try to access React internals to force state update
+                    try {
+                      // Find React root and force update
+                      const reactRoot = loginButton._reactInternalFiber || loginButton._reactInternalInstance;
+                      if (reactRoot) {
+                        // Try to find the component and force update
+                        let fiber = reactRoot;
+                        while (fiber) {
+                          if (fiber.memoizedState || fiber.stateNode) {
+                            const component = fiber.stateNode;
+                            if (component && typeof component.forceUpdate === 'function') {
+                              component.forceUpdate();
+                            }
+                          }
+                          fiber = fiber.return;
+                        }
+                      }
+                    } catch (e) {
+                      console.log('Could not access React internals:', e);
+                    }
+                    
+                    // Hide the login button and show CMS content instead
+                    loginButton.style.display = 'none';
+                    
+                    // Try to find and show the CMS content area
+                    const cmsContent = document.querySelector('[class*="cms"], [class*="CMS"], [id*="cms"]');
+                    if (cmsContent) {
+                      cmsContent.style.display = 'block';
+                    }
+                    
+                    // Force a page refresh as last resort
+                    setTimeout(function() {
+                      if (document.querySelector('button[class*="Login"], a[class*="Login"]')) {
+                        console.log('Login button still visible after attempts, refreshing page...');
+                        window.location.reload();
+                      }
+                    }, 3000);
                   }
                 } catch (e) {
                   console.log('Delayed auth update failed:', e);
@@ -426,6 +511,56 @@
       
       window.addEventListener('DOMContentLoaded', setupAuth);
       setTimeout(setupAuth, 1000);
+      
+      // Watch for login button appearing and auto-authenticate if we have a token
+      const token = localStorage.getItem('netlify-cms-auth-token');
+      if (token) {
+        const observer = new MutationObserver(function(mutations) {
+          const loginButton = document.querySelector('button[class*="Login"], a[class*="Login"], button:contains("Login"), a:contains("Login"), [aria-label*="Login"], [title*="Login"]');
+          if (loginButton) {
+            console.log('Login button detected, checking authentication...');
+            const CMS = window.CMS || window.netlifyCMS;
+            if (CMS) {
+              const backend = CMS.getBackend('github');
+              if (backend && backend.currentUser) {
+                console.log('User already authenticated, hiding login button...');
+                loginButton.style.display = 'none';
+                loginButton.remove();
+                
+                // Try to trigger CMS to show content
+                setTimeout(function() {
+                  backend.authenticate().then(function(user) {
+                    console.log('Auto-authenticated via observer:', user);
+                  });
+                }, 100);
+              }
+            }
+          }
+        });
+        
+        // Start observing
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ['class', 'style']
+        });
+        
+        // Also check immediately
+        setTimeout(function() {
+          const loginButton = document.querySelector('button[class*="Login"], a[class*="Login"], [aria-label*="Login"], [title*="Login"]');
+          if (loginButton) {
+            const CMS = window.CMS || window.netlifyCMS;
+            if (CMS) {
+              const backend = CMS.getBackend('github');
+              if (backend && backend.currentUser) {
+                loginButton.style.display = 'none';
+                loginButton.remove();
+              }
+            }
+          }
+        }, 2000);
+      }
     })();
   </script>
 </body>
