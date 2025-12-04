@@ -121,7 +121,7 @@
         
         // Set up authentication immediately after Decap CMS loads
         script.onload = function() {
-          // Wait a tick for Decap CMS to initialize
+          // Wait for Decap CMS to initialize
           setTimeout(function() {
             const CMS = window.CMS || window.netlifyCMS;
             if (CMS) {
@@ -142,6 +142,9 @@
                   }
                   
                   if (backend && !backend._authOverrideSet) {
+                    // Set up authentication overrides FIRST
+                    setupBackendAuth(backend);
+                    
                     // Set currentUser immediately if we have cached user
                     // This ensures Decap CMS sees authenticated state synchronously
                     if (window._decapCMSUserCache) {
@@ -149,66 +152,44 @@
                       if (backend.user !== undefined) {
                         backend.user = window._decapCMSUserCache;
                       }
-                    }
-                    
-                    // Set up authentication overrides
-                    setupBackendAuth(backend);
-                    
-                        // Call restoreUser to ensure authentication state is properly set
-                        if (window._decapCMSUserCache) {
-                          backend.restoreUser().then(function(user) {
-                            console.log('Backend authenticated on registration:', user);
-                            
-                            // Update Redux store after a short delay to ensure CMS is initialized
-                            setTimeout(function() {
-                              try {
-                                const CMS = window.CMS || window.netlifyCMS;
-                                if (CMS && CMS.getApp) {
-                                  const app = CMS.getApp();
-                                  if (app && app.store) {
-                                    app.store.dispatch({ 
-                                      type: 'AUTHENTICATE_USER_SUCCESS', 
-                                      user: user,
-                                      token: user.token 
-                                    });
-                                    app.store.dispatch({ 
-                                      type: 'USER_RECEIVED', 
-                                      user: user 
-                                    });
-                                    console.log('Redux store updated on registration');
-                                  }
-                                }
-                              } catch (e) {
-                                console.log('Could not update Redux store on registration:', e);
-                              }
-                            }, 200);
-                          }).catch(function(err) {
-                            console.log('Auth on registration failed:', err);
-                          });
+                      
+                      // Call restoreUser to ensure authentication state is properly set
+                      // This should trigger Decap CMS to show the CMS interface
+                      backend.restoreUser().then(function(user) {
+                        console.log('Backend authenticated on registration:', user);
+                        
+                        // Force CMS to re-render by triggering authentication flow
+                        if (window.ensureCMSRenders) {
+                          window.ensureCMSRenders();
                         }
+                      }).catch(function(err) {
+                        console.log('Auth on registration failed:', err);
+                      });
+                    }
                   } else if (!backend) {
                     // Backend not available yet, try again after a short delay
                     setTimeout(function() {
                       try {
                         const backend = CMS.getBackend('github');
                         if (backend && !backend._authOverrideSet) {
+                          setupBackendAuth(backend);
                           if (window._decapCMSUserCache) {
                             backend.currentUser = window._decapCMSUserCache;
                             if (backend.user !== undefined) {
                               backend.user = window._decapCMSUserCache;
                             }
-                          }
-                          setupBackendAuth(backend);
-                          if (window._decapCMSUserCache) {
                             backend.restoreUser().then(function(user) {
                               console.log('Backend authenticated on registration (delayed):', user);
+                              if (window.ensureCMSRenders) {
+                                window.ensureCMSRenders();
+                              }
                             });
                           }
                         }
                       } catch (e) {
                         console.log('Error setting up backend auth (delayed):', e);
                       }
-                    }, 0);
+                    }, 100);
                   }
                 }
                 
@@ -219,42 +200,20 @@
               try {
                 const backend = CMS.getBackend('github');
                 if (backend && !backend._authOverrideSet) {
+                  setupBackendAuth(backend);
+                  
                   // Set currentUser immediately if we have cached user
                   if (window._decapCMSUserCache) {
                     backend.currentUser = window._decapCMSUserCache;
                     if (backend.user !== undefined) {
                       backend.user = window._decapCMSUserCache;
                     }
-                  }
-                  
-                  setupBackendAuth(backend);
-                  if (window._decapCMSUserCache) {
+                    
                     backend.restoreUser().then(function(user) {
                       console.log('Backend authenticated immediately:', user);
-                      
-                      // Update Redux store after a short delay
-                      setTimeout(function() {
-                        try {
-                          const CMS = window.CMS || window.netlifyCMS;
-                          if (CMS && CMS.getApp) {
-                            const app = CMS.getApp();
-                            if (app && app.store) {
-                              app.store.dispatch({ 
-                                type: 'AUTHENTICATE_USER_SUCCESS', 
-                                user: user,
-                                token: user.token 
-                              });
-                              app.store.dispatch({ 
-                                type: 'USER_RECEIVED', 
-                                user: user 
-                              });
-                              console.log('Redux store updated immediately');
-                            }
-                          }
-                        } catch (e) {
-                          console.log('Could not update Redux store immediately:', e);
-                        }
-                      }, 200);
+                      if (window.ensureCMSRenders) {
+                        window.ensureCMSRenders();
+                      }
                     });
                   }
                 }
@@ -262,7 +221,7 @@
                 // Backend not registered yet, will be caught by registerBackend interceptor
               }
             }
-          }, 0);
+          }, 100);
         };
         
         document.body.appendChild(script);
@@ -314,6 +273,68 @@
   <script>
     // Global cache for user data - accessible to all restoreUser calls
     window._decapCMSUserCache = null;
+    
+    // Function to ensure CMS renders after authentication
+    // Make it globally accessible
+    window.ensureCMSRenders = function() {
+      // Wait a bit for CMS to process authentication
+      setTimeout(function() {
+        try {
+          const CMS = window.CMS || window.netlifyCMS;
+          if (!CMS || !CMS.getApp) return;
+          
+          const app = CMS.getApp();
+          if (!app || !app.store) return;
+          
+          const state = app.store.getState();
+          
+          // Check if user is authenticated in store
+          if (window._decapCMSUserCache && (!state.auth || !state.auth.user)) {
+            // Update Redux store with authenticated user
+            app.store.dispatch({ 
+              type: 'AUTHENTICATE_USER_SUCCESS', 
+              user: window._decapCMSUserCache,
+              token: window._decapCMSUserCache.token 
+            });
+            app.store.dispatch({ 
+              type: 'USER_RECEIVED', 
+              user: window._decapCMSUserCache 
+            });
+            
+            // Also try to trigger a re-render by dispatching a config load action
+            try {
+              app.store.dispatch({ 
+                type: 'CONFIG_LOAD', 
+                config: app.store.getState().config 
+              });
+            } catch (e) {
+              // Config might not be loaded yet, that's okay
+            }
+            
+            console.log('Forced CMS render after authentication');
+          }
+          
+          // Force visibility of CMS root element
+          const cmsRoot = document.getElementById('nc-root') || document.querySelector('[data-netlify-cms]');
+          if (cmsRoot) {
+            cmsRoot.style.display = 'block';
+            cmsRoot.style.visibility = 'visible';
+            cmsRoot.style.opacity = '1';
+          }
+          
+          // Hide login screen if visible
+          const loginScreen = document.querySelector('[class*="LoginPage"], [class*="login-page"], [class*="AuthenticationPage"]');
+          if (loginScreen) {
+            loginScreen.style.display = 'none';
+          }
+        } catch (e) {
+          console.log('Error ensuring CMS renders:', e);
+        }
+      }, 300);
+    };
+    
+    // Also create a local reference for use within this scope
+    const ensureCMSRenders = window.ensureCMSRenders;
     
     // Function to set up backend authentication
     function setupBackendAuth(backend) {
@@ -396,35 +417,10 @@
           }
           console.log('restoreUser returning cached user immediately');
           
-          // Update Redux store to reflect authenticated state
-          // This is critical for Decap CMS to show the CMS interface
-          setTimeout(function() {
-            try {
-              const CMS = window.CMS || window.netlifyCMS;
-              if (CMS && CMS.getApp) {
-                const app = CMS.getApp();
-                if (app && app.store) {
-                  // Dispatch authentication success action
-                  // This tells Decap CMS to transition from login screen to CMS interface
-                  app.store.dispatch({ 
-                    type: 'AUTHENTICATE_USER_SUCCESS', 
-                    user: window._decapCMSUserCache,
-                    token: window._decapCMSUserCache.token 
-                  });
-                  
-                  // Also dispatch user received action
-                  app.store.dispatch({ 
-                    type: 'USER_RECEIVED', 
-                    user: window._decapCMSUserCache 
-                  });
-                  
-                  console.log('Redux store updated with authenticated user');
-                }
-              }
-            } catch (e) {
-              console.log('Could not update Redux store:', e);
-            }
-          }, 0);
+          // Ensure CMS renders after returning user
+          if (window.ensureCMSRenders) {
+            window.ensureCMSRenders();
+          }
           
           return Promise.resolve(window._decapCMSUserCache);
         }
@@ -460,29 +456,10 @@
               
               console.log('restoreUser fetched and cached user');
               
-              // Update Redux store to reflect authenticated state
-              setTimeout(function() {
-                try {
-                  const CMS = window.CMS || window.netlifyCMS;
-                  if (CMS && CMS.getApp) {
-                    const app = CMS.getApp();
-                    if (app && app.store) {
-                      app.store.dispatch({ 
-                        type: 'AUTHENTICATE_USER_SUCCESS', 
-                        user: user,
-                        token: user.token 
-                      });
-                      app.store.dispatch({ 
-                        type: 'USER_RECEIVED', 
-                        user: user 
-                      });
-                      console.log('Redux store updated with fetched user');
-                    }
-                  }
-                } catch (e) {
-                  console.log('Could not update Redux store:', e);
-                }
-              }, 0);
+              // Ensure CMS renders after fetching user
+              if (window.ensureCMSRenders) {
+                window.ensureCMSRenders();
+              }
               
               return user;
             });
@@ -656,27 +633,9 @@
                     // Try calling restoreUser again to trigger Decap CMS's normal flow
                     backend.restoreUser().then(function(user) {
                       console.log('Redux store updated via watcher, restoreUser called');
-                      
-                      // Force CMS content to be visible
-                      const cmsRoot = document.getElementById('nc-root') || document.querySelector('[data-netlify-cms]');
-                      if (cmsRoot) {
-                        cmsRoot.style.display = 'block';
-                        cmsRoot.style.visibility = 'visible';
-                        cmsRoot.style.opacity = '1';
+                      if (window.ensureCMSRenders) {
+                        window.ensureCMSRenders();
                       }
-                      
-                      // Hide login screen if it exists
-                      const loginScreen = document.querySelector('[class*="LoginPage"], [class*="login-page"], [class*="AuthenticationPage"]');
-                      if (loginScreen) {
-                        loginScreen.style.display = 'none';
-                      }
-                      
-                      // Show CMS content containers
-                      const cmsContent = document.querySelectorAll('[class*="Collection"], [class*="collection"], [class*="Editor"], [class*="editor"], [class*="App"], [class*="app"]');
-                      cmsContent.forEach(function(container) {
-                        container.style.display = 'block';
-                        container.style.visibility = 'visible';
-                      });
                     });
                   }
                   
