@@ -27,36 +27,56 @@
 
     // Poll for CMS availability
     const checkCMS = setInterval(() => {
-      // We need CMS to be loaded AND the 'github' backend to be available for extension
       if (window.CMS && window.CMS.getBackend && window.CMS.getBackend('github')) {
         clearInterval(checkCMS);
         initializeCustomBackend();
       }
     }, 100);
 
-    // Timeout safety (logs if it takes too long)
-    setTimeout(() => {
-      if (!window.CMS) console.error('[Decap Debug] Timed out waiting for CMS to load.');
-    }, 10000);
-
     function initializeCustomBackend() {
-      console.log('[Decap Debug] CMS Ready. Extending GitHub backend...');
+      console.log('[Decap Debug] CMS Ready. Creating Proxy Wrapper...');
       
       const CMS = window.CMS;
-      const GitHubBackend = CMS.getBackend('github');
+      const OriginalGitHub = CMS.getBackend('github');
 
-      // Define our Custom Backend Class
-      class ProxyBackend extends GitHubBackend {
+      // We use a Standard Class (No 'extends')
+      class ProxyBackend {
         constructor(config) {
-          super(config);
+          // 1. Initialize the internal "Real" Backend
+          // We try to 'new' it. If that fails (because it's an object), we use it as is.
+          try {
+            this.gh = new OriginalGitHub(config);
+          } catch (e) {
+            this.gh = OriginalGitHub;
+          }
+
+          // 2. Bind our custom methods
+          this.authenticate = this.authenticate.bind(this);
+          this.validate = this.validate.bind(this);
+          this.restoreUser = this.restoreUser.bind(this);
+
+          // 3. RETURN A PROXY (Magic)
+          // This intercepts every call to this class.
+          return new Proxy(this, {
+            get: (target, prop) => {
+              // Priority 1: If WE have the method (authenticate/restoreUser), use ours.
+              if (prop in target) {
+                return target[prop];
+              }
+              // Priority 2: Otherwise, forward it to the internal GitHub backend.
+              // We must bind it so 'this' inside the original backend works correctly.
+              const value = target.gh[prop];
+              return typeof value === 'function' ? value.bind(target.gh) : value;
+            }
+          });
         }
 
+        // OUR CUSTOM AUTH LOGIC
         authenticate(credentials) {
           const token = localStorage.getItem('cms-token');
           if (token) return this.validate(token);
 
           return new Promise((resolve, reject) => {
-            // A. Open Popup
             const width = 600, height = 600;
             const left = (window.innerWidth / 2) - (width / 2);
             const top = (window.innerHeight / 2) - (height / 2);
@@ -64,7 +84,6 @@
             
             window.open(authUrl, 'auth', `width=${width},height=${height},top=${top},left=${left}`);
 
-            // B. Listen for Token
             const listener = (event) => {
               if (typeof event.data === 'string' && event.data.startsWith('gho_')) {
                 window.removeEventListener('message', listener);
@@ -74,6 +93,11 @@
             };
             window.addEventListener('message', listener);
           });
+        }
+
+        // OUR CUSTOM RESTORE LOGIC
+        restoreUser(user) {
+          return this.authenticate();
         }
 
         async validate(token) {
@@ -98,15 +122,15 @@
         
         logout() {
           localStorage.removeItem('cms-token');
-          return super.logout();
+          // Forward logout to original if it exists, otherwise just return
+          if (this.gh.logout) return this.gh.logout();
         }
       }
 
-      // Register it with the name matching your config.yml
+      // Register and Start
       console.log('[Decap Debug] Registering "github-proxy"...');
       CMS.registerBackend('github-proxy', ProxyBackend);
       
-      // NOW start the CMS
       console.log('[Decap Debug] Starting CMS...');
       CMS.init();
     }
