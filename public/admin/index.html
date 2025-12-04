@@ -143,10 +143,71 @@
     })();
   </script>
   
-  <!-- Include Decap CMS -->
-  <script src="https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js"></script>
+  <!-- Pre-fetch user data before Decap CMS loads -->
+  <script>
+    // Pre-fetch and cache user data BEFORE Decap CMS loads
+    // This ensures restoreUser can return immediately when Decap CMS calls it
+    (function() {
+      const token = localStorage.getItem('netlify-cms-auth-token');
+      
+      if (token) {
+        // Initialize global cache
+        window._decapCMSUserCache = null;
+        
+        // Pre-fetch user data immediately
+        const proxyUrl = 'https://decap-oauth-proxy.danieligazit.workers.dev';
+        fetch(`${proxyUrl}/user`, {
+          headers: {
+            'Authorization': `token ${token}`
+          }
+        })
+        .then(response => {
+          if (response.ok) {
+            return response.json().then(userData => {
+              const user = {
+                token: token,
+                name: userData.login || userData.name,
+                login: userData.login,
+                avatar_url: userData.avatar_url,
+                email: userData.email
+              };
+              
+              // Cache user globally BEFORE Decap CMS loads
+              window._decapCMSUserCache = user;
+              console.log('User pre-fetched and cached before CMS load:', user);
+              
+              // Now load Decap CMS - it will find the cached user immediately
+              const script = document.createElement('script');
+              script.src = 'https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js';
+              document.body.appendChild(script);
+            });
+          } else {
+            // Token invalid, clear it and load CMS normally
+            localStorage.removeItem('netlify-cms-auth-token');
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js';
+            document.body.appendChild(script);
+          }
+        })
+        .catch(err => {
+          console.log('Pre-fetch failed, loading CMS anyway:', err);
+          const script = document.createElement('script');
+          script.src = 'https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js';
+          document.body.appendChild(script);
+        });
+      } else {
+        // No token, load immediately
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js';
+        document.body.appendChild(script);
+      }
+    })();
+  </script>
   
   <script>
+    // Global cache for user data - accessible to all restoreUser calls
+    window._decapCMSUserCache = null;
+    
     // Function to set up backend authentication
     function setupBackendAuth(backend) {
       if (backend._authOverrideSet) {
@@ -183,8 +244,9 @@
               email: userData.email
             };
             
-            // Cache user for immediate return in restoreUser
-            // This will be set by the restoreUser override above
+            // Cache user globally for immediate return in restoreUser
+            window._decapCMSUserCache = user;
+            
             console.log('Pre-authenticated user:', user);
             
             // Set currentUser immediately so Decap CMS sees authenticated state
@@ -199,25 +261,23 @@
         console.log('Pre-auth check failed, will retry:', err);
       });
       
-      // Cache user data to return immediately
-      let cachedUser = null;
-      
       // Override restoreUser - return cached user immediately if available
       backend.restoreUser = function() {
         const storedToken = localStorage.getItem('netlify-cms-auth-token');
         if (!storedToken) {
-          cachedUser = null;
+          window._decapCMSUserCache = null;
           backend.currentUser = null;
           return originalRestoreUser ? originalRestoreUser.call(this) : Promise.reject('No token');
         }
         
         // If we have cached user, return it immediately (synchronous-like behavior)
-        if (cachedUser && cachedUser.token === storedToken) {
-          backend.currentUser = cachedUser;
+        if (window._decapCMSUserCache && window._decapCMSUserCache.token === storedToken) {
+          backend.currentUser = window._decapCMSUserCache;
           if (backend.user !== undefined) {
-            backend.user = cachedUser;
+            backend.user = window._decapCMSUserCache;
           }
-          return Promise.resolve(cachedUser);
+          console.log('restoreUser returning cached user immediately');
+          return Promise.resolve(window._decapCMSUserCache);
         }
         
         // Otherwise fetch and cache
@@ -238,8 +298,8 @@
                 email: userData.email
               };
               
-              // Cache the user
-              cachedUser = user;
+              // Cache the user globally
+              window._decapCMSUserCache = user;
               
               // Set currentUser on backend so Decap CMS recognizes authentication
               backend.currentUser = user;
@@ -249,10 +309,11 @@
                 backend.user = user;
               }
               
+              console.log('restoreUser fetched and cached user');
               return user;
             });
           } else {
-            cachedUser = null;
+            window._decapCMSUserCache = null;
             localStorage.removeItem('netlify-cms-auth-token');
             backend.currentUser = null;
             if (backend.user !== undefined) {
@@ -263,7 +324,7 @@
         })
         .catch(error => {
           console.error('Token verification failed:', error);
-          cachedUser = null;
+          window._decapCMSUserCache = null;
           backend.currentUser = null;
           if (backend.user !== undefined) {
             backend.user = null;
@@ -340,20 +401,46 @@
                   container.style.opacity = '1';
                 });
                 
-                // Check if there's a login screen and hide it
+                // Don't hide login screen - instead, trigger Decap CMS to authenticate
+                // Hiding it prevents Decap CMS from rendering the CMS interface
                 const loginScreen = document.querySelector('[class*="LoginPage"], [class*="login-page"], [class*="AuthenticationPage"]');
                 if (loginScreen) {
-                  loginScreen.style.display = 'none';
-                  console.log('Login screen hidden');
+                  // Instead of hiding, try to trigger authentication
+                  console.log('Login screen found, triggering authentication...');
+                  
+                  // Try to find and click the login button programmatically
+                  // This will trigger our overridden authenticate() method
+                  const loginButton = loginScreen.querySelector('button, a, [role="button"]');
+                  if (loginButton && backend && backend.currentUser) {
+                    // Simulate click to trigger authenticate
+                    setTimeout(function() {
+                      loginButton.click();
+                    }, 100);
+                  }
                 }
                 
                 // Check if there's CMS content that should be shown
-                const cmsContent = document.querySelector('[class*="Collection"], [class*="collection"], [class*="Editor"], [class*="editor"]');
+                const cmsContent = document.querySelector('[class*="Collection"], [class*="collection"], [class*="Editor"], [class*="editor"], [class*="App"], [class*="app"]');
                 if (cmsContent) {
                   cmsContent.style.display = 'block';
                   console.log('CMS content found and made visible');
                 } else {
-                  console.log('CMS content not found in DOM yet');
+                  console.log('CMS content not found in DOM yet - Decap CMS may not have rendered authenticated interface');
+                  
+                  // Try to force Decap CMS to re-check authentication and render
+                  const CMS = window.CMS || window.netlifyCMS;
+                  if (CMS && CMS.getApp) {
+                    const app = CMS.getApp();
+                    if (app && app.store) {
+                      // Force a complete re-render by dispatching a state change
+                      app.store.dispatch({ type: 'AUTHENTICATION_SUCCESS', user: user });
+                      app.store.dispatch({ type: 'USER_RECEIVED', user: user });
+                      
+                      // Try to trigger a re-render
+                      const state = app.store.getState();
+                      console.log('Current CMS state:', state);
+                    }
+                  }
                 }
               }
               
