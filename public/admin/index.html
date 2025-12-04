@@ -362,6 +362,11 @@
                     if (typeof backend.checkBackendHealth === 'function') {
                       backend.checkBackendHealth();
                     }
+                    
+                    // Try calling authenticate again to trigger UI update
+                    if (backend.currentUser) {
+                      backend.authenticate().catch(() => {});
+                    }
                   }
                   
                   // Try to find and trigger the authentication component
@@ -374,15 +379,6 @@
                       bubbles: true 
                     });
                     rootElement.dispatchEvent(event);
-                  }
-                  
-                  // Force backend to re-check status
-                  const backend = CMS.getBackend('github');
-                  if (backend) {
-                    // Try calling authenticate again to trigger UI update
-                    if (backend.currentUser) {
-                      backend.authenticate().catch(() => {});
-                    }
                   }
                 } catch (e) {
                   console.log('Could not force UI update:', e);
