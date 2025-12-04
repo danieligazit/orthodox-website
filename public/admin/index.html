@@ -12,11 +12,29 @@
       const params = new URLSearchParams(window.location.search);
       const token = params.get('access_token');
       if (token) {
-        console.log('[Decap Popup] Token detected. Saving and closing.');
+        // Save the token to LocalStorage (Shared with the main window)
         localStorage.setItem('netlify-cms-auth-token', token);
-        document.body.innerHTML = '<div style="display:flex;height:100vh;align-items:center;justify-content:center;font-family:sans-serif;"><h1>Login successful. Closing...</h1></div>';
-        setTimeout(() => window.close(), 500);
-        throw new Error('Stop execution'); // Stop CMS form loading in popup
+        
+        // Visual confirmation
+        document.body.innerHTML = `
+          <div style="display:flex;height:100vh;align-items:center;justify-content:center;font-family:sans-serif;flex-direction:column;text-align:center;">
+            <h1>Login successful!</h1>
+            <p>You can close this window if it doesn't close automatically.</p>
+          </div>
+        `;
+        
+        // Attempt to notify opener directly (Backup plan)
+        try {
+          if (window.opener) {
+            window.opener.postMessage("cms-auth-success", "*");
+          }
+        } catch(e) { /* ignore cross-origin issues */ }
+
+        // Close self
+        setTimeout(() => window.close(), 1000);
+        
+        // Stop execution to ensure no CMS scripts load in the popup
+        throw new Error('[Decap Popup] Token saved, stopping execution.');
       }
     })();
   </script>
@@ -25,8 +43,8 @@
     window.CMS_MANUAL_INIT = true;
     const PROXY_URL = 'https://decap-oauth-proxy.danieligazit.workers.dev';
 
-    // Helper: Validates token
     async function fetchUser(token) {
+      console.log('[Decap Trap] fetching user data...');
       const response = await fetch(`${PROXY_URL}/user`, {
         headers: { 'Authorization': `token ${token}` }
       });
@@ -41,54 +59,89 @@
       };
     }
 
-    // This variable will hold the real CMS object
     let _cms;
-
-    // We define window.CMS *before* the script loads. 
-    // When Decap tries to set window.CMS, our 'set' function runs.
     Object.defineProperty(window, 'CMS', {
       get: function() { return _cms; },
       set: function(cmsInstance) {
         _cms = cmsInstance;
-        console.log('[Decap Trap] CMS object captured!');
-
+        
         if (_cms && _cms.registerBackend) {
           const originalRegister = _cms.registerBackend;
           
-          // We override registerBackend immediately
           _cms.registerBackend = function(name, BackendClass, options) {
-            
-            // If the CMS is trying to register 'github', we intercept it!
             if (name === 'github') {
-              console.log('[Decap Trap] Intercepted GitHub registration. Class captured.');
+              console.log('[Decap Trap] Intercepted GitHub registration.');
               
-              // Now we have the REAL 'BackendClass' constructor (before it got lost)
               class CustomGitHubBackend extends BackendClass {
                 
+                // AUTHENTICATE OVERRIDE
                 authenticate(credentials) {
-                  const token = localStorage.getItem('netlify-cms-auth-token');
-                  if (token) return this.restoreUser();
+                  // 1. Check for existing token
+                  const existingToken = localStorage.getItem('netlify-cms-auth-token');
+                  if (existingToken) return this.restoreUser();
 
-                  // Polling logic for Popup
-                  const authPromise = super.authenticate(credentials);
+                  // 2. Trigger standard Popup
+                  // We catch errors here because we expect the popup flow to be "broken" 
+                  // by our custom closer script, and that's okay.
+                  super.authenticate(credentials).catch(err => {
+                    console.log('[Decap Trap] Native auth promise ended (expected).');
+                  });
+
+                  // 3. Listen for the token (The important part)
                   return new Promise((resolve, reject) => {
+                    console.log('[Decap Trap] Waiting for token...');
+                    
+                    // Strategy A: Poll LocalStorage (Backup)
                     const poll = setInterval(() => {
-                      const localToken = localStorage.getItem('netlify-cms-auth-token');
-                      if (localToken) {
-                        clearInterval(poll);
-                        fetchUser(localToken).then(resolve).catch(reject);
+                      const token = localStorage.getItem('netlify-cms-auth-token');
+                      if (token) {
+                        console.log('[Decap Trap] Token found via Polling!');
+                        finish(token);
                       }
                     }, 500);
-                    // Also listen to standard flow
-                    authPromise.then(resolve).catch(err => console.log('Standard auth waiting...', err));
-                    setTimeout(() => clearInterval(poll), 120000); // 2 min timeout
+
+                    // Strategy B: Listen for Storage Events (Primary & Faster)
+                    const onStorage = (e) => {
+                      if (e.key === 'netlify-cms-auth-token' && e.newValue) {
+                         console.log('[Decap Trap] Token found via Event!');
+                         finish(e.newValue);
+                      }
+                    };
+                    
+                    // Strategy C: Listen for direct PostMessage (Fastest)
+                    const onMessage = (e) => {
+                      if (e.data === "cms-auth-success") {
+                        console.log('[Decap Trap] Token found via PostMessage!');
+                        const token = localStorage.getItem('netlify-cms-auth-token');
+                        if (token) finish(token);
+                      }
+                    };
+
+                    window.addEventListener('storage', onStorage);
+                    window.addEventListener('message', onMessage);
+
+                    // Cleanup and Log In
+                    function finish(token) {
+                      clearInterval(poll);
+                      window.removeEventListener('storage', onStorage);
+                      window.removeEventListener('message', onMessage);
+                      
+                      fetchUser(token)
+                        .then(user => {
+                          console.log('[Decap Trap] Login complete.');
+                          resolve(user);
+                        })
+                        .catch(err => {
+                          console.error('[Decap Trap] User fetch failed:', err);
+                          reject(err);
+                        });
+                    }
                   });
                 }
 
                 async restoreUser() {
                   const token = localStorage.getItem('netlify-cms-auth-token');
                   if (!token) return Promise.reject();
-                  console.log('[Decap Trap] restoring user...');
                   try {
                     return await fetchUser(token);
                   } catch (e) {
@@ -98,11 +151,8 @@
                 }
               }
 
-              // Register OUR modified class
               originalRegister.call(this, name, CustomGitHubBackend, options);
-              console.log('[Decap Trap] Custom GitHub Backend registered successfully.');
             } else {
-              // Pass everything else through normally
               originalRegister.call(this, name, BackendClass, options);
             }
           };
@@ -114,7 +164,6 @@
   <script src="https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js"></script>
 
   <script>
-    // Wait for the trap to spring and the CMS to load
     const interval = setInterval(() => {
       if (window.CMS) {
         clearInterval(interval);
