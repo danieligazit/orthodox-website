@@ -93,99 +93,214 @@
     })();
   </script>
   
-  <!-- Include Decap CMS -->
-  <script src="https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js"></script>
-  
   <script>
-    // Configure Decap CMS authentication IMMEDIATELY
-    // We need to hook into Decap CMS as soon as it's available
+    // Intercept backend registration BEFORE Decap CMS loads
+    // This ensures our override is in place before Decap CMS initializes
     (function() {
       const token = localStorage.getItem('netlify-cms-auth-token');
       
       if (!token) {
-        // No token - user needs to login
         return;
       }
       
-      // Hook into Decap CMS initialization immediately
-      // Check both before and after DOMContentLoaded
+      // Store original registerBackend if it exists
+      const originalRegisterBackend = window.CMS && window.CMS.registerBackend;
+      
+      // Override registerBackend to intercept GitHub backend registration
+      if (window.CMS) {
+        const originalRegister = window.CMS.registerBackend;
+        window.CMS.registerBackend = function(name, BackendClass) {
+          const result = originalRegister.apply(this, arguments);
+          
+          // If this is the GitHub backend, wrap its methods immediately
+          if (name === 'github') {
+            setTimeout(function() {
+              try {
+                const backend = window.CMS.getBackend('github');
+                if (backend && !backend._authOverrideSet) {
+                  setupBackendAuth(backend);
+                }
+              } catch (e) {
+                console.log('Error setting up backend auth:', e);
+              }
+            }, 0);
+          }
+          
+          return result;
+        };
+      }
+    })();
+  </script>
+  
+  <!-- Include Decap CMS -->
+  <script src="https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js"></script>
+  
+  <script>
+    // Function to set up backend authentication
+    function setupBackendAuth(backend) {
+      if (backend._authOverrideSet) {
+        return;
+      }
+      
+      backend._authOverrideSet = true;
+      const token = localStorage.getItem('netlify-cms-auth-token');
+      
+      if (!token) {
+        return;
+      }
+      
+      // Store original methods
+      const originalRestoreUser = backend.restoreUser;
+      const originalAuthenticate = backend.authenticate;
+      
+      // Pre-fetch user data and set currentUser synchronously if possible
+      // This helps Decap CMS recognize authentication immediately
+      const proxyUrl = 'https://decap-oauth-proxy.danieligazit.workers.dev';
+      fetch(`${proxyUrl}/user`, {
+        headers: {
+          'Authorization': `token ${token}`
+        }
+      })
+      .then(response => {
+        if (response.ok) {
+          return response.json().then(userData => {
+            const user = {
+              token: token,
+              name: userData.login || userData.name,
+              login: userData.login,
+              avatar_url: userData.avatar_url,
+              email: userData.email
+            };
+            
+            // Set currentUser immediately so Decap CMS sees authenticated state
+            backend.currentUser = user;
+            if (backend.user !== undefined) {
+              backend.user = user;
+            }
+            
+            console.log('Pre-authenticated user:', user);
+          });
+        }
+      })
+      .catch(err => {
+        console.log('Pre-auth check failed, will retry:', err);
+      });
+      
+      // Override restoreUser
+      backend.restoreUser = function() {
+        const storedToken = localStorage.getItem('netlify-cms-auth-token');
+        if (!storedToken) {
+          return originalRestoreUser ? originalRestoreUser.call(this) : Promise.reject('No token');
+        }
+        
+        const proxyUrl = 'https://decap-oauth-proxy.danieligazit.workers.dev';
+        return fetch(`${proxyUrl}/user`, {
+          headers: {
+            'Authorization': `token ${storedToken}`
+          }
+        })
+        .then(response => {
+          if (response.ok) {
+            return response.json().then(userData => {
+              const user = {
+                token: storedToken,
+                name: userData.login || userData.name,
+                login: userData.login,
+                avatar_url: userData.avatar_url,
+                email: userData.email
+              };
+              
+              // Set currentUser on backend so Decap CMS recognizes authentication
+              backend.currentUser = user;
+              
+              // Also try to set it on the backend's user property if it exists
+              if (backend.user !== undefined) {
+                backend.user = user;
+              }
+              
+              return user;
+            });
+          } else {
+            localStorage.removeItem('netlify-cms-auth-token');
+            backend.currentUser = null;
+            if (backend.user !== undefined) {
+              backend.user = null;
+            }
+            throw new Error('Token invalid');
+          }
+        })
+        .catch(error => {
+          console.error('Token verification failed:', error);
+          backend.currentUser = null;
+          if (backend.user !== undefined) {
+            backend.user = null;
+          }
+          return originalRestoreUser ? originalRestoreUser.call(this) : Promise.reject(error);
+        });
+      };
+      
+      // Override authenticate
+      backend.authenticate = function() {
+        const storedToken = localStorage.getItem('netlify-cms-auth-token');
+        if (storedToken) {
+          return backend.restoreUser();
+        }
+        return originalAuthenticate ? originalAuthenticate.call(this) : Promise.reject('No token');
+      };
+    }
+    
+    // Configure Decap CMS authentication after it loads
+    (function() {
+      const token = localStorage.getItem('netlify-cms-auth-token');
+      
+      if (!token) {
+        return;
+      }
+      
       function setupAuth() {
         const CMS = window.CMS || window.netlifyCMS;
         if (!CMS) return false;
         
         try {
-          // Get the GitHub backend
           const backend = CMS.getBackend('github');
-          
           if (!backend) {
-            return false; // Backend not ready yet
+            return false;
           }
           
-          // Check if we've already set up the override
-          if (backend._authOverrideSet) {
-            return true;
-          }
+          setupBackendAuth(backend);
           
-          // Mark that we've set up the override
-          backend._authOverrideSet = true;
-          
-          // Store original methods
-          const originalRestoreUser = backend.restoreUser;
-          const originalAuthenticate = backend.authenticate;
-          
-          // Override restoreUser to restore from localStorage and verify token
-          backend.restoreUser = function() {
-            const storedToken = localStorage.getItem('netlify-cms-auth-token');
-            if (!storedToken) {
-              return originalRestoreUser ? originalRestoreUser.call(this) : Promise.reject('No token');
-            }
-            
-            // Verify token by making a request to the backend
-            const proxyUrl = 'https://decap-oauth-proxy.danieligazit.workers.dev';
-            return fetch(`${proxyUrl}/user`, {
-              headers: {
-                'Authorization': `token ${storedToken}`
-              }
-            })
-            .then(response => {
-              if (response.ok) {
-                return response.json().then(userData => {
-                  // Return user object that Decap CMS expects
-                  return {
-                    token: storedToken,
-                    name: userData.login || userData.name,
-                    login: userData.login,
-                    avatar_url: userData.avatar_url,
-                    email: userData.email
-                  };
-                });
-              } else {
-                // Token invalid, clear it
-                localStorage.removeItem('netlify-cms-auth-token');
-                throw new Error('Token invalid');
-              }
-            })
-            .catch(error => {
-              console.error('Token verification failed:', error);
-              // Still try original restoreUser as fallback
-              return originalRestoreUser ? originalRestoreUser.call(this) : Promise.reject(error);
-            });
-          };
-          
-          // Override authenticate to use stored token
-          backend.authenticate = function() {
-            const storedToken = localStorage.getItem('netlify-cms-auth-token');
-            if (storedToken) {
-              // Use restoreUser to verify and get user info
-              return backend.restoreUser();
-            }
-            return originalAuthenticate ? originalAuthenticate.call(this) : Promise.reject('No token');
-          };
-          
-          // Try to restore user immediately
+          // Try to restore user - Decap CMS should call this automatically, but we'll call it too
           backend.restoreUser()
             .then(function(user) {
               console.log('User authenticated:', user);
+              
+              // Force Decap CMS to recognize the authenticated state
+              // Try multiple ways to trigger UI update
+              setTimeout(function() {
+                try {
+                  const CMS = window.CMS || window.netlifyCMS;
+                  
+                  // Try to get the app and trigger a state update
+                  if (CMS.getApp) {
+                    const app = CMS.getApp();
+                    if (app && app.store) {
+                      // Dispatch authentication success
+                      app.store.dispatch({ type: 'AUTHENTICATION_SUCCESS', user: user });
+                    }
+                  }
+                  
+                  // Also try to trigger a re-render by accessing the backend again
+                  const backend = CMS.getBackend('github');
+                  if (backend && backend.currentUser) {
+                    // Force a check by calling a method that triggers state update
+                    if (typeof backend.status === 'function') {
+                      backend.status();
+                    }
+                  }
+                } catch (e) {
+                  console.log('Could not force UI update:', e);
+                }
+              }, 500);
             })
             .catch(function(error) {
               console.log('Authentication check failed:', error);
@@ -198,11 +313,10 @@
         }
       }
       
-      // Try immediately (in case CMS loads synchronously)
+      // Try immediately
       if (!setupAuth()) {
-        // If not ready, check periodically
         let checkCount = 0;
-        const maxChecks = 100; // 5 seconds max
+        const maxChecks = 200;
         
         const checkInterval = setInterval(function() {
           checkCount++;
@@ -212,10 +326,8 @@
         }, 50);
       }
       
-      // Also try on DOMContentLoaded
-      window.addEventListener('DOMContentLoaded', function() {
-        setupAuth();
-      });
+      window.addEventListener('DOMContentLoaded', setupAuth);
+      setTimeout(setupAuth, 1000);
     })();
   </script>
 </body>
