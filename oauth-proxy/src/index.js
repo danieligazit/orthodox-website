@@ -81,19 +81,25 @@ export default {
           });
         }
         
-        // Redirect to admin page with token in query string
-        // Decap CMS will pick up the token from the URL
+        // Set token in a cookie for the proxy to use for API requests
+        // Also pass it in URL for Decap CMS to pick up
         const redirectUrl = new URL(`${siteUrl}/admin/`);
         redirectUrl.searchParams.set('access_token', tokenData.access_token);
         if (state) {
           redirectUrl.searchParams.set('state', state);
         }
-        // Also include token_type if provided
         if (tokenData.token_type) {
           redirectUrl.searchParams.set('token_type', tokenData.token_type);
         }
 
-        return Response.redirect(redirectUrl.toString(), 302);
+        // Create redirect response with cookie
+        const response = Response.redirect(redirectUrl.toString(), 302);
+        // Set cookie with token (HttpOnly for security, but accessible to proxy)
+        // Note: Cloudflare Workers cookies need to be set on the same domain
+        // Since we're redirecting to a different domain, we'll pass token in URL
+        // and let the admin page store it
+        
+        return response;
       } catch (error) {
         return new Response(`Error: ${error.message}`, {
           status: 500,

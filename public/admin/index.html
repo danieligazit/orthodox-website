@@ -8,29 +8,23 @@
 <body>
   <!-- Handle OAuth callback token -->
   <script>
-    // Read token from URL and store it for Decap CMS
+    // Read token from URL and make it available to Decap CMS
     const urlParams = new URLSearchParams(window.location.search);
     const accessToken = urlParams.get('access_token');
-    const state = urlParams.get('state');
     
     if (accessToken) {
-      // Store token in localStorage for Decap CMS to access
+      // Store token for Decap CMS
+      // Decap CMS with base_url expects token to be sent with API requests
       localStorage.setItem('netlify-cms-auth-token', accessToken);
       
-      // Also try setting it in the expected format
-      if (window.netlifyIdentity) {
-        window.netlifyIdentity.on('init', function(user) {
-          if (!user) {
-            window.netlifyIdentity.on('login', function() {
-              // Token should be available now
-            });
-          }
-        });
-      }
-      
-      // Clean up URL by removing token parameters
+      // Clean up URL
       const cleanUrl = window.location.pathname;
       window.history.replaceState({}, document.title, cleanUrl);
+      
+      // Force page reload to ensure Decap CMS picks up the token
+      // This ensures Decap CMS initializes with the token available
+      window.location.reload();
+      return; // Stop execution to allow reload
     }
   </script>
   
