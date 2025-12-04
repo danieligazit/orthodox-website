@@ -1,8 +1,11 @@
 backend:
-  name: github-proxy
+  name: github             # Standard name
   repo: danieligazit/orthodox-records
   branch: main
+  # This tells Decap to use your worker instead of the default Netlify auth
   base_url: https://decap-oauth-proxy.danieligazit.workers.dev
+  auth_endpoint: auth      # The endpoint on your worker (usually 'auth')
+
 
 media_folder: "public"
 public_folder: "/"
