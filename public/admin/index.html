@@ -154,14 +154,38 @@
                     // Set up authentication overrides
                     setupBackendAuth(backend);
                     
-                    // Call restoreUser to ensure authentication state is properly set
-                    if (window._decapCMSUserCache) {
-                      backend.restoreUser().then(function(user) {
-                        console.log('Backend authenticated on registration:', user);
-                      }).catch(function(err) {
-                        console.log('Auth on registration failed:', err);
-                      });
-                    }
+                        // Call restoreUser to ensure authentication state is properly set
+                        if (window._decapCMSUserCache) {
+                          backend.restoreUser().then(function(user) {
+                            console.log('Backend authenticated on registration:', user);
+                            
+                            // Update Redux store after a short delay to ensure CMS is initialized
+                            setTimeout(function() {
+                              try {
+                                const CMS = window.CMS || window.netlifyCMS;
+                                if (CMS && CMS.getApp) {
+                                  const app = CMS.getApp();
+                                  if (app && app.store) {
+                                    app.store.dispatch({ 
+                                      type: 'AUTHENTICATE_USER_SUCCESS', 
+                                      user: user,
+                                      token: user.token 
+                                    });
+                                    app.store.dispatch({ 
+                                      type: 'USER_RECEIVED', 
+                                      user: user 
+                                    });
+                                    console.log('Redux store updated on registration');
+                                  }
+                                }
+                              } catch (e) {
+                                console.log('Could not update Redux store on registration:', e);
+                              }
+                            }, 200);
+                          }).catch(function(err) {
+                            console.log('Auth on registration failed:', err);
+                          });
+                        }
                   } else if (!backend) {
                     // Backend not available yet, try again after a short delay
                     setTimeout(function() {
@@ -207,6 +231,30 @@
                   if (window._decapCMSUserCache) {
                     backend.restoreUser().then(function(user) {
                       console.log('Backend authenticated immediately:', user);
+                      
+                      // Update Redux store after a short delay
+                      setTimeout(function() {
+                        try {
+                          const CMS = window.CMS || window.netlifyCMS;
+                          if (CMS && CMS.getApp) {
+                            const app = CMS.getApp();
+                            if (app && app.store) {
+                              app.store.dispatch({ 
+                                type: 'AUTHENTICATE_USER_SUCCESS', 
+                                user: user,
+                                token: user.token 
+                              });
+                              app.store.dispatch({ 
+                                type: 'USER_RECEIVED', 
+                                user: user 
+                              });
+                              console.log('Redux store updated immediately');
+                            }
+                          }
+                        } catch (e) {
+                          console.log('Could not update Redux store immediately:', e);
+                        }
+                      }, 200);
                     });
                   }
                 }
@@ -347,6 +395,37 @@
             backend.user = window._decapCMSUserCache;
           }
           console.log('restoreUser returning cached user immediately');
+          
+          // Update Redux store to reflect authenticated state
+          // This is critical for Decap CMS to show the CMS interface
+          setTimeout(function() {
+            try {
+              const CMS = window.CMS || window.netlifyCMS;
+              if (CMS && CMS.getApp) {
+                const app = CMS.getApp();
+                if (app && app.store) {
+                  // Dispatch authentication success action
+                  // This tells Decap CMS to transition from login screen to CMS interface
+                  app.store.dispatch({ 
+                    type: 'AUTHENTICATE_USER_SUCCESS', 
+                    user: window._decapCMSUserCache,
+                    token: window._decapCMSUserCache.token 
+                  });
+                  
+                  // Also dispatch user received action
+                  app.store.dispatch({ 
+                    type: 'USER_RECEIVED', 
+                    user: window._decapCMSUserCache 
+                  });
+                  
+                  console.log('Redux store updated with authenticated user');
+                }
+              }
+            } catch (e) {
+              console.log('Could not update Redux store:', e);
+            }
+          }, 0);
+          
           return Promise.resolve(window._decapCMSUserCache);
         }
         
@@ -380,6 +459,31 @@
               }
               
               console.log('restoreUser fetched and cached user');
+              
+              // Update Redux store to reflect authenticated state
+              setTimeout(function() {
+                try {
+                  const CMS = window.CMS || window.netlifyCMS;
+                  if (CMS && CMS.getApp) {
+                    const app = CMS.getApp();
+                    if (app && app.store) {
+                      app.store.dispatch({ 
+                        type: 'AUTHENTICATE_USER_SUCCESS', 
+                        user: user,
+                        token: user.token 
+                      });
+                      app.store.dispatch({ 
+                        type: 'USER_RECEIVED', 
+                        user: user 
+                      });
+                      console.log('Redux store updated with fetched user');
+                    }
+                  }
+                } catch (e) {
+                  console.log('Could not update Redux store:', e);
+                }
+              }, 0);
+              
               return user;
             });
           } else {
@@ -452,6 +556,30 @@
             backend.restoreUser()
               .then(function(user) {
                 console.log('User authenticated via setupAuth:', user);
+                
+                // Update Redux store after authentication
+                setTimeout(function() {
+                  try {
+                    const CMS = window.CMS || window.netlifyCMS;
+                    if (CMS && CMS.getApp) {
+                      const app = CMS.getApp();
+                      if (app && app.store) {
+                        app.store.dispatch({ 
+                          type: 'AUTHENTICATE_USER_SUCCESS', 
+                          user: user,
+                          token: user.token 
+                        });
+                        app.store.dispatch({ 
+                          type: 'USER_RECEIVED', 
+                          user: user 
+                        });
+                        console.log('Redux store updated via setupAuth');
+                      }
+                    }
+                  } catch (e) {
+                    console.log('Could not update Redux store:', e);
+                  }
+                }, 100);
               })
               .catch(function(error) {
                 console.log('Authentication check failed:', error);
@@ -481,6 +609,93 @@
       window.addEventListener('DOMContentLoaded', setupAuth);
       setTimeout(setupAuth, 100);
       setTimeout(setupAuth, 500);
+      
+      // Watch for Decap CMS app/store to become available and update Redux store
+      if (token && window._decapCMSUserCache) {
+        let checkCount = 0;
+        const maxChecks = 100;
+        const checkStore = setInterval(function() {
+          checkCount++;
+          try {
+            const CMS = window.CMS || window.netlifyCMS;
+            if (CMS && CMS.getApp) {
+              const app = CMS.getApp();
+              if (app && app.store) {
+                const state = app.store.getState();
+                
+                // Check if user is not in the auth state
+                if (!state.auth || !state.auth.user || (state.auth.user && state.auth.user.token !== window._decapCMSUserCache.token)) {
+                  // Update Redux store with authenticated user
+                  // Try multiple action types that Decap CMS might use
+                  app.store.dispatch({ 
+                    type: 'AUTHENTICATE_USER_SUCCESS', 
+                    user: window._decapCMSUserCache,
+                    token: window._decapCMSUserCache.token 
+                  });
+                  app.store.dispatch({ 
+                    type: 'USER_RECEIVED', 
+                    user: window._decapCMSUserCache 
+                  });
+                  app.store.dispatch({ 
+                    type: 'AUTHENTICATION_SUCCESS', 
+                    user: window._decapCMSUserCache 
+                  });
+                  app.store.dispatch({ 
+                    type: 'LOGIN_SUCCESS', 
+                    user: window._decapCMSUserCache 
+                  });
+                  
+                  // Also ensure backend.currentUser is set
+                  const backend = CMS.getBackend('github');
+                  if (backend) {
+                    backend.currentUser = window._decapCMSUserCache;
+                    if (backend.user !== undefined) {
+                      backend.user = window._decapCMSUserCache;
+                    }
+                    
+                    // Try calling restoreUser again to trigger Decap CMS's normal flow
+                    backend.restoreUser().then(function(user) {
+                      console.log('Redux store updated via watcher, restoreUser called');
+                      
+                      // Force CMS content to be visible
+                      const cmsRoot = document.getElementById('nc-root') || document.querySelector('[data-netlify-cms]');
+                      if (cmsRoot) {
+                        cmsRoot.style.display = 'block';
+                        cmsRoot.style.visibility = 'visible';
+                        cmsRoot.style.opacity = '1';
+                      }
+                      
+                      // Hide login screen if it exists
+                      const loginScreen = document.querySelector('[class*="LoginPage"], [class*="login-page"], [class*="AuthenticationPage"]');
+                      if (loginScreen) {
+                        loginScreen.style.display = 'none';
+                      }
+                      
+                      // Show CMS content containers
+                      const cmsContent = document.querySelectorAll('[class*="Collection"], [class*="collection"], [class*="Editor"], [class*="editor"], [class*="App"], [class*="app"]');
+                      cmsContent.forEach(function(container) {
+                        container.style.display = 'block';
+                        container.style.visibility = 'visible';
+                      });
+                    });
+                  }
+                  
+                  console.log('Redux store updated via watcher');
+                } else {
+                  // User already in store, stop checking
+                  clearInterval(checkStore);
+                }
+              }
+            }
+          } catch (e) {
+            // Store not available yet, continue checking
+          }
+          
+          if (checkCount >= maxChecks) {
+            clearInterval(checkStore);
+          }
+        }, 100);
+      }
     })();
   </script>
 </body>
