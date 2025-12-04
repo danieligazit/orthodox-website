@@ -153,8 +153,8 @@
       const originalRestoreUser = backend.restoreUser;
       const originalAuthenticate = backend.authenticate;
       
-      // Pre-fetch user data and set currentUser synchronously if possible
-      // This helps Decap CMS recognize authentication immediately
+      // Pre-fetch and cache user data immediately
+      // This ensures restoreUser can return synchronously when Decap CMS calls it
       const proxyUrl = 'https://decap-oauth-proxy.danieligazit.workers.dev';
       fetch(`${proxyUrl}/user`, {
         headers: {
@@ -172,13 +172,15 @@
               email: userData.email
             };
             
+            // Cache user for immediate return in restoreUser
+            // This will be set by the restoreUser override above
+            console.log('Pre-authenticated user:', user);
+            
             // Set currentUser immediately so Decap CMS sees authenticated state
             backend.currentUser = user;
             if (backend.user !== undefined) {
               backend.user = user;
             }
-            
-            console.log('Pre-authenticated user:', user);
           });
         }
       })
@@ -186,13 +188,28 @@
         console.log('Pre-auth check failed, will retry:', err);
       });
       
-      // Override restoreUser
+      // Cache user data to return immediately
+      let cachedUser = null;
+      
+      // Override restoreUser - return cached user immediately if available
       backend.restoreUser = function() {
         const storedToken = localStorage.getItem('netlify-cms-auth-token');
         if (!storedToken) {
+          cachedUser = null;
+          backend.currentUser = null;
           return originalRestoreUser ? originalRestoreUser.call(this) : Promise.reject('No token');
         }
         
+        // If we have cached user, return it immediately (synchronous-like behavior)
+        if (cachedUser && cachedUser.token === storedToken) {
+          backend.currentUser = cachedUser;
+          if (backend.user !== undefined) {
+            backend.user = cachedUser;
+          }
+          return Promise.resolve(cachedUser);
+        }
+        
+        // Otherwise fetch and cache
         const proxyUrl = 'https://decap-oauth-proxy.danieligazit.workers.dev';
         return fetch(`${proxyUrl}/user`, {
           headers: {
@@ -210,6 +227,9 @@
                 email: userData.email
               };
               
+              // Cache the user
+              cachedUser = user;
+              
               // Set currentUser on backend so Decap CMS recognizes authentication
               backend.currentUser = user;
               
@@ -221,6 +241,7 @@
               return user;
             });
           } else {
+            cachedUser = null;
             localStorage.removeItem('netlify-cms-auth-token');
             backend.currentUser = null;
             if (backend.user !== undefined) {
@@ -231,6 +252,7 @@
         })
         .catch(error => {
           console.error('Token verification failed:', error);
+          cachedUser = null;
           backend.currentUser = null;
           if (backend.user !== undefined) {
             backend.user = null;
@@ -269,42 +291,118 @@
           
           setupBackendAuth(backend);
           
-          // Try to restore user - Decap CMS should call this automatically, but we'll call it too
-          backend.restoreUser()
+          // Call restoreUser to ensure authentication state is set
+          // Decap CMS should call this automatically during init, but we call it too
+          const authPromise = backend.restoreUser()
             .then(function(user) {
               console.log('User authenticated:', user);
               
-              // Force Decap CMS to recognize the authenticated state
-              // Try multiple ways to trigger UI update
+              // Try to manually trigger Decap CMS authentication flow
+              // This simulates what happens when user clicks "Login with GitHub"
               setTimeout(function() {
                 try {
                   const CMS = window.CMS || window.netlifyCMS;
                   
-                  // Try to get the app and trigger a state update
+                  // Try to access the CMS app instance
                   if (CMS.getApp) {
                     const app = CMS.getApp();
                     if (app && app.store) {
-                      // Dispatch authentication success
+                      // Dispatch authentication success action
                       app.store.dispatch({ type: 'AUTHENTICATION_SUCCESS', user: user });
+                      
+                      // Also try to dispatch a user received action
+                      app.store.dispatch({ type: 'USER_RECEIVED', user: user });
                     }
                   }
                   
-                  // Also try to trigger a re-render by accessing the backend again
+                  // Try to find and trigger the authentication component
+                  // Decap CMS uses React, so we might need to trigger a re-render
+                  const rootElement = document.getElementById('nc-root') || document.querySelector('[data-netlify-cms]');
+                  if (rootElement) {
+                    // Trigger a custom event that might cause re-render
+                    const event = new CustomEvent('netlify-cms-auth-success', { 
+                      detail: { user: user },
+                      bubbles: true 
+                    });
+                    rootElement.dispatchEvent(event);
+                  }
+                  
+                  // Force backend to re-check status
                   const backend = CMS.getBackend('github');
-                  if (backend && backend.currentUser) {
-                    // Force a check by calling a method that triggers state update
-                    if (typeof backend.status === 'function') {
-                      backend.status();
+                  if (backend) {
+                    // Try calling authenticate again to trigger UI update
+                    if (backend.currentUser) {
+                      backend.authenticate().catch(() => {});
                     }
                   }
                 } catch (e) {
                   console.log('Could not force UI update:', e);
                 }
-              }, 500);
+              }, 100);
+              
+              // Also try after a longer delay in case CMS is still initializing
+              setTimeout(function() {
+                try {
+                  const CMS = window.CMS || window.netlifyCMS;
+                  const backend = CMS.getBackend('github');
+                  if (backend && backend.currentUser) {
+                    // Try to trigger authentication again
+                    backend.authenticate().then(function(u) {
+                      console.log('Re-authenticated:', u);
+                    }).catch(function(e) {
+                      console.log('Re-auth failed:', e);
+                    });
+                  }
+                  
+                  // Check if login button is still visible and try to hide it or trigger auth
+                  const loginButton = document.querySelector('button[class*="Login"], a[class*="Login"], [class*="login-button"]');
+                  if (loginButton && backend && backend.currentUser) {
+                    console.log('Login button still visible, attempting to trigger authentication...');
+                    // Try clicking the button programmatically - it should use our overridden authenticate
+                    loginButton.click();
+                  }
+                } catch (e) {
+                  console.log('Delayed auth update failed:', e);
+                }
+              }, 2000);
+              
+              // One more attempt after even longer delay
+              setTimeout(function() {
+                try {
+                  const CMS = window.CMS || window.netlifyCMS;
+                  const backend = CMS.getBackend('github');
+                  if (backend && backend.currentUser) {
+                    // Force a full re-authentication
+                    backend.authenticate().then(function(u) {
+                      console.log('Final re-authentication:', u);
+                    });
+                  }
+                } catch (e) {
+                  console.log('Final auth attempt failed:', e);
+                }
+              }, 5000);
             })
             .catch(function(error) {
               console.log('Authentication check failed:', error);
             });
+          
+          // Also ensure currentUser is set even if restoreUser hasn't completed
+          if (backend.currentUser) {
+            // User already set, try to trigger update
+            setTimeout(function() {
+              try {
+                const CMS = window.CMS || window.netlifyCMS;
+                if (CMS.getApp) {
+                  const app = CMS.getApp();
+                  if (app && app.store) {
+                    app.store.dispatch({ type: 'AUTHENTICATION_SUCCESS', user: backend.currentUser });
+                  }
+                }
+              } catch (e) {
+                console.log('Could not trigger update with existing user:', e);
+              }
+            }, 100);
+          }
           
           return true;
         } catch (error) {
