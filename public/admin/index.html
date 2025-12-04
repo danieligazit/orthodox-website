@@ -4,168 +4,121 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Content Manager</title>
-  <link href="/orthodox-website/admin/config.yml" type="text/yaml" rel="cms-config-url" />
 </head>
 <body>
   <script>
-    (function() {
-      const params = new URLSearchParams(window.location.search);
-      const token = params.get('access_token');
-      if (token) {
-        localStorage.setItem('netlify-cms-auth-token', token);
-        document.body.innerHTML = `<div style="display:flex;height:100vh;align-items:center;justify-content:center;font-family:sans-serif;flex-direction:column;text-align:center;"><h1>Login successful!</h1><p>Closing...</p></div>`;
-        
-        try {
-          if (window.opener) {
-            window.opener.postMessage("cms-auth-success", "*");
-          }
-        } catch(e) { /* ignore cross-origin issues */ }
-
-        setTimeout(() => window.close(), 1000);
-        throw new Error('[Decap Popup] Token saved, stopping execution.');
+    if (window.location.search.includes('access_token')) {
+      const token = new URLSearchParams(window.location.search).get('access_token');
+      // 1. Send to Opener (Main Window)
+      if (window.opener) {
+        window.opener.postMessage(token, "*"); 
       }
-    })();
+      // 2. Save to LocalStorage (Backup)
+      localStorage.setItem('cms-token', token);
+      
+      // 3. UI and Close
+      document.body.innerHTML = '<div style="display:flex;height:100vh;align-items:center;justify-content:center;font-family:sans-serif;"><h1>Login success. Closing...</h1></div>';
+      setTimeout(() => window.close(), 500);
+      
+      // 4. STOP execution to prevent CMS loading in popup
+      throw new Error('Stop execution');
+    }
   </script>
 
   <script>
     window.CMS_MANUAL_INIT = true;
     const PROXY_URL = 'https://decap-oauth-proxy.danieligazit.workers.dev';
 
-    // Helper: Timeout wrapper for fetch
-    async function fetchWithTimeout(resource, options = {}) {
-        const { timeout = 10000 } = options; // 10 seconds
-        const controller = new AbortController();
-        const id = setTimeout(() => controller.abort(), timeout);
-
-        try {
-            const response = await fetch(resource, {
-                ...options,
-                signal: controller.signal  
-            });
-            clearTimeout(id);
-            return response;
-        } catch (error) {
-            clearTimeout(id);
-            if (error.name === 'AbortError') {
-                throw new Error('Network request timed out after 10 seconds.');
-            }
-            throw error;
-        }
-    }
-
-    // Helper: Validates token
-    async function fetchUser(token) {
-      console.log('[Decap Trap - NETWORK] Starting fetch to proxy...');
-      
-      const response = await fetchWithTimeout(`${PROXY_URL}/user`, {
-        headers: { 'Authorization': `token ${token}` }
-      });
-      
-      console.log(`[Decap Trap - NETWORK] Fetch completed with status: ${response.status}`);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Proxy validation failed: ${response.status} - ${errorText.substring(0, 100)}`);
-      }
-      
-      const userData = await response.json();
-      console.log(`[Decap Trap - NETWORK] User data retrieved for: ${userData.login}`);
-      return {
-        token: token,
-        name: userData.name || userData.login,
-        login: userData.login,
-        avatar_url: userData.avatar_url,
-        email: userData.email
-      };
-    }
-
+    // We define window.CMS early to catch Decap as it loads
     let _cms;
     Object.defineProperty(window, 'CMS', {
       get: function() { return _cms; },
       set: function(cmsInstance) {
         _cms = cmsInstance;
         
+        // INTERCEPT registerBackend
         if (_cms && _cms.registerBackend) {
           const originalRegister = _cms.registerBackend;
           
           _cms.registerBackend = function(name, BackendClass, options) {
-            if (name === 'github') {
-              
-              class CustomGitHubBackend extends BackendClass {
-                
-                authenticate(credentials) {
-                  const existingToken = localStorage.getItem('netlify-cms-auth-token');
-                  if (existingToken) return this.restoreUser();
+            
+            // 1. Let the default registration happen (so 'github' still exists)
+            originalRegister.call(this, name, BackendClass, options);
 
-                  super.authenticate(credentials).catch(err => {
-                    // Standard flow rejected, we proceed with our custom listener
-                  });
+            // 2. IF this is the 'github' backend, we steal the Class to make our Proxy!
+            if (name === 'github') {
+              console.log('[Decap Setup] Captured GitHub Class. Creating github-proxy...');
+
+              // Create our Custom Class extending the captured BackendClass
+              class ProxyBackend extends BackendClass {
+                constructor(config) {
+                  super(config);
+                }
+
+                // Override Authenticate to use your Proxy
+                authenticate(credentials) {
+                  const token = localStorage.getItem('cms-token');
+                  if (token) return this.validate(token);
 
                   return new Promise((resolve, reject) => {
-                    console.log('[Decap Trap - AUTH] Waiting for token signal...');
+                    // A. Open Popup
+                    const width = 600, height = 600;
+                    const left = (window.innerWidth / 2) - (width / 2);
+                    const top = (window.innerHeight / 2) - (height / 2);
+                    const authUrl = `${PROXY_URL}/auth?provider=github&site_id=orthodox-website`;
                     
-                    const poll = setInterval(() => {
-                      const token = localStorage.getItem('netlify-cms-auth-token');
-                      if (token) {
-                        console.log('[Decap Trap - AUTH] Token signal received via Polling.');
-                        finish(token);
-                      }
-                    }, 500);
+                    window.open(authUrl, 'auth', `width=${width},height=${height},top=${top},left=${left}`);
 
-                    const onStorage = (e) => {
-                      if (e.key === 'netlify-cms-auth-token' && e.newValue) {
-                         console.log('[Decap Trap - AUTH] Token signal received via Storage Event.');
-                         finish(e.newValue);
+                    // B. Listen for Message
+                    const listener = (event) => {
+                      if (typeof event.data === 'string' && event.data.startsWith('gho_')) {
+                        window.removeEventListener('message', listener);
+                        localStorage.setItem('cms-token', event.data);
+                        this.validate(event.data).then(resolve).catch(reject);
                       }
                     };
-                    
-                    const onMessage = (e) => {
-                      if (e.data === "cms-auth-success") {
-                        console.log('[Decap Trap - AUTH] Token signal received via PostMessage.');
-                        const token = localStorage.getItem('netlify-cms-auth-token');
-                        if (token) finish(token);
-                      }
-                    };
-
-                    window.addEventListener('storage', onStorage);
-                    window.addEventListener('message', onMessage);
-
-                    // Cleanup and Log In
-                    function finish(token) {
-                      console.log('[Decap Trap - AUTH] Finish routine started.');
-                      clearInterval(poll);
-                      window.removeEventListener('storage', onStorage);
-                      window.removeEventListener('message', onMessage);
-                      
-                      fetchUser(token)
-                        .then(user => {
-                          console.log('[Decap Trap - AUTH] Login successful, resolving Promise.');
-                          resolve(user);
-                        })
-                        .catch(err => {
-                          console.error('[Decap Trap - AUTH] Validation FAILED:', err);
-                          reject(err);
-                        });
-                    }
+                    window.addEventListener('message', listener);
                   });
                 }
 
-                async restoreUser() {
-                  const token = localStorage.getItem('netlify-cms-auth-token');
-                  if (!token) return Promise.reject();
+                // Validate Token with your Worker
+                async validate(token) {
                   try {
-                    return await fetchUser(token);
+                    const response = await fetch(`${PROXY_URL}/user`, {
+                      headers: { 'Authorization': `token ${token}` }
+                    });
+                    if (!response.ok) throw new Error('Invalid token');
+                    
+                    const user = await response.json();
+                    return {
+                      token: token,
+                      name: user.name || user.login,
+                      login: user.login,
+                      avatar_url: user.avatar_url
+                    };
                   } catch (e) {
-                    console.error('[Decap Trap - AUTH] Restore failed:', e);
-                    localStorage.removeItem('netlify-cms-auth-token');
-                    return Promise.reject();
+                    localStorage.removeItem('cms-token');
+                    throw e;
                   }
+                }
+                
+                logout() {
+                  localStorage.removeItem('cms-token');
+                  return super.logout();
                 }
               }
 
-              originalRegister.call(this, name, CustomGitHubBackend, options);
-            } else {
-              originalRegister.call(this, name, BackendClass, options);
+              // 3. Register 'github-proxy' explicitly
+              // We do this HERE, immediately after 'github' is defined
+              _cms.registerBackend('github-proxy', ProxyBackend);
+              console.log('[Decap Setup] github-proxy registered successfully!');
+              
+              // 4. NOW we can safely start the CMS
+              // We use setTimeout to ensure the current stack clears
+              setTimeout(() => {
+                console.log('[Decap Setup] Starting CMS initialization...');
+                _cms.init();
+              }, 100);
             }
           };
         }
@@ -174,15 +127,5 @@
   </script>
 
   <script src="https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js"></script>
-
-  <script>
-    const interval = setInterval(() => {
-      if (window.CMS) {
-        clearInterval(interval);
-        console.log('[Decap Debug] Starting CMS...');
-        window.CMS.init();
-      }
-    }, 100);
-  </script>
 </body>
 </html>
