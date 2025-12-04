@@ -316,12 +316,54 @@
               console.log('User authenticated:', user);
               
               // Force CMS content to be visible immediately
-              const cmsRoot = document.getElementById('nc-root') || document.querySelector('[data-netlify-cms]');
-              if (cmsRoot) {
-                cmsRoot.style.display = 'block';
-                cmsRoot.style.visibility = 'visible';
-                cmsRoot.style.opacity = '1';
+              function showCMS() {
+                const cmsRoot = document.getElementById('nc-root') || document.querySelector('[data-netlify-cms]');
+                if (cmsRoot) {
+                  cmsRoot.style.display = 'block';
+                  cmsRoot.style.visibility = 'visible';
+                  cmsRoot.style.opacity = '1';
+                  cmsRoot.style.height = 'auto';
+                  cmsRoot.style.minHeight = '100vh';
+                  
+                  // Remove any hidden classes
+                  cmsRoot.classList.remove('hidden');
+                  cmsRoot.removeAttribute('hidden');
+                  
+                  console.log('CMS root made visible');
+                }
+                
+                // Also check for any CMS content containers and make them visible
+                const cmsContainers = document.querySelectorAll('[class*="cms"], [class*="CMS"], [id*="cms"]');
+                cmsContainers.forEach(function(container) {
+                  container.style.display = 'block';
+                  container.style.visibility = 'visible';
+                  container.style.opacity = '1';
+                });
+                
+                // Check if there's a login screen and hide it
+                const loginScreen = document.querySelector('[class*="LoginPage"], [class*="login-page"], [class*="AuthenticationPage"]');
+                if (loginScreen) {
+                  loginScreen.style.display = 'none';
+                  console.log('Login screen hidden');
+                }
+                
+                // Check if there's CMS content that should be shown
+                const cmsContent = document.querySelector('[class*="Collection"], [class*="collection"], [class*="Editor"], [class*="editor"]');
+                if (cmsContent) {
+                  cmsContent.style.display = 'block';
+                  console.log('CMS content found and made visible');
+                } else {
+                  console.log('CMS content not found in DOM yet');
+                }
               }
+              
+              // Show immediately
+              showCMS();
+              
+              // Also show after a delay in case CMS is still rendering
+              setTimeout(showCMS, 500);
+              setTimeout(showCMS, 1000);
+              setTimeout(showCMS, 2000);
               
               // Try to manually trigger Decap CMS authentication flow
               // This simulates what happens when user clicks "Login with GitHub"
@@ -329,10 +371,13 @@
                 try {
                   const CMS = window.CMS || window.netlifyCMS;
                   
-                  // Try to access the CMS app instance
+                  // Try to access the CMS app instance and force re-render
                   if (CMS.getApp) {
                     const app = CMS.getApp();
                     if (app && app.store) {
+                      // Get current state
+                      const state = app.store.getState();
+                      
                       // Dispatch authentication success action
                       app.store.dispatch({ type: 'AUTHENTICATION_SUCCESS', user: user });
                       
@@ -343,16 +388,30 @@
                       app.store.dispatch({ type: 'LOGIN_SUCCESS', user: user });
                       
                       // Try to set auth state directly
-                      if (app.store.getState) {
-                        const state = app.store.getState();
-                        if (state.auth) {
-                          app.store.dispatch({ 
-                            type: 'AUTHENTICATE_USER_SUCCESS', 
-                            user: user,
-                            token: user.token 
-                          });
-                        }
+                      if (state.auth !== undefined) {
+                        app.store.dispatch({ 
+                          type: 'AUTHENTICATE_USER_SUCCESS', 
+                          user: user,
+                          token: user.token 
+                        });
                       }
+                      
+                      // Try to dispatch config loaded action to trigger CMS render
+                      if (state.config) {
+                        app.store.dispatch({ type: 'CONFIG_LOADED', config: state.config });
+                      }
+                      
+                      // Force a state update by dispatching an empty action
+                      app.store.dispatch({ type: '@@INIT' });
+                    }
+                  }
+                  
+                  // Also try to access the CMS registry and trigger render
+                  if (CMS.getRegistry) {
+                    const registry = CMS.getRegistry();
+                    if (registry && registry.getWidgets) {
+                      // Force widgets to re-register
+                      console.log('CMS registry available');
                     }
                   }
                   
@@ -569,7 +628,19 @@
                       const app = CMS.getApp();
                       if (app && app.store) {
                         app.store.dispatch({ type: 'AUTHENTICATION_SUCCESS', user: user });
+                        app.store.dispatch({ type: 'USER_RECEIVED', user: user });
+                        app.store.dispatch({ type: 'LOGIN_SUCCESS', user: user });
                       }
+                    }
+                    
+                    // Force CMS root to be visible
+                    const cmsRoot = document.getElementById('nc-root') || document.querySelector('[data-netlify-cms]');
+                    if (cmsRoot) {
+                      cmsRoot.style.display = 'block';
+                      cmsRoot.style.visibility = 'visible';
+                      cmsRoot.style.opacity = '1';
+                      cmsRoot.style.height = 'auto';
+                      cmsRoot.style.minHeight = '100vh';
                     }
                   });
                 }, 100);
