@@ -4,55 +4,516 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Content Manager</title>
-  <link href="/orthodox-website/admin/config.yml" type="text/yaml" rel="cms-config-url" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 30px;
+    }
+    
+    h1 {
+      margin-bottom: 30px;
+      color: #333;
+    }
+    
+    .auth-section {
+      text-align: center;
+      padding: 40px;
+    }
+    
+    .btn {
+      background: #24292e;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    
+    .btn:hover {
+      background: #2f363d;
+    }
+    
+    .btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    
+    .btn-success {
+      background: #28a745;
+    }
+    
+    .btn-success:hover {
+      background: #218838;
+    }
+    
+    .status {
+      padding: 12px;
+      border-radius: 6px;
+      margin: 20px 0;
+    }
+    
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .status.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+    
+    .albums-list {
+      margin-top: 30px;
+    }
+    
+    .album-item {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 20px;
+      margin-bottom: 20px;
+      background: #fafafa;
+    }
+    
+    .album-item h3 {
+      margin-bottom: 10px;
+      color: #333;
+    }
+    
+    .album-item .meta {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 15px;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: #333;
+    }
+    
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    
+    .list-item {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .list-item input {
+      flex: 1;
+      border: none;
+      padding: 5px;
+    }
+    
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 14px;
+    }
+    
+    .btn-danger {
+      background: #dc3545;
+    }
+    
+    .btn-danger:hover {
+      background: #c82333;
+    }
+    
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <h1>Content Manager</h1>
+    
+    <div id="auth-section" class="auth-section">
+      <p>Please authenticate with GitHub to manage content.</p>
+      <button id="login-btn" class="btn">Login with GitHub</button>
+    </div>
+    
+    <div id="content-section" class="hidden">
+      <div id="status"></div>
+      <div id="albums-list" class="albums-list"></div>
+      <button id="save-btn" class="btn btn-success" style="margin-top: 20px;">Save Changes</button>
+    </div>
+  </div>
+
   <script>
-    (function() {
-      // 1. Get the current URL
-      const currentUrl = window.location.href;
-      
-      // 2. ROBUST REGEX: Finds 'access_token=...' and stops at '&' OR '#'
-      // This fixes the issue where '#/' gets stuck to the token
-      const match = currentUrl.match(/access_token=([^&#]+)/);
-      const token = match ? match[1] : null;
-
-      // 3. If we found a token, we are definitely in the Popup
-      if (token) {
-        // A. Send token to the Main Window (the one that opened this popup)
-        if (window.opener) {
-          console.log('[Decap Popup] Sending token to opener...');
-          
-          // Send as pure string (Custom listener)
-          window.opener.postMessage(token, "*");
-          
-          // Send as JSON (Standard Decap listener)
-          const msg = JSON.stringify({
-            authorization: { provider: "github", token: token }
-          });
-          window.opener.postMessage("authorization:github:success:" + msg, "*");
+    const PROXY_URL = 'https://decap-oauth-proxy.danieligazit.workers.dev';
+    const REPO_OWNER = 'danieligazit';
+    const REPO_NAME = 'orthodox-records';
+    const FILE_PATH = 'src/data/albums.json';
+    const BRANCH = 'main';
+    
+    let token = localStorage.getItem('github-token');
+    let albumsData = null;
+    
+    // Check for OAuth callback
+    const urlParams = new URLSearchParams(window.location.search);
+    const accessToken = urlParams.get('access_token');
+    
+    if (accessToken) {
+      token = accessToken;
+      localStorage.setItem('github-token', token);
+      window.history.replaceState({}, document.title, window.location.pathname);
+      loadContent();
+    } else if (token) {
+      // Verify token is still valid
+      verifyToken();
+    }
+    
+    document.getElementById('login-btn').addEventListener('click', () => {
+      window.location.href = `${PROXY_URL}/auth`;
+    });
+    
+    async function verifyToken() {
+      try {
+        const response = await fetch(`${PROXY_URL}/user`, {
+          headers: { 'Authorization': `token ${token}` }
+        });
+        
+        if (response.ok) {
+          const user = await response.json();
+          showStatus(`Logged in as ${user.login}`, 'success');
+          loadContent();
+        } else {
+          throw new Error('Token invalid');
         }
-
-        // B. Visual feedback for you
-        document.body.innerHTML = `
-          <div style="font-family:sans-serif; text-align:center; margin-top:50px;">
-            <h1>Login Successful!</h1>
-            <p>Token captured.</p>
-            <p>Closing window...</p>
+      } catch (error) {
+        localStorage.removeItem('github-token');
+        token = null;
+        showStatus('Session expired. Please login again.', 'error');
+      }
+    }
+    
+    async function loadContent() {
+      document.getElementById('auth-section').classList.add('hidden');
+      document.getElementById('content-section').classList.remove('hidden');
+      
+      try {
+        showStatus('Loading albums...', 'info');
+        
+        const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+          headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+        
+        if (!response.ok) throw new Error('Failed to fetch file');
+        
+        const file = await response.json();
+        const content = atob(file.content.replace(/\s/g, ''));
+        albumsData = JSON.parse(content);
+        
+        renderAlbums();
+        showStatus('Content loaded successfully', 'success');
+      } catch (error) {
+        showStatus('Error loading content: ' + error.message, 'error');
+        console.error(error);
+      }
+    }
+    
+    function renderAlbums() {
+      const container = document.getElementById('albums-list');
+      container.innerHTML = '';
+      
+      albumsData.albums.forEach((album, index) => {
+        const albumDiv = document.createElement('div');
+        albumDiv.className = 'album-item';
+        albumDiv.innerHTML = `
+          <h3>${album.artist} - ${album.title}</h3>
+          <div class="meta">ID: ${album.id} | Release Date: ${album.releaseDate} | URL: ${album.urlPath}</div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Artist</label>
+              <input type="text" data-field="artist" data-index="${index}" value="${escapeHtml(album.artist)}">
+            </div>
+            <div class="form-group">
+              <label>Title</label>
+              <input type="text" data-field="title" data-index="${index}" value="${escapeHtml(album.title)}">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>URL Path</label>
+              <input type="text" data-field="urlPath" data-index="${index}" value="${escapeHtml(album.urlPath)}">
+            </div>
+            <div class="form-group">
+              <label>Release Date</label>
+              <input type="date" data-field="releaseDate" data-index="${index}" value="${album.releaseDate}">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Cover Image</label>
+              <input type="text" data-field="cover" data-index="${index}" value="${escapeHtml(album.cover)}">
+            </div>
+            <div class="form-group">
+              <label>Bandcamp Embed ID</label>
+              <input type="number" data-field="bandcampEmbedId" data-index="${index}" value="${album.bandcampEmbedId || ''}">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Description Paragraphs</label>
+            <div id="paragraphs-${index}"></div>
+            <button type="button" class="btn btn-small" onclick="addParagraph(${index})">Add Paragraph</button>
+          </div>
+          
+          <div class="form-group">
+            <label>Credits - Artists</label>
+            <div id="artists-${index}"></div>
+            <button type="button" class="btn btn-small" onclick="addCredit(${index}, 'artists')">Add Artist Credit</button>
+          </div>
+          
+          <div class="form-group">
+            <label>Credits - Production</label>
+            <div id="production-${index}"></div>
+            <button type="button" class="btn btn-small" onclick="addCredit(${index}, 'production')">Add Production Credit</button>
+          </div>
+          
+          <div class="form-group">
+            <label>Credits - Cover Art</label>
+            <div id="coverArt-${index}"></div>
+            <button type="button" class="btn btn-small" onclick="addCredit(${index}, 'coverArt')">Add Cover Art Credit</button>
+          </div>
+          
+          <div class="form-group">
+            <label>Credits - Additional</label>
+            <div id="additional-${index}"></div>
+            <button type="button" class="btn btn-small" onclick="addCredit(${index}, 'additional')">Add Additional Credit</button>
           </div>
         `;
-
-        // C. Close this popup
-        setTimeout(() => window.close(), 500);
-
-        // D. CRITICAL: Stop the rest of the page from loading
-        // This prevents the CMS from initializing inside this popup window
-        window.stop();
+        
+        container.appendChild(albumDiv);
+        
+        // Render paragraphs
+        renderList(`paragraphs-${index}`, album.description.paragraphs || [], index, 'paragraphs');
+        
+        // Render credits
+        renderList(`artists-${index}`, album.description.credits?.artists || [], index, 'artists');
+        renderList(`production-${index}`, album.description.credits?.production || [], index, 'production');
+        renderList(`coverArt-${index}`, album.description.credits?.coverArt || [], index, 'coverArt');
+        renderList(`additional-${index}`, album.description.credits?.additional || [], index, 'additional');
+      });
+      
+      // Attach input listeners
+      container.querySelectorAll('input, textarea').forEach(input => {
+        input.addEventListener('change', updateAlbum);
+      });
+    }
+    
+    function renderList(containerId, items, albumIndex, fieldPath) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      
+      items.forEach((item, itemIndex) => {
+        const div = document.createElement('div');
+        div.className = 'list-item';
+        div.innerHTML = `
+          <input type="text" 
+                 data-album="${albumIndex}" 
+                 data-field="${fieldPath}" 
+                 data-item="${itemIndex}" 
+                 value="${escapeHtml(item)}"
+                 onchange="updateList(this)">
+          <button type="button" class="btn btn-small btn-danger" onclick="removeListItem(${albumIndex}, '${fieldPath}', ${itemIndex})">Remove</button>
+        `;
+        container.appendChild(div);
+      });
+    }
+    
+    function addParagraph(albumIndex) {
+      if (!albumsData.albums[albumIndex].description.paragraphs) {
+        albumsData.albums[albumIndex].description.paragraphs = [];
       }
-    })();
+      albumsData.albums[albumIndex].description.paragraphs.push('');
+      renderList(`paragraphs-${albumIndex}`, albumsData.albums[albumIndex].description.paragraphs, albumIndex, 'paragraphs');
+    }
+    
+    function addCredit(albumIndex, creditType) {
+      if (!albumsData.albums[albumIndex].description.credits) {
+        albumsData.albums[albumIndex].description.credits = {};
+      }
+      if (!albumsData.albums[albumIndex].description.credits[creditType]) {
+        albumsData.albums[albumIndex].description.credits[creditType] = [];
+      }
+      albumsData.albums[albumIndex].description.credits[creditType].push('');
+      renderList(`${creditType}-${albumIndex}`, albumsData.albums[albumIndex].description.credits[creditType], albumIndex, creditType);
+    }
+    
+    function removeListItem(albumIndex, fieldPath, itemIndex) {
+      const paths = fieldPath.split('.');
+      let target = albumsData.albums[albumIndex];
+      
+      for (let i = 0; i < paths.length - 1; i++) {
+        target = target[paths[i]];
+      }
+      
+      target[paths[paths.length - 1]].splice(itemIndex, 1);
+      renderList(`${paths[paths.length - 1]}-${albumIndex}`, target[paths[paths.length - 1]], albumIndex, fieldPath);
+    }
+    
+    function updateAlbum(event) {
+      const field = event.target.dataset.field;
+      const index = parseInt(event.target.dataset.index);
+      const value = event.target.type === 'number' ? parseInt(event.target.value) || undefined : event.target.value;
+      
+      albumsData.albums[index][field] = value;
+    }
+    
+    window.updateList = function(input) {
+      const albumIndex = parseInt(input.dataset.album);
+      const fieldPath = input.dataset.field;
+      const itemIndex = parseInt(input.dataset.item);
+      const value = input.value;
+      
+      const paths = fieldPath.split('.');
+      let target = albumsData.albums[albumIndex];
+      
+      for (let i = 0; i < paths.length - 1; i++) {
+        if (!target[paths[i]]) {
+          target[paths[i]] = {};
+        }
+        target = target[paths[i]];
+      }
+      
+      if (!target[paths[paths.length - 1]]) {
+        target[paths[paths.length - 1]] = [];
+      }
+      
+      target[paths[paths.length - 1]][itemIndex] = value;
+    };
+    
+    window.removeListItem = removeListItem;
+    window.addParagraph = addParagraph;
+    window.addCredit = addCredit;
+    
+    document.getElementById('save-btn').addEventListener('click', async () => {
+      try {
+        showStatus('Saving...', 'info');
+        
+        // Get current file SHA
+        const fileResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+          headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+        
+        const file = await fileResponse.json();
+        const sha = file.sha;
+        
+        // Update file
+        const content = JSON.stringify(albumsData, null, 2);
+        const encodedContent = btoa(unescape(encodeURIComponent(content)));
+        
+        const updateResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: 'Update albums data via admin',
+            content: encodedContent,
+            sha: sha,
+            branch: BRANCH
+          })
+        });
+        
+        if (!updateResponse.ok) {
+          const error = await updateResponse.json();
+          throw new Error(error.message || 'Failed to save');
+        }
+        
+        showStatus('Changes saved successfully!', 'success');
+      } catch (error) {
+        showStatus('Error saving: ' + error.message, 'error');
+        console.error(error);
+      }
+    });
+    
+    function showStatus(message, type) {
+      const statusDiv = document.getElementById('status');
+      statusDiv.textContent = message;
+      statusDiv.className = `status ${type}`;
+      statusDiv.classList.remove('hidden');
+      
+      if (type === 'success') {
+        setTimeout(() => {
+          statusDiv.classList.add('hidden');
+        }, 3000);
+      }
+    }
+    
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
   </script>
-
-  <script src="https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js"></script>
-  
 </body>
 </html>
