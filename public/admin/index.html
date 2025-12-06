@@ -292,6 +292,7 @@
         <div class="user-info">
           <span>Logged in as: <strong id="user-name">-</strong></span>
         </div>
+        <button id="logout-btn" class="btn btn-outline">Clear Session</button>
       </div>
       
       <div class="tabs">
@@ -403,6 +404,31 @@
       showStatus('Press items functionality coming soon!', 'info');
     });
     
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      if (confirm('Clear admin session? You will need to login again to access the admin.')) {
+        // Clear all state
+        localStorage.removeItem('github-token');
+        token = null;
+        albumsData = null;
+        pressData = { items: [] };
+        
+        // Clear any status messages
+        const statusDiv = document.getElementById('status');
+        statusDiv.classList.add('hidden');
+        statusDiv.textContent = '';
+        
+        // Hide content and show auth
+        document.getElementById('auth-section').classList.remove('hidden');
+        document.getElementById('content-section').classList.add('hidden');
+        document.getElementById('user-name').textContent = '-';
+        
+        // Clear URL parameters
+        window.history.replaceState({}, document.title, window.location.pathname);
+        
+        showStatus('Session cleared. Please login again.', 'success');
+      }
+    });
+    
     async function verifyToken() {
       try {
         const response = await fetch(`${PROXY_URL}/user`, {
@@ -415,12 +441,17 @@
           showStatus(`Logged in as ${user.login}`, 'success');
           loadContent();
         } else {
+          // Token is invalid or expired
           throw new Error('Token invalid');
         }
       } catch (error) {
+        // Clear invalid token and show login screen
         localStorage.removeItem('github-token');
         token = null;
-        showStatus('Session expired. Please login again.', 'error');
+        document.getElementById('auth-section').classList.remove('hidden');
+        document.getElementById('content-section').classList.add('hidden');
+        document.getElementById('user-name').textContent = '-';
+        showStatus('Session expired or invalid. Please login again.', 'error');
       }
     }
     
