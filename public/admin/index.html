@@ -36,6 +36,43 @@
       padding: 40px;
     }
     
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 10px;
+      border-bottom: 2px solid #e0e0e0;
+      margin-bottom: 30px;
+    }
+    
+    .tab {
+      padding: 12px 24px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      color: #666;
+      transition: all 0.2s;
+    }
+    
+    .tab:hover {
+      color: #333;
+    }
+    
+    .tab.active {
+      color: #24292e;
+      border-bottom-color: #24292e;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
     .btn {
       background: #24292e;
       color: white;
@@ -65,6 +102,14 @@
       background: #218838;
     }
     
+    .btn-primary {
+      background: #007bff;
+    }
+    
+    .btn-primary:hover {
+      background: #0056b3;
+    }
+    
     .status {
       padding: 12px;
       border-radius: 6px;
@@ -89,24 +134,42 @@
       border: 1px solid #bee5eb;
     }
     
-    .albums-list {
+    .items-list {
       margin-top: 30px;
     }
     
-    .album-item {
+    .item-item {
       border: 1px solid #ddd;
       border-radius: 6px;
       padding: 20px;
       margin-bottom: 20px;
       background: #fafafa;
+      position: relative;
     }
     
-    .album-item h3 {
-      margin-bottom: 10px;
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .item-header h3 {
+      margin: 0;
       color: #333;
     }
     
-    .album-item .meta {
+    .item-controls {
+      display: flex;
+      gap: 5px;
+    }
+    
+    .item-controls button {
+      padding: 6px 12px;
+      font-size: 14px;
+    }
+    
+    .item-item .meta {
       color: #666;
       font-size: 14px;
       margin-bottom: 15px;
@@ -177,6 +240,13 @@
     .hidden {
       display: none;
     }
+    
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
   </style>
 </head>
 <body>
@@ -190,8 +260,32 @@
     
     <div id="content-section" class="hidden">
       <div id="status"></div>
-      <div id="albums-list" class="albums-list"></div>
-      <button id="save-btn" class="btn btn-success" style="margin-top: 20px;">Save Changes</button>
+      
+      <div class="tabs">
+        <button class="tab active" data-tab="albums">Albums</button>
+        <button class="tab" data-tab="press">Press Items</button>
+      </div>
+      
+      <!-- Albums Tab -->
+      <div id="albums-tab" class="tab-content active">
+        <div class="page-header">
+          <h2>Albums</h2>
+          <button id="create-album-btn" class="btn btn-primary">Create New Album</button>
+        </div>
+        <div id="albums-list" class="items-list"></div>
+      </div>
+      
+      <!-- Press Items Tab -->
+      <div id="press-tab" class="tab-content">
+        <div class="page-header">
+          <h2>Press Items</h2>
+          <button id="create-press-btn" class="btn btn-primary">Create New Press Item</button>
+        </div>
+        <div id="press-list" class="items-list"></div>
+        <p style="color: #666; padding: 20px;">Press items functionality coming soon. This is a placeholder.</p>
+      </div>
+      
+      <button id="save-btn" class="btn btn-success" style="margin-top: 20px;">Save All Changes</button>
     </div>
   </div>
 
@@ -199,11 +293,27 @@
     const PROXY_URL = 'https://decap-oauth-proxy.danieligazit.workers.dev';
     const REPO_OWNER = 'danieligazit';
     const REPO_NAME = 'orthodox-website';
-    const FILE_PATH = 'src/data/albums.json';
+    const ALBUMS_FILE_PATH = 'src/data/albums.json';
     const BRANCH = 'main';
     
     let token = localStorage.getItem('github-token');
     let albumsData = null;
+    let pressData = { items: [] }; // Placeholder for press items
+    
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabName = tab.dataset.tab;
+        
+        // Update tabs
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        // Update content
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById(`${tabName}-tab`).classList.add('active');
+      });
+    });
     
     // Check for OAuth callback
     const urlParams = new URLSearchParams(window.location.search);
@@ -215,12 +325,16 @@
       window.history.replaceState({}, document.title, window.location.pathname);
       loadContent();
     } else if (token) {
-      // Verify token is still valid
       verifyToken();
     }
     
     document.getElementById('login-btn').addEventListener('click', () => {
       window.location.href = `${PROXY_URL}/auth`;
+    });
+    
+    document.getElementById('create-album-btn').addEventListener('click', createNewAlbum);
+    document.getElementById('create-press-btn').addEventListener('click', () => {
+      showStatus('Press items functionality coming soon!', 'info');
     });
     
     async function verifyToken() {
@@ -250,7 +364,7 @@
       try {
         showStatus('Loading albums...', 'info');
         
-        const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+        const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${ALBUMS_FILE_PATH}`, {
           headers: {
             'Authorization': `token ${token}`,
             'Accept': 'application/vnd.github.v3+json'
@@ -274,43 +388,122 @@
       }
     }
     
+    function createNewAlbum() {
+      if (!albumsData) {
+        albumsData = { albums: [] };
+      }
+      
+      // Find the highest ID and add 1
+      const maxId = albumsData.albums.length > 0 
+        ? Math.max(...albumsData.albums.map(a => a.id || 0))
+        : 0;
+      
+      const newAlbum = {
+        id: maxId + 1,
+        urlPath: '',
+        artist: '',
+        title: '',
+        releaseDate: new Date().toISOString().split('T')[0],
+        cover: '',
+        description: {
+          paragraphs: [],
+          credits: {
+            artists: [],
+            production: [],
+            coverArt: [],
+            additional: []
+          }
+        }
+      };
+      
+      albumsData.albums.push(newAlbum);
+      renderAlbums();
+      showStatus('New album created. Fill in the details and save.', 'info');
+      
+      // Scroll to the new album
+      setTimeout(() => {
+        const items = document.querySelectorAll('.item-item');
+        if (items.length > 0) {
+          items[items.length - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }, 100);
+    }
+    
+    function deleteAlbum(index) {
+      if (confirm('Are you sure you want to delete this album?')) {
+        albumsData.albums.splice(index, 1);
+        renderAlbums();
+        showStatus('Album deleted. Remember to save changes.', 'info');
+      }
+    }
+    
+    function moveAlbum(index, direction) {
+      if (direction === 'up' && index > 0) {
+        [albumsData.albums[index], albumsData.albums[index - 1]] = 
+          [albumsData.albums[index - 1], albumsData.albums[index]];
+        renderAlbums();
+      } else if (direction === 'down' && index < albumsData.albums.length - 1) {
+        [albumsData.albums[index], albumsData.albums[index + 1]] = 
+          [albumsData.albums[index + 1], albumsData.albums[index]];
+        renderAlbums();
+      }
+    }
+    
     function renderAlbums() {
       const container = document.getElementById('albums-list');
       container.innerHTML = '';
       
+      if (!albumsData || !albumsData.albums || albumsData.albums.length === 0) {
+        container.innerHTML = '<p style="color: #666; padding: 20px;">No albums yet. Click "Create New Album" to get started.</p>';
+        return;
+      }
+      
       albumsData.albums.forEach((album, index) => {
         const albumDiv = document.createElement('div');
-        albumDiv.className = 'album-item';
+        albumDiv.className = 'item-item';
+        albumDiv.setAttribute('data-index', index);
+        
+        const title = album.artist && album.title 
+          ? `${album.artist} - ${album.title}`
+          : 'New Album (untitled)';
+        
         albumDiv.innerHTML = `
-          <h3>${album.artist} - ${album.title}</h3>
-          <div class="meta">ID: ${album.id} | Release Date: ${album.releaseDate} | URL: ${album.urlPath}</div>
+          <div class="item-header">
+            <h3>${escapeHtml(title)}</h3>
+            <div class="item-controls">
+              <button class="btn btn-small" onclick="moveAlbum(${index}, 'up')" ${index === 0 ? 'disabled' : ''}>↑</button>
+              <button class="btn btn-small" onclick="moveAlbum(${index}, 'down')" ${index === albumsData.albums.length - 1 ? 'disabled' : ''}>↓</button>
+              <button class="btn btn-small btn-danger" onclick="deleteAlbum(${index})">Delete</button>
+            </div>
+          </div>
+          <div class="meta">ID: ${album.id} | Release Date: ${album.releaseDate || 'Not set'} | URL: ${album.urlPath || 'Not set'}</div>
           
           <div class="form-row">
             <div class="form-group">
               <label>Artist</label>
-              <input type="text" data-field="artist" data-index="${index}" value="${escapeHtml(album.artist)}">
+              <input type="text" data-field="artist" data-index="${index}" value="${escapeHtml(album.artist || '')}">
             </div>
             <div class="form-group">
               <label>Title</label>
-              <input type="text" data-field="title" data-index="${index}" value="${escapeHtml(album.title)}">
+              <input type="text" data-field="title" data-index="${index}" value="${escapeHtml(album.title || '')}">
             </div>
           </div>
           
           <div class="form-row">
             <div class="form-group">
               <label>URL Path</label>
-              <input type="text" data-field="urlPath" data-index="${index}" value="${escapeHtml(album.urlPath)}">
+              <input type="text" data-field="urlPath" data-index="${index}" value="${escapeHtml(album.urlPath || '')}">
             </div>
             <div class="form-group">
               <label>Release Date</label>
-              <input type="date" data-field="releaseDate" data-index="${index}" value="${album.releaseDate}">
+              <input type="date" data-field="releaseDate" data-index="${index}" value="${album.releaseDate || ''}">
             </div>
           </div>
           
           <div class="form-row">
             <div class="form-group">
               <label>Cover Image</label>
-              <input type="text" data-field="cover" data-index="${index}" value="${escapeHtml(album.cover)}">
+              <input type="text" data-field="cover" data-index="${index}" value="${escapeHtml(album.cover || '')}">
             </div>
             <div class="form-group">
               <label>Bandcamp Embed ID</label>
@@ -352,9 +545,12 @@
         container.appendChild(albumDiv);
         
         // Render paragraphs
-        renderList(`paragraphs-${index}`, album.description.paragraphs || [], index, 'paragraphs');
+        renderList(`paragraphs-${index}`, album.description?.paragraphs || [], index, 'paragraphs');
         
         // Render credits
+        if (!album.description) album.description = { paragraphs: [], credits: {} };
+        if (!album.description.credits) album.description.credits = {};
+        
         renderList(`artists-${index}`, album.description.credits?.artists || [], index, 'artists');
         renderList(`production-${index}`, album.description.credits?.production || [], index, 'production');
         renderList(`coverArt-${index}`, album.description.credits?.coverArt || [], index, 'coverArt');
@@ -369,6 +565,8 @@
     
     function renderList(containerId, items, albumIndex, fieldPath) {
       const container = document.getElementById(containerId);
+      if (!container) return;
+      
       container.innerHTML = '';
       
       items.forEach((item, itemIndex) => {
@@ -388,6 +586,9 @@
     }
     
     function addParagraph(albumIndex) {
+      if (!albumsData.albums[albumIndex].description) {
+        albumsData.albums[albumIndex].description = { paragraphs: [], credits: {} };
+      }
       if (!albumsData.albums[albumIndex].description.paragraphs) {
         albumsData.albums[albumIndex].description.paragraphs = [];
       }
@@ -396,6 +597,9 @@
     }
     
     function addCredit(albumIndex, creditType) {
+      if (!albumsData.albums[albumIndex].description) {
+        albumsData.albums[albumIndex].description = { paragraphs: [], credits: {} };
+      }
       if (!albumsData.albums[albumIndex].description.credits) {
         albumsData.albums[albumIndex].description.credits = {};
       }
@@ -411,17 +615,20 @@
       let target = albumsData.albums[albumIndex];
       
       for (let i = 0; i < paths.length - 1; i++) {
+        if (!target[paths[i]]) return;
         target = target[paths[i]];
       }
       
-      target[paths[paths.length - 1]].splice(itemIndex, 1);
-      renderList(`${paths[paths.length - 1]}-${albumIndex}`, target[paths[paths.length - 1]], albumIndex, fieldPath);
+      if (target[paths[paths.length - 1]]) {
+        target[paths[paths.length - 1]].splice(itemIndex, 1);
+        renderList(`${paths[paths.length - 1]}-${albumIndex}`, target[paths[paths.length - 1]], albumIndex, fieldPath);
+      }
     }
     
     function updateAlbum(event) {
       const field = event.target.dataset.field;
       const index = parseInt(event.target.dataset.index);
-      const value = event.target.type === 'number' ? parseInt(event.target.value) || undefined : event.target.value;
+      const value = event.target.type === 'number' ? (event.target.value ? parseInt(event.target.value) : undefined) : event.target.value;
       
       albumsData.albums[index][field] = value;
     }
@@ -435,11 +642,20 @@
       const paths = fieldPath.split('.');
       let target = albumsData.albums[albumIndex];
       
+      if (!target.description) target.description = { paragraphs: [], credits: {} };
+      
       for (let i = 0; i < paths.length - 1; i++) {
-        if (!target[paths[i]]) {
-          target[paths[i]] = {};
+        if (paths[i] === 'description') {
+          target = target.description;
+        } else if (paths[i] === 'credits') {
+          if (!target.credits) target.credits = {};
+          target = target.credits;
+        } else {
+          if (!target[paths[i]]) {
+            target[paths[i]] = {};
+          }
+          target = target[paths[i]];
         }
-        target = target[paths[i]];
       }
       
       if (!target[paths[paths.length - 1]]) {
@@ -452,13 +668,15 @@
     window.removeListItem = removeListItem;
     window.addParagraph = addParagraph;
     window.addCredit = addCredit;
+    window.deleteAlbum = deleteAlbum;
+    window.moveAlbum = moveAlbum;
     
     document.getElementById('save-btn').addEventListener('click', async () => {
       try {
         showStatus('Saving...', 'info');
         
         // Get current file SHA
-        const fileResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+        const fileResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${ALBUMS_FILE_PATH}`, {
           headers: {
             'Authorization': `token ${token}`,
             'Accept': 'application/vnd.github.v3+json'
@@ -472,7 +690,7 @@
         const content = JSON.stringify(albumsData, null, 2);
         const encodedContent = btoa(unescape(encodeURIComponent(content)));
         
-        const updateResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+        const updateResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${ALBUMS_FILE_PATH}`, {
           method: 'PUT',
           headers: {
             'Authorization': `token ${token}`,
@@ -513,6 +731,7 @@
     }
     
     function escapeHtml(text) {
+      if (text === null || text === undefined) return '';
       const div = document.createElement('div');
       div.textContent = text;
       return div.innerHTML;
