@@ -559,10 +559,10 @@
         if (!album.description) album.description = { paragraphs: [], credits: {} };
         if (!album.description.credits) album.description.credits = {};
         
-        renderList(`artists-${index}`, album.description.credits?.artists || [], index, 'artists');
-        renderList(`production-${index}`, album.description.credits?.production || [], index, 'production');
-        renderList(`coverArt-${index}`, album.description.credits?.coverArt || [], index, 'coverArt');
-        renderList(`additional-${index}`, album.description.credits?.additional || [], index, 'additional');
+        renderList(`artists-${index}`, album.description.credits?.artists || [], index, 'credits.artists');
+        renderList(`production-${index}`, album.description.credits?.production || [], index, 'credits.production');
+        renderList(`coverArt-${index}`, album.description.credits?.coverArt || [], index, 'credits.coverArt');
+        renderList(`additional-${index}`, album.description.credits?.additional || [], index, 'credits.additional');
       });
       
       // Attach input listeners
@@ -571,9 +571,65 @@
       });
     }
     
+    function saveListValues(containerId, albumIndex, fieldPath) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      
+      // Save current input values before re-rendering
+      const inputs = container.querySelectorAll('input[type="text"]');
+      inputs.forEach(input => {
+        const itemIndex = parseInt(input.dataset.item);
+        const value = input.value;
+        
+        // Handle special case for 'paragraphs' field path
+        let actualPath = fieldPath;
+        if (fieldPath === 'paragraphs') {
+          actualPath = 'description.paragraphs';
+        }
+        
+        const paths = actualPath.split('.');
+        let target = albumsData.albums[albumIndex];
+        
+        // Ensure description exists
+        if (paths[0] === 'description' || paths.includes('description')) {
+          if (!target.description) {
+            target.description = { paragraphs: [], credits: {} };
+          }
+        }
+        
+        for (let i = 0; i < paths.length - 1; i++) {
+          if (paths[i] === 'description') {
+            target = target.description;
+          } else if (paths[i] === 'credits') {
+            if (!target.credits) target.credits = {};
+            target = target.credits;
+          } else {
+            if (!target[paths[i]]) {
+              target[paths[i]] = {};
+            }
+            target = target[paths[i]];
+          }
+        }
+        
+        if (!target[paths[paths.length - 1]]) {
+          target[paths[paths.length - 1]] = [];
+        }
+        
+        // Ensure array is long enough
+        while (target[paths[paths.length - 1]].length <= itemIndex) {
+          target[paths[paths.length - 1]].push('');
+        }
+        
+        target[paths[paths.length - 1]][itemIndex] = value;
+      });
+    }
+    
     function renderList(containerId, items, albumIndex, fieldPath) {
       const container = document.getElementById(containerId);
       if (!container) return;
+      
+      // Save current values before clearing
+      saveListValues(containerId, albumIndex, fieldPath);
       
       container.innerHTML = '';
       
@@ -600,6 +656,10 @@
       if (!albumsData.albums[albumIndex].description.paragraphs) {
         albumsData.albums[albumIndex].description.paragraphs = [];
       }
+      
+      // Save current values before adding
+      saveListValues(`paragraphs-${albumIndex}`, albumIndex, 'paragraphs');
+      
       albumsData.albums[albumIndex].description.paragraphs.push('');
       renderList(`paragraphs-${albumIndex}`, albumsData.albums[albumIndex].description.paragraphs, albumIndex, 'paragraphs');
     }
@@ -614,22 +674,40 @@
       if (!albumsData.albums[albumIndex].description.credits[creditType]) {
         albumsData.albums[albumIndex].description.credits[creditType] = [];
       }
+      
+      // Save current values before adding
+      saveListValues(`${creditType}-${albumIndex}`, albumIndex, `credits.${creditType}`);
+      
       albumsData.albums[albumIndex].description.credits[creditType].push('');
-      renderList(`${creditType}-${albumIndex}`, albumsData.albums[albumIndex].description.credits[creditType], albumIndex, creditType);
+      renderList(`${creditType}-${albumIndex}`, albumsData.albums[albumIndex].description.credits[creditType], albumIndex, `credits.${creditType}`);
     }
     
     function removeListItem(albumIndex, fieldPath, itemIndex) {
+      // Determine the container ID based on field path
+      const lastPath = fieldPath.split('.').pop();
+      const containerId = `${lastPath}-${albumIndex}`;
+      
+      // Save current values before removing
+      saveListValues(containerId, albumIndex, fieldPath);
+      
       const paths = fieldPath.split('.');
       let target = albumsData.albums[albumIndex];
       
       for (let i = 0; i < paths.length - 1; i++) {
-        if (!target[paths[i]]) return;
-        target = target[paths[i]];
+        if (paths[i] === 'description') {
+          target = target.description;
+        } else if (paths[i] === 'credits') {
+          if (!target.credits) return;
+          target = target.credits;
+        } else {
+          if (!target[paths[i]]) return;
+          target = target[paths[i]];
+        }
       }
       
       if (target[paths[paths.length - 1]]) {
         target[paths[paths.length - 1]].splice(itemIndex, 1);
-        renderList(`${paths[paths.length - 1]}-${albumIndex}`, target[paths[paths.length - 1]], albumIndex, fieldPath);
+        renderList(containerId, target[paths[paths.length - 1]], albumIndex, fieldPath);
       }
     }
     
