@@ -292,7 +292,6 @@
         <div class="user-info">
           <span>Logged in as: <strong id="user-name">-</strong></span>
         </div>
-        <button id="logout-btn" class="btn btn-outline">Logout</button>
       </div>
       
       <div class="tabs">
@@ -353,21 +352,13 @@
     const urlParams = new URLSearchParams(window.location.search);
     const accessToken = urlParams.get('access_token');
     
-    // Check if user just logged out
-    const justLoggedOut = sessionStorage.getItem('just-logged-out');
     const storedToken = localStorage.getItem('github-token');
     
     if (accessToken) {
-      // If we just logged out, ignore any access token in URL (might be from cached redirect)
-      if (justLoggedOut === 'true') {
-        sessionStorage.removeItem('just-logged-out');
-        window.history.replaceState({}, document.title, window.location.pathname);
-        // Don't auto-login, show login screen instead - do nothing, let the page show login screen
-      } else if (!storedToken) {
-        // Only auto-login if we don't have a stored token (fresh login)
+      // Only auto-login if we don't have a stored token (fresh login)
+      if (!storedToken) {
         token = accessToken;
         localStorage.setItem('github-token', token);
-        sessionStorage.removeItem('just-logged-out'); // Clear logout flag if we're logging in
         window.history.replaceState({}, document.title, window.location.pathname);
         // Get user info and load content
         fetch(`${PROXY_URL}/user`, {
@@ -391,40 +382,20 @@
       verifyToken();
     }
     
-    document.getElementById('login-btn').addEventListener('click', () => {
+    document.getElementById('login-btn').addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
       // Add timestamp and random state to prevent caching and ensure fresh OAuth flow
-      // This forces GitHub to show the authorization screen again
       const timestamp = Date.now();
       const randomState = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      
+      // Disable button to prevent double-clicks
+      const btn = document.getElementById('login-btn');
+      btn.disabled = true;
+      btn.textContent = 'Redirecting...';
+      
       window.location.href = `${PROXY_URL}/auth?t=${timestamp}&state=${randomState}&force=true`;
-    });
-    
-    document.getElementById('logout-btn').addEventListener('click', () => {
-      if (confirm('Are you sure you want to logout?')) {
-        // Set a flag to indicate we just logged out
-        sessionStorage.setItem('just-logged-out', 'true');
-        
-        // Clear all state
-        localStorage.removeItem('github-token');
-        token = null;
-        albumsData = null;
-        pressData = { items: [] };
-        
-        // Clear any status messages
-        const statusDiv = document.getElementById('status');
-        statusDiv.classList.add('hidden');
-        statusDiv.textContent = '';
-        
-        // Hide content and show auth
-        document.getElementById('auth-section').classList.remove('hidden');
-        document.getElementById('content-section').classList.add('hidden');
-        document.getElementById('user-name').textContent = '-';
-        
-        // Force a full page reload to clear any cached state and ensure fresh OAuth flow
-        // Clear URL parameters first, then reload
-        window.history.replaceState({}, document.title, window.location.pathname);
-        window.location.reload();
-      }
     });
     
     document.getElementById('create-album-btn').addEventListener('click', createNewAlbum);
