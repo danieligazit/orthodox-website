@@ -353,40 +353,66 @@
     const urlParams = new URLSearchParams(window.location.search);
     const accessToken = urlParams.get('access_token');
     
+    // Check if user just logged out (by checking if there's no token in localStorage but there's one in URL)
+    const storedToken = localStorage.getItem('github-token');
+    
     if (accessToken) {
-      token = accessToken;
-      localStorage.setItem('github-token', token);
-      window.history.replaceState({}, document.title, window.location.pathname);
-      // Get user info and load content
-      fetch(`${PROXY_URL}/user`, {
-        headers: { 'Authorization': `token ${token}` }
-      })
-      .then(response => {
-        if (response.ok) {
-          return response.json().then(user => {
-            document.getElementById('user-name').textContent = user.login;
-            loadContent();
-          });
-        }
-        loadContent();
-      })
-      .catch(() => loadContent());
+      // Only auto-login if we don't have a stored token (fresh login)
+      // If we have a stored token, this might be a redirect after logout, so ignore it
+      if (!storedToken) {
+        token = accessToken;
+        localStorage.setItem('github-token', token);
+        window.history.replaceState({}, document.title, window.location.pathname);
+        // Get user info and load content
+        fetch(`${PROXY_URL}/user`, {
+          headers: { 'Authorization': `token ${token}` }
+        })
+        .then(response => {
+          if (response.ok) {
+            return response.json().then(user => {
+              document.getElementById('user-name').textContent = user.login;
+              loadContent();
+            });
+          }
+          loadContent();
+        })
+        .catch(() => loadContent());
+      } else {
+        // Clear URL params if we already have a token (prevent re-login)
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
     } else if (token) {
       verifyToken();
     }
     
     document.getElementById('login-btn').addEventListener('click', () => {
-      window.location.href = `${PROXY_URL}/auth`;
+      // Add timestamp to prevent caching and ensure fresh OAuth flow
+      const timestamp = Date.now();
+      window.location.href = `${PROXY_URL}/auth?t=${timestamp}`;
     });
     
     document.getElementById('logout-btn').addEventListener('click', () => {
       if (confirm('Are you sure you want to logout?')) {
+        // Clear all state
         localStorage.removeItem('github-token');
         token = null;
+        albumsData = null;
+        pressData = { items: [] };
+        
+        // Clear any status messages
+        const statusDiv = document.getElementById('status');
+        statusDiv.classList.add('hidden');
+        statusDiv.textContent = '';
+        
+        // Hide content and show auth
         document.getElementById('auth-section').classList.remove('hidden');
         document.getElementById('content-section').classList.add('hidden');
         document.getElementById('user-name').textContent = '-';
-        showStatus('Logged out successfully', 'success');
+        
+        // Force a full page reload to clear any cached state and ensure fresh OAuth flow
+        // Clear URL parameters first, then reload
+        window.history.replaceState({}, document.title, window.location.pathname);
+        window.location.reload();
       }
     });
     
