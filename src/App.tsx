@@ -8,7 +8,7 @@ export default function App() {
       <div className="min-h-screen w-full relative bg-[#e8e6df]"> {/* Add persistent background here */}
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/album/:id" element={<AlbumPage />} />
+          <Route path="/album/:urlPath" element={<AlbumPage />} />
         </Routes>
       </div>
     </BrowserRouter>

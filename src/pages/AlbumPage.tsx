@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getAlbumById } from '../data/albums';
+import { getAlbumByUrlPath } from '../data/albums';
 import { BackgroundLayer, GrainOverlay, LogoLayer, Header } from '../components';
 import { useWindowSize } from '../hooks/useWindowSize';
 
@@ -30,7 +30,7 @@ const formatTextWithLinks = (text: string | null | undefined) => {
 };
 
 export function AlbumPage() {
-  const { id } = useParams<{ id: string }>();
+  const { urlPath } = useParams<{ urlPath: string }>();
   const navigate = useNavigate();
   const windowHeight = useWindowSize();
 
@@ -42,10 +42,9 @@ export function AlbumPage() {
     requestAnimationFrame(() => {
       window.scrollTo(0, 0);
     });
-  }, [id]);
+  }, [urlPath]);
 
-  const albumId = id ? parseInt(id, 10) : null;
-  const album = albumId ? getAlbumById(albumId) : null;
+  const album = urlPath ? getAlbumByUrlPath(urlPath) : null;
 
   if (!album) {
     return (

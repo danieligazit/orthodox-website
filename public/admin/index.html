@@ -329,6 +329,7 @@
     const REPO_NAME = 'orthodox-website';
     const ALBUMS_FILE_PATH = 'src/data/albums.json';
     const BRANCH = 'main';
+    const BASE_URL = 'https://danieligazit.github.io/orthodox-website';
     
     let token = localStorage.getItem('github-token');
     let albumsData = null;
@@ -650,7 +651,10 @@
               <button class="btn btn-small btn-danger" onclick="deleteAlbum(${index})">Delete</button>
             </div>
           </div>
-          <div class="meta">Release Date: ${album.releaseDate || 'Not set'} | URL: ${album.urlPath || 'Not set'}</div>
+          <div class="meta">
+            Release Date: ${album.releaseDate || 'Not set'} | 
+            ${album.urlPath ? `<a href="${BASE_URL}/album/${escapeHtml(album.urlPath)}" target="_blank" style="color: #0c5460; text-decoration: underline;">${BASE_URL}/album/${escapeHtml(album.urlPath)}</a>` : 'URL: Not set'}
+          </div>
           
           <div class="form-row">
             <div class="form-group">
@@ -674,8 +678,11 @@
           
           <div class="form-row">
             <div class="form-group">
-              <label>URL Path</label>
-              <input type="text" data-field="urlPath" data-index="${index}" value="${escapeHtml(album.urlPath || '')}">
+              <label>URL Path <span style="color: #666; font-size: 12px;">(used in album URL)</span></label>
+              <input type="text" data-field="urlPath" data-index="${index}" value="${escapeHtml(album.urlPath || '')}" placeholder="e.g., do-i-care" onchange="updateAlbumUrlPreview(${index})">
+              <div id="url-preview-${index}" style="margin-top: 5px; font-size: 12px; color: #666;">
+                ${album.urlPath ? `Full URL: <a href="${BASE_URL}/album/${escapeHtml(album.urlPath)}" target="_blank" style="color: #0c5460; text-decoration: underline;">${BASE_URL}/album/${escapeHtml(album.urlPath)}</a>` : 'Enter a URL path to see the full album URL'}
+              </div>
             </div>
             <div class="form-group">
               <label>Release Date</label>
@@ -927,7 +934,41 @@
       const value = event.target.type === 'number' ? (event.target.value ? parseInt(event.target.value) : undefined) : event.target.value;
       
       albumsData.albums[index][field] = value;
+      
+      // Update URL preview if urlPath changed
+      if (field === 'urlPath') {
+        updateAlbumUrlPreview(index);
+      }
     }
+    
+    function updateAlbumUrlPreview(index) {
+      const urlPath = albumsData.albums[index].urlPath || '';
+      const previewDiv = document.getElementById(`url-preview-${index}`);
+      if (previewDiv) {
+        if (urlPath) {
+          const fullUrl = `${BASE_URL}/album/${escapeHtml(urlPath)}`;
+          previewDiv.innerHTML = `Full URL: <a href="${fullUrl}" target="_blank" style="color: #0c5460; text-decoration: underline;">${fullUrl}</a>`;
+        } else {
+          previewDiv.innerHTML = 'Enter a URL path to see the full album URL';
+        }
+      }
+      
+      // Also update the meta line
+      const albumDiv = document.querySelector(`.item-item[data-index="${index}"]`);
+      if (albumDiv) {
+        const metaDiv = albumDiv.querySelector('.meta');
+        if (metaDiv) {
+          const album = albumsData.albums[index];
+          const releaseDate = album.releaseDate || 'Not set';
+          const urlPart = urlPath 
+            ? `<a href="${BASE_URL}/album/${escapeHtml(urlPath)}" target="_blank" style="color: #0c5460; text-decoration: underline;">${BASE_URL}/album/${escapeHtml(urlPath)}</a>`
+            : 'URL: Not set';
+          metaDiv.innerHTML = `Release Date: ${releaseDate} | ${urlPart}`;
+        }
+      }
+    }
+    
+    window.updateAlbumUrlPreview = updateAlbumUrlPreview;
     
     window.updateList = function(input) {
       const albumIndex = parseInt(input.dataset.album);

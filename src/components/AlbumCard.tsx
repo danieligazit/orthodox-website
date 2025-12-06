@@ -25,13 +25,13 @@ export function AlbumCard({ album }: AlbumCardProps) {
     // Then navigate to the album page
     // A small timeout ensures the history stack processes the first push
     setTimeout(() => {
-      navigate(`/album/${album.id}`);
+      navigate(`/album/${album.urlPath}`);
     }, 2);
   };
 
   return (
     <Link 
-      to={`/album/${album.id}`} 
+      to={`/album/${album.urlPath}`} 
       onClick={handleClick}
       className="group relative w-full transition-transform duration-200 hover:scale-[1.02] block"
     >

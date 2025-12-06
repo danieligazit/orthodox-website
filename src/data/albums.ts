@@ -19,3 +19,10 @@ export function getSortedAlbums(): Album[] {
 export function getAlbumById(id: number): Album | undefined {
   return ALBUMS.find(album => album.id === id);
 }
+
+/**
+ * Get an album by its URL path
+ */
+export function getAlbumByUrlPath(urlPath: string): Album | undefined {
+  return ALBUMS.find(album => album.urlPath === urlPath);
+}
