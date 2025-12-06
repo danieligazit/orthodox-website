@@ -7,12 +7,7 @@
       "title": " Do I Care",
       "bandcampEmbedId": 1641334869,
       "description": {
-        "paragraphs": [
-          "Another year, another Valentine’s Day—Ljungsberg returns with Do I Care, a reimagining of her cult album I Do Care (ORTH001). Released exactly one year later, this album doesn’t just revisit its predecessor; it reflects on its emotional and structural foundations while questioning the role of music as an act of care in an uncertain world.",
-          "Originally conceived as a way to adapt I Do Care for live performance, the project quickly evolved into a deeper exploration: can a finished work remain open to transformation? Do I Care stretches and blurs the edges between flux, continuity, and reinvention—not a sequel, nor a departure, but a counterpoint embracing process and fluidity.",
-          "Ljungsberg’s background in Musique Concrète and electro-acoustic techniques remains central as she reshapes and manipulates her own pre-recorded songs. Fragmented loops weave through the melodies and textures of I Do Care, while her ethereal voice lingers—both grounding and re-evoking her intimate sonic world.",
-          "More than a reinterpretation, Do I Care signals a shift—introducing doubt into the emotional and creative process. It is a meditation on transformation, where care and uncertainty coexist, and music remains in a state of becoming."
-        ],
+        "paragraphs": [],
         "credits": {
           "artists": [
             "All tracks composed, produced & mixed Daniella Ljungsberg",
@@ -30,7 +25,22 @@
         }
       },
       "releaseDate": "2024-02-14",
-      "cover": "do_i_care.jpg"
+      "cover": "do_i_care.jpg",
+      "credits": {
+        "artists": [
+          "All tracks composed, produced & mixed Daniella Ljungsberg",
+          "All songs written by Daniella Ljungsberg"
+        ],
+        "production": [
+          "Mastered by James Ginzburg"
+        ],
+        "coverArt": [
+          "Photography by Johan Ljungsberg"
+        ],
+        "additional": [
+          "Artistic direction by Itzik Gil Avizohar"
+        ]
+      }
     },
     {
       "id": 7,
@@ -40,13 +50,7 @@
       "releaseDate": "2025-04-11",
       "cover": "turn_of_a_millstone.jpg",
       "description": {
-        "paragraphs": [
-          "The wheel turns, the millstone grinds—an endless motion, eroding and renewing in equal measure. Turn of a Millstone is the debut studio album from SEVELLE, a trio consisting of sculptor and sound artist Niv Gafni (DIY bagpipe), musician and designer Daniel Treystman (drums), and musician Shaul Kohn (guitar).",
-          "Initially drawing their influences from Tony Conrad & Faust’s insights over drone minimalism and krautrock’s cosmic rhythm — Turn of a Millstone continue to rotate endlessly, paving the road of krautdrone’s foundations, they are opening a passage into an immersive dimension where minimalism becomes maximalism. The trio constructs parallel sonic plateaus—each locked in its own repetition, yet constantly evolving, grinding forward with a force that is both oppressive and liberating.",
-          "Their practice of continuous playing is a trial of physical and mental limits, a controlled collapse into chaos. The spiking drones and pounding rhythms resonate with the tension between order and entropy, structure and dissolution. In this space, Sevelle enacts a ritual of sonic self-sacrifice—driving themselves to exhaustion in pursuit of something beyond the self.",
-          "Like the turning of a grinding wheel, Turn of a Millstone is demanding yet deeply rewarding, revealing itself through endurance, through surrender. A meditation on repetition, failure, and transcendence—this is music at its breaking point.",
-          "Released as part of ROOMS, a new series on ORTHODOX dedicated to long-form sound works. Each release in this series is issued on cassette, with both sides carrying the same recording—an infinite loop of sound, a space to dwell in, leave, and return to."
-        ],
+        "paragraphs": [],
         "credits": {
           "artists": [
             "Shaul Kohn - Guitar",
@@ -68,7 +72,27 @@
           ]
         }
       },
-      "bandcampEmbedId": 2873345491
+      "bandcampEmbedId": 2873345491,
+      "credits": {
+        "artists": [
+          "Shaul Kohn - Guitar",
+          "Niv Gafni - DIY Bagpipes",
+          "Daniel Treystman - Drums"
+        ],
+        "production": [
+          "Mixed by Joe Talia | joetalia.com",
+          "Mastered by Amit Dagim | linktr.ee/amitdagim",
+          "Recorded by Ron Sheskin at HaZira",
+          "Graphics by Ashger Zamana | ashger.com"
+        ],
+        "coverArt": [
+          "Artwork by Or Shloman | orshloman.com"
+        ],
+        "additional": [
+          "Special thanks:",
+          "Eyal Lally Bitton, Yoel Peled, Ori Kadishay, Marco Milevski, Tomer Damsky, Amit Drori, Svenja Steurer Jene, Eddie Botstein, Hazira Performance Art Arena, Musrarasonics"
+        ]
+      }
     },
     {
       "id": 8,
@@ -79,18 +103,12 @@
       "cover": "words_dont_come_easy.jpg",
       "bandcampEmbedId": 3908082222,
       "description": {
-        "paragraphs": [
-          "\"words don’t come easy\" is the first album by the new duo IMMA, rooted in a shared sonic curiosity between electroacoustic singer-songwriter Daniella Ljungsberg and multimedia artist and composer Itzik Gil Avizohar.",
-          "While each comes from a different musical world, one shaped by voice, intimacy, and traces of Nordic folklore; the other by distorted sound walls and sonic intensities drawn from a deep fascination with metal culture, their collaboration reveals a mutual attunement to the haunting presence of sound. Like distant echoes of traditions, this album is less about stylistic fusion than about an ever-evolving friendship.",
-          "Together, they hold polarities in tension with a consonant sensitivity: vast sonic spaces, emotional density, and the quiet pull of things held just before they collapse. Their music moves along blurred edges, between structured songs and polished sketches, free improvisation and defined form. Ljungsberg’s voice and subtly addictive melodies lead like a ray of light through the dense spectral fog shaped by Avizohar’s synthesis, sparsely unfolding across his repetitive basslines.",
-          "There is no central statement here. The songs announce themselves. They rest in unresolved moments, like fragments of eroded memory.",
-          "\"words don’t come easy\" is not a title, but a shared condition."
-        ],
+        "paragraphs": [],
         "credits": {
           "artists": [
             "All songs written, produced, and recorded by IMMA",
-            "Daniella Ljungsberg – vocals, electronics",
-            "Itzik Gil Avizohar – bass guitar, electronics",
+            "Daniella Ljungsberg â vocals, electronics",
+            "Itzik Gil Avizohar â bass guitar, electronics",
             "Lyrics by Daniella Ljungsberg"
           ],
           "additional": [
@@ -101,12 +119,89 @@
             "Album cover 'Ancestral Shrine' by Dana Weingart"
           ],
           "production": [
-            "Recorded at Studio St. Rémy",
+            "Recorded at Studio St. RÃ©my",
             "Mixed by Yair Elazar Glotman",
             "Mastered by James Ginzburg"
           ]
         }
+      },
+      "credits": {
+        "artists": [
+          "All songs written, produced, and recorded by IMMA",
+          "Daniella Ljungsberg â vocals, electronics",
+          "Itzik Gil Avizohar â bass guitar, electronics",
+          "Lyrics by Daniella Ljungsberg"
+        ],
+        "production": [
+          "Recorded at Studio St. RÃ©my",
+          "Mixed by Yair Elazar Glotman",
+          "Mastered by James Ginzburg"
+        ],
+        "coverArt": [
+          "Album cover 'Ancestral Shrine' by Dana Weingart"
+        ],
+        "additional": [
+          "Additional vocals on fault song by MC Slice",
+          "Drums on watchman's song by Uri Rennert"
+        ]
       }
+    },
+    {
+      "id": 5,
+      "urlPath": "road-extends",
+      "artist": "Cadaver Eyes",
+      "title": "Road Extends",
+      "releaseDate": "2025-12-06",
+      "cover": "road-extends.jpg",
+      "description": {
+        "paragraphs": [
+          "ROAD EXTENDS, the latest offering from Cadaver Eyes on ORTHODOX, is a bold and challenging release from the veteran duo of drummer/vocalist David Opp (BARBARA, Carnation Dingthang, Heart & Crossbone Records) and no-input-mixer virtuoso Eran \"Zax\" Sachs (Dumitrescu's Hyperion Ensemble, Asher.Zax).",
+          "Over the past two decades, Cadaver Eyes have been exploring the experimental terrains introduced by John Cage and Gordon Mumma, using unpredictable electronic systems to crack apart and access sheer cosmic openness, and then harness the emergent dynamic forces through the propulsive and cemented structures of Extreme Metal and Hardcore Punk. Playing instruments that act in surprising and unexpected ways, their musical task is daunting: to write songs that reveal themselves differently and that are manifested anew every time they are performed, resulting in a total immersive sonic experience - heavy, pounding, and punishing. Cadaver Eyes’ sensory overload operates on the primal substrate of our creature selves, acting on the very mechanisms that situate us in the world.",
+          "ROAD EXTENDS is the result of a long and arduous process of trying to translate this intense sonorous experience into a recorded format. Originally titled Best Kind, this album initially dealt with the pain and suffering experienced at the most writhing and primal levels of existence, touching upon the coercive experience of being flooded by an overwhelming dehumanizing barrage of information undergone by people living in our age of accelerated capitalism. The album still addresses all these themes; but over the long stretch of time, another, very personal layer, had accumulated and became deeply infused in the underlying essence of this album: life. Life in its hardships and its tribulations, its turns and its crises and the traumatizing scars that it leaves upon us.",
+          "ROAD EXTENDS is the result of a long and arduous process of trying to translate this intense sonorous experience into a recorded format. Originally titled Best Kind, this album initially dealt with the pain and suffering experienced at the most writhing and primal levels of existence, touching upon the coercive experience of being flooded by an overwhelming dehumanizing barrage of information undergone by people living in our age of accelerated capitalism. The album still addresses all these themes; but over the long stretch of time, another, very personal layer, had accumulated and became deeply infused in the underlying essence of this album: life. Life in its hardships and its tribulations, its turns and its crises and the traumatizing scars that it leaves upon us."
+        ],
+        "credits": {
+          "artists": [
+            "adc",
+            "",
+            ""
+          ],
+          "production": [
+            "Recorded and Mixed by Marco Tomasin Milevski at HaZira Theater in 2024",
+            "Mastered by Ricardo Mazza",
+            ""
+          ],
+          "coverArt": [
+            "Artwork by D Opp",
+            ""
+          ],
+          "additional": []
+        }
+      },
+      "credits": {
+        "artists": [
+          "Composed by Cadaver Eyes",
+          "D Opp: Drums & Vocals",
+          "Eran Zax Sachs: No-Input Mixer"
+        ],
+        "production": [
+          "Recorded and Mixed by Marco Tomasin Milevski at HaZira Theater in 2024",
+          "Mastered by Ricardo Mazza",
+          "Originaly Recorded as Best Kind in 2016 at Polar Studios"
+        ],
+        "coverArt": [
+          "Artwork by D Opp",
+          "Graphic Design by Ashger Zamana"
+        ],
+        "additional": []
+      },
+      "paragraphs": [
+        "ROAD EXTENDS, the latest offering from Cadaver Eyes on ORTHODOX, is a bold and challenging release from the veteran duo of drummer/vocalist David Opp (BARBARA, Carnation Dingthang, Heart & Crossbone Records) and no-input-mixer virtuoso Eran \"Zax\" Sachs (Dumitrescu's Hyperion Ensemble, Asher.Zax).",
+        "Over the past two decades, Cadaver Eyes have been exploring the experimental terrains introduced by John Cage and Gordon Mumma, using unpredictable electronic systems to crack apart and access sheer cosmic openness, and then harness the emergent dynamic forces through the propulsive and cemented structures of Extreme Metal and Hardcore Punk. Playing instruments that act in surprising and unexpected ways, their musical task is daunting: to write songs that reveal themselves differently and that are manifested anew every time they are performed, resulting in a total immersive sonic experience - heavy, pounding, and punishing. Cadaver Eyes’ sensory overload operates on the primal substrate of our creature selves, acting on the very mechanisms that situate us in the world.",
+        "ROAD EXTENDS is the result of a long and arduous process of trying to translate this intense sonorous experience into a recorded format. Originally titled Best Kind, this album initially dealt with the pain and suffering experienced at the most writhing and primal levels of existence, touching upon the coercive experience of being flooded by an overwhelming dehumanizing barrage of information undergone by people living in our age of accelerated capitalism. The album still addresses all these themes; but over the long stretch of time, another, very personal layer, had accumulated and became deeply infused in the underlying essence of this album: life. Life in its hardships and its tribulations, its turns and its crises and the traumatizing scars that it leaves upon us.",
+        "ROAD EXTENDS is the result of a long and arduous process of trying to translate this intense sonorous experience into a recorded format. Originally titled Best Kind, this album initially dealt with the pain and suffering experienced at the most writhing and primal levels of existence, touching upon the coercive experience of being flooded by an overwhelming dehumanizing barrage of information undergone by people living in our age of accelerated capitalism. The album still addresses all these themes; but over the long stretch of time, another, very personal layer, had accumulated and became deeply infused in the underlying essence of this album: life. Life in its hardships and its tribulations, its turns and its crises and the traumatizing scars that it leaves upon us."
+      ],
+      "undefined": "C:\\fakepath\\road_extends.jpg"
     }
   ]
 }
