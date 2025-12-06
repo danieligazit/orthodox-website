@@ -574,17 +574,26 @@
               <button class="btn btn-small btn-danger" onclick="deleteAlbum(${index})">Delete</button>
             </div>
           </div>
-          <div class="meta">ID: ${album.id} | Release Date: ${album.releaseDate || 'Not set'} | URL: ${album.urlPath || 'Not set'}</div>
+          <div class="meta">Release Date: ${album.releaseDate || 'Not set'} | URL: ${album.urlPath || 'Not set'}</div>
           
           <div class="form-row">
+            <div class="form-group">
+              <label>ID <span style="color: #666; font-size: 12px;">(must be unique)</span></label>
+              <input type="number" data-field="id" data-index="${index}" value="${album.id || ''}" min="1" onchange="validateAlbumId(${index}, this)">
+              <div id="id-error-${index}" style="color: #dc3545; font-size: 12px; margin-top: 5px; display: none;"></div>
+            </div>
             <div class="form-group">
               <label>Artist</label>
               <input type="text" data-field="artist" data-index="${index}" value="${escapeHtml(album.artist || '')}">
             </div>
+          </div>
+          
+          <div class="form-row">
             <div class="form-group">
               <label>Title</label>
               <input type="text" data-field="title" data-index="${index}" value="${escapeHtml(album.title || '')}">
             </div>
+            <div class="form-group"></div>
           </div>
           
           <div class="form-row">
@@ -674,52 +683,59 @@
       if (!container) return;
       
       // Save current input values before re-rendering
-      const inputs = container.querySelectorAll('input[type="text"]');
-      inputs.forEach(input => {
-        const itemIndex = parseInt(input.dataset.item);
-        const value = input.value;
-        
-        // Handle special case for 'paragraphs' field path
-        let actualPath = fieldPath;
-        if (fieldPath === 'paragraphs') {
-          actualPath = 'description.paragraphs';
-        }
-        
-        const paths = actualPath.split('.');
-        let target = albumsData.albums[albumIndex];
-        
-        // Ensure description exists
-        if (paths[0] === 'description' || paths.includes('description')) {
-          if (!target.description) {
-            target.description = { paragraphs: [], credits: {} };
-          }
-        }
-        
-        for (let i = 0; i < paths.length - 1; i++) {
-          if (paths[i] === 'description') {
-            target = target.description;
-          } else if (paths[i] === 'credits') {
-            if (!target.credits) target.credits = {};
-            target = target.credits;
-          } else {
-            if (!target[paths[i]]) {
-              target[paths[i]] = {};
-            }
-            target = target[paths[i]];
-          }
-        }
-        
-        if (!target[paths[paths.length - 1]]) {
-          target[paths[paths.length - 1]] = [];
-        }
-        
-        // Ensure array is long enough
-        while (target[paths[paths.length - 1]].length <= itemIndex) {
-          target[paths[paths.length - 1]].push('');
-        }
-        
-        target[paths[paths.length - 1]][itemIndex] = value;
+      // Read all inputs in order and rebuild the array
+      const inputs = Array.from(container.querySelectorAll('input[type="text"]'));
+      
+      // Sort inputs by their item index to ensure correct order
+      inputs.sort((a, b) => {
+        const indexA = parseInt(a.dataset.item) || 0;
+        const indexB = parseInt(b.dataset.item) || 0;
+        return indexA - indexB;
       });
+      
+      // Build array from DOM values
+      const values = inputs.map(input => input.value);
+      
+      // Handle special case for 'paragraphs' field path
+      let actualPath = fieldPath;
+      if (fieldPath === 'paragraphs') {
+        actualPath = 'description.paragraphs';
+      }
+      
+      const paths = actualPath.split('.');
+      let target = albumsData.albums[albumIndex];
+      
+      // Ensure description exists
+      if (paths[0] === 'description' || paths.includes('description')) {
+        if (!target.description) {
+          target.description = { paragraphs: [], credits: {} };
+        }
+      }
+      
+      // Navigate through the path
+      for (let i = 0; i < paths.length - 1; i++) {
+        if (paths[i] === 'description') {
+          target = target.description;
+          if (!target) {
+            target = { paragraphs: [], credits: {} };
+            albumsData.albums[albumIndex].description = target;
+          }
+        } else if (paths[i] === 'credits') {
+          if (!target.credits) {
+            target.credits = {};
+          }
+          target = target.credits;
+        } else {
+          if (!target[paths[i]]) {
+            target[paths[i]] = {};
+          }
+          target = target[paths[i]];
+        }
+      }
+      
+      // Replace the entire array with values from DOM
+      const finalKey = paths[paths.length - 1];
+      target[finalKey] = values;
     }
     
     function renderList(containerId, items, albumIndex, fieldPath) {
@@ -983,9 +999,52 @@
     
     window.handleImageUpload = handleImageUpload;
     
+    function saveAllCurrentValues() {
+      // Save all regular input fields
+      document.querySelectorAll('input[data-field][data-index], textarea[data-field][data-index]').forEach(input => {
+        const field = input.dataset.field;
+        const index = parseInt(input.dataset.index);
+        const value = input.type === 'number' 
+          ? (input.value ? parseInt(input.value) : undefined) 
+          : input.value;
+        
+        if (field === 'id') {
+          // ID is handled separately with validation
+          return;
+        }
+        
+        albumsData.albums[index][field] = value;
+      });
+      
+      // Save all list values (paragraphs and credits)
+      albumsData.albums.forEach((album, index) => {
+        saveListValues(`paragraphs-${index}`, index, 'paragraphs');
+        saveListValues(`artists-${index}`, index, 'credits.artists');
+        saveListValues(`production-${index}`, index, 'credits.production');
+        saveListValues(`coverArt-${index}`, index, 'credits.coverArt');
+        saveListValues(`additional-${index}`, index, 'credits.additional');
+      });
+    }
+    
     document.getElementById('save-btn').addEventListener('click', async () => {
       try {
-        showStatus('Saving...', 'info');
+        // Save all current values from the DOM before saving
+        saveAllCurrentValues();
+        
+        // Validate IDs are unique
+        const ids = albumsData.albums.map(a => a.id).filter(id => id !== undefined && id !== null);
+        const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
+        if (duplicateIds.length > 0) {
+          showStatus(`Error: Duplicate IDs found: ${duplicateIds.join(', ')}. Please ensure all IDs are unique.`, 'error');
+          return;
+        }
+        
+        const saveBtn = document.getElementById('save-btn');
+        const originalText = saveBtn.textContent;
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving...';
+        
+        showStatus('Saving changes to GitHub... This may take a minute to deploy.', 'info');
         
         // Get current file SHA
         const fileResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${ALBUMS_FILE_PATH}`, {
@@ -1022,12 +1081,48 @@
           throw new Error(error.message || `Failed to save: ${updateResponse.status} ${updateResponse.statusText}`);
         }
         
-        showStatus('Changes saved successfully!', 'success');
+        saveBtn.disabled = false;
+        saveBtn.textContent = originalText;
+        showStatus('Changes saved successfully! Changes will be live on the website in 1-2 minutes after GitHub Pages rebuilds.', 'success');
       } catch (error) {
+        const saveBtn = document.getElementById('save-btn');
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save All Changes';
         showStatus('Error saving: ' + error.message, 'error');
         console.error(error);
       }
     });
+    
+    function validateAlbumId(albumIndex, input) {
+      const newId = parseInt(input.value);
+      const errorDiv = document.getElementById(`id-error-${albumIndex}`);
+      
+      if (!newId || newId < 1) {
+        errorDiv.textContent = 'ID must be a positive number';
+        errorDiv.style.display = 'block';
+        input.style.borderColor = '#dc3545';
+        return false;
+      }
+      
+      // Check for duplicates
+      const duplicates = albumsData.albums.filter((album, index) => 
+        album.id === newId && index !== albumIndex
+      );
+      
+      if (duplicates.length > 0) {
+        errorDiv.textContent = `ID ${newId} is already used by another album`;
+        errorDiv.style.display = 'block';
+        input.style.borderColor = '#dc3545';
+        return false;
+      }
+      
+      errorDiv.style.display = 'none';
+      input.style.borderColor = '#ddd';
+      albumsData.albums[albumIndex].id = newId;
+      return true;
+    }
+    
+    window.validateAlbumId = validateAlbumId;
     
     function showStatus(message, type) {
       const statusDiv = document.getElementById('status');
