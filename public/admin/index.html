@@ -512,7 +512,7 @@
             `;
             showStatus('You do not have permission to access this admin panel.', 'error');
           }
-        } else {
+      } else {
           // Token is invalid or expired
           throw new Error('Token invalid');
         }
@@ -763,11 +763,23 @@
     
     function saveListValues(containerId, albumIndex, fieldPath) {
       const container = document.getElementById(containerId);
-      if (!container) return;
+      if (!container) {
+        // Container doesn't exist yet, nothing to save
+        return;
+      }
       
       // Save current input values before re-rendering
       // Read all inputs in order and rebuild the array
       const inputs = Array.from(container.querySelectorAll('input[type="text"]'));
+      
+      if (inputs.length === 0) {
+        // No inputs found - this could mean:
+        // 1. The list is actually empty (user deleted all items)
+        // 2. The container is being re-rendered and is temporarily empty
+        // Only set to empty array if the container is actually empty (not just being re-rendered)
+        // We'll let renderList handle the empty case, so we don't overwrite data here
+        return;
+      }
       
       // Sort inputs by their item index to ensure correct order
       inputs.sort((a, b) => {
@@ -776,8 +788,11 @@
         return indexA - indexB;
       });
       
-      // Build array from DOM values
-      const values = inputs.map(input => input.value);
+      // Build array from DOM values - preserve empty strings but filter out null/undefined
+      const values = inputs.map(input => {
+        const val = input.value;
+        return val !== null && val !== undefined ? val : '';
+      });
       
       // Handle special case for 'paragraphs' field path
       let actualPath = fieldPath;
@@ -787,6 +802,11 @@
       
       const paths = actualPath.split('.');
       let target = albumsData.albums[albumIndex];
+      
+      if (!target) {
+        console.error(`Album at index ${albumIndex} not found`);
+        return;
+      }
       
       // Ensure description exists
       if (paths[0] === 'description' || paths.includes('description')) {
@@ -882,20 +902,30 @@
         albumsData.albums[albumIndex].description.credits[creditType] = [];
       }
       
-      // Get current values from DOM before modifying
+      // Get current values from DOM before modifying - this ensures we capture any unsaved edits
       const container = document.getElementById(`${creditType}-${albumIndex}`);
+      let currentValues = [];
       if (container) {
         const inputs = Array.from(container.querySelectorAll('input[type="text"]'));
-        const currentValues = inputs.map(input => input.value);
-        
-        // Update the data structure with current DOM values
-        albumsData.albums[albumIndex].description.credits[creditType] = currentValues;
+        // Sort by data-item index to ensure correct order
+        inputs.sort((a, b) => {
+          const indexA = parseInt(a.dataset.item) || 0;
+          const indexB = parseInt(b.dataset.item) || 0;
+          return indexA - indexB;
+        });
+        currentValues = inputs.map(input => input.value || '');
+          } else {
+        // If container doesn't exist, use existing values from data
+        currentValues = albumsData.albums[albumIndex].description.credits[creditType] || [];
       }
+      
+      // Update the data structure with current DOM values
+      albumsData.albums[albumIndex].description.credits[creditType] = currentValues;
       
       // Add new empty credit
       albumsData.albums[albumIndex].description.credits[creditType].push('');
       
-      // Re-render the list
+      // Re-render the list (renderList will call saveListValues, but we've already synced, so it's safe)
       renderList(`${creditType}-${albumIndex}`, albumsData.albums[albumIndex].description.credits[creditType], albumIndex, `credits.${creditType}`);
     }
     
@@ -948,7 +978,7 @@
         if (urlPath) {
           const fullUrl = `${BASE_URL}/album/${escapeHtml(urlPath)}`;
           previewDiv.innerHTML = `Full URL: <a href="${fullUrl}" target="_blank" style="color: #0c5460; text-decoration: underline;">${fullUrl}</a>`;
-        } else {
+          } else {
           previewDiv.innerHTML = 'Enter a URL path to see the full album URL';
         }
       }
@@ -984,6 +1014,10 @@
       for (let i = 0; i < paths.length - 1; i++) {
         if (paths[i] === 'description') {
           target = target.description;
+          if (!target) {
+            target = { paragraphs: [], credits: {} };
+            albumsData.albums[albumIndex].description = target;
+          }
         } else if (paths[i] === 'credits') {
           if (!target.credits) target.credits = {};
           target = target.credits;
@@ -995,11 +1029,18 @@
         }
       }
       
-      if (!target[paths[paths.length - 1]]) {
-        target[paths[paths.length - 1]] = [];
+      const finalKey = paths[paths.length - 1];
+      if (!target[finalKey]) {
+        target[finalKey] = [];
       }
       
-      target[paths[paths.length - 1]][itemIndex] = value;
+      // Ensure array is long enough before setting value
+      const array = target[finalKey];
+      while (array.length <= itemIndex) {
+        array.push('');
+      }
+      
+      array[itemIndex] = value;
     };
     
     window.removeListItem = removeListItem;
@@ -1061,8 +1102,8 @@
               if (existingFile.ok) {
                 const existing = await existingFile.json();
                 sha = existing.sha;
-              }
-            } catch (e) {
+                    }
+                  } catch (e) {
               // File doesn't exist, that's fine
             }
             
@@ -1150,16 +1191,26 @@
           return;
         }
         
-        albumsData.albums[index][field] = value;
+        if (albumsData.albums[index]) {
+          albumsData.albums[index][field] = value;
+        }
       });
       
-      // Save all list values (paragraphs and credits)
+      // Save all list values (paragraphs and credits) - ensure we save in the correct order
+      // and only save if the container exists (to avoid overwriting with empty arrays)
       albumsData.albums.forEach((album, index) => {
-        saveListValues(`paragraphs-${index}`, index, 'paragraphs');
-        saveListValues(`artists-${index}`, index, 'credits.artists');
-        saveListValues(`production-${index}`, index, 'credits.production');
-        saveListValues(`coverArt-${index}`, index, 'credits.coverArt');
-        saveListValues(`additional-${index}`, index, 'credits.additional');
+        // Only save if the container exists in the DOM
+        const hasParagraphs = document.getElementById(`paragraphs-${index}`);
+        const hasArtists = document.getElementById(`artists-${index}`);
+        const hasProduction = document.getElementById(`production-${index}`);
+        const hasCoverArt = document.getElementById(`coverArt-${index}`);
+        const hasAdditional = document.getElementById(`additional-${index}`);
+        
+        if (hasParagraphs) saveListValues(`paragraphs-${index}`, index, 'paragraphs');
+        if (hasArtists) saveListValues(`artists-${index}`, index, 'credits.artists');
+        if (hasProduction) saveListValues(`production-${index}`, index, 'credits.production');
+        if (hasCoverArt) saveListValues(`coverArt-${index}`, index, 'credits.coverArt');
+        if (hasAdditional) saveListValues(`additional-${index}`, index, 'credits.additional');
       });
     }
     
