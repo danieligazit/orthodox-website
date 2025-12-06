@@ -198,7 +198,7 @@
   <script>
     const PROXY_URL = 'https://decap-oauth-proxy.danieligazit.workers.dev';
     const REPO_OWNER = 'danieligazit';
-    const REPO_NAME = 'orthodox-records';
+    const REPO_NAME = 'orthodox-website';
     const FILE_PATH = 'src/data/albums.json';
     const BRANCH = 'main';
     
@@ -257,7 +257,10 @@
           }
         });
         
-        if (!response.ok) throw new Error('Failed to fetch file');
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || `Failed to fetch file: ${response.status} ${response.statusText}`);
+        }
         
         const file = await response.json();
         const content = atob(file.content.replace(/\s/g, ''));
@@ -485,8 +488,8 @@
         });
         
         if (!updateResponse.ok) {
-          const error = await updateResponse.json();
-          throw new Error(error.message || 'Failed to save');
+          const error = await updateResponse.json().catch(() => ({}));
+          throw new Error(error.message || `Failed to save: ${updateResponse.status} ${updateResponse.statusText}`);
         }
         
         showStatus('Changes saved successfully!', 'success');
