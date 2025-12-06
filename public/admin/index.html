@@ -755,9 +755,13 @@
         renderList(`additional-${index}`, album.description.credits?.additional || [], index, 'credits.additional');
       });
       
-      // Attach input listeners
-      container.querySelectorAll('input, textarea').forEach(input => {
-        input.addEventListener('change', updateAlbum);
+      // Attach input listeners - only for top-level fields, not nested ones like credits
+      container.querySelectorAll('input[data-field][data-index], textarea[data-field][data-index]').forEach(input => {
+        const field = input.dataset.field;
+        // Skip nested fields (like credits.artists) - those are handled by updateList
+        if (field && !field.includes('.')) {
+          input.addEventListener('change', updateAlbum);
+        }
       });
     }
     
@@ -1011,6 +1015,19 @@
     function updateAlbum(event) {
       const field = event.target.dataset.field;
       const index = parseInt(event.target.dataset.index);
+      
+      // Safety check
+      if (!field || index === undefined || index === null || !albumsData.albums[index]) {
+        console.error('Invalid updateAlbum call:', { field, index, album: albumsData.albums[index] });
+        return;
+      }
+      
+      // Skip nested fields (like credits.artists) - those should use updateList
+      if (field.includes('.')) {
+        console.warn('updateAlbum called for nested field, should use updateList:', field);
+        return;
+      }
+      
       const value = event.target.type === 'number' ? (event.target.value ? parseInt(event.target.value) : undefined) : event.target.value;
       
       albumsData.albums[index][field] = value;
