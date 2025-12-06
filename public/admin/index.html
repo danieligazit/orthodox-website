@@ -362,13 +362,9 @@
       if (justLoggedOut === 'true') {
         sessionStorage.removeItem('just-logged-out');
         window.history.replaceState({}, document.title, window.location.pathname);
-        // Don't auto-login, show login screen instead
-        return;
-      }
-      
-      // Only auto-login if we don't have a stored token (fresh login)
-      // If we have a stored token, this might be a redirect after logout, so ignore it
-      if (!storedToken) {
+        // Don't auto-login, show login screen instead - do nothing, let the page show login screen
+      } else if (!storedToken) {
+        // Only auto-login if we don't have a stored token (fresh login)
         token = accessToken;
         localStorage.setItem('github-token', token);
         sessionStorage.removeItem('just-logged-out'); // Clear logout flag if we're logging in
