@@ -503,7 +503,15 @@
           <div class="form-row">
             <div class="form-group">
               <label>Cover Image</label>
-              <input type="text" data-field="cover" data-index="${index}" value="${escapeHtml(album.cover || '')}">
+              <div style="display: flex; gap: 10px; align-items: flex-start;">
+                <input type="text" data-field="cover" data-index="${index}" value="${escapeHtml(album.cover || '')}" style="flex: 1;">
+                <input type="file" accept="image/*" data-index="${index}" id="cover-upload-${index}" style="display: none;" onchange="handleImageUpload(${index}, this)">
+                <button type="button" class="btn btn-small" onclick="document.getElementById('cover-upload-${index}').click()">Upload</button>
+              </div>
+              <div id="cover-preview-${index}" style="margin-top: 10px;">
+                ${album.cover ? `<img src="/orthodox-website/${album.cover}" alt="Cover preview" style="max-width: 200px; max-height: 200px; border: 1px solid #ddd; border-radius: 4px;" onerror="this.style.display='none'">` : ''}
+              </div>
+              <div id="cover-upload-status-${index}" style="margin-top: 5px; font-size: 12px;"></div>
             </div>
             <div class="form-group">
               <label>Bandcamp Embed ID</label>
@@ -670,6 +678,134 @@
     window.addCredit = addCredit;
     window.deleteAlbum = deleteAlbum;
     window.moveAlbum = moveAlbum;
+    
+    async function handleImageUpload(albumIndex, fileInput) {
+      const file = fileInput.files[0];
+      if (!file) return;
+      
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        showStatus('Please select an image file', 'error');
+        return;
+      }
+      
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        showStatus('Image file is too large. Maximum size is 10MB.', 'error');
+        return;
+      }
+      
+      const statusDiv = document.getElementById(`cover-upload-status-${albumIndex}`);
+      statusDiv.textContent = 'Uploading...';
+      statusDiv.style.color = '#0c5460';
+      
+      try {
+        // Generate filename from album URL path or use sanitized original filename
+        let filename;
+        const album = albumsData.albums[albumIndex];
+        if (album.urlPath) {
+          const ext = file.name.split('.').pop();
+          filename = `${album.urlPath.replace(/[^a-z0-9-]/gi, '_').toLowerCase()}.${ext}`;
+        } else {
+          // Sanitize filename
+          filename = file.name.replace(/[^a-z0-9.-]/gi, '_').toLowerCase();
+        }
+        
+        const filePath = `public/${filename}`;
+        
+        // Read file as base64
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+          try {
+            const base64Content = e.target.result.split(',')[1]; // Remove data:image/...;base64, prefix
+            
+            // Check if file already exists
+            let sha = null;
+            try {
+              const existingFile = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${filePath}`, {
+                headers: {
+                  'Authorization': `token ${token}`,
+                  'Accept': 'application/vnd.github.v3+json'
+                }
+              });
+              
+              if (existingFile.ok) {
+                const existing = await existingFile.json();
+                sha = existing.sha;
+              }
+            } catch (e) {
+              // File doesn't exist, that's fine
+            }
+            
+            // Upload file to GitHub
+            const uploadResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${filePath}`, {
+              method: 'PUT',
+              headers: {
+                'Authorization': `token ${token}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                message: `Upload cover image: ${filename}`,
+                content: base64Content,
+                sha: sha,
+                branch: BRANCH
+              })
+            });
+            
+            if (!uploadResponse.ok) {
+              const error = await uploadResponse.json().catch(() => ({}));
+              throw new Error(error.message || 'Failed to upload image');
+            }
+            
+            // Update cover field
+            albumsData.albums[albumIndex].cover = filename;
+            const coverInput = document.querySelector(`input[data-field="cover"][data-index="${albumIndex}"]`);
+            if (coverInput) {
+              coverInput.value = filename;
+            }
+            
+            // Update preview
+            const previewDiv = document.getElementById(`cover-preview-${albumIndex}`);
+            if (previewDiv) {
+              const existingImg = previewDiv.querySelector('img');
+              if (existingImg) {
+                existingImg.src = `/orthodox-website/${filename}`;
+                existingImg.style.display = 'block';
+              } else {
+                const img = document.createElement('img');
+                img.src = `/orthodox-website/${filename}`;
+                img.alt = 'Cover preview';
+                img.style.cssText = 'max-width: 200px; max-height: 200px; border: 1px solid #ddd; border-radius: 4px;';
+                img.onerror = function() { this.style.display = 'none'; };
+                previewDiv.appendChild(img);
+              }
+            }
+            
+            statusDiv.textContent = 'Uploaded successfully!';
+            statusDiv.style.color = '#155724';
+            showStatus('Image uploaded successfully!', 'success');
+            
+            // Reset file input
+            fileInput.value = '';
+          } catch (error) {
+            statusDiv.textContent = 'Upload failed: ' + error.message;
+            statusDiv.style.color = '#721c24';
+            showStatus('Error uploading image: ' + error.message, 'error');
+            console.error(error);
+          }
+        };
+        
+        reader.readAsDataURL(file);
+      } catch (error) {
+        statusDiv.textContent = 'Error: ' + error.message;
+        statusDiv.style.color = '#721c24';
+        showStatus('Error uploading image: ' + error.message, 'error');
+        console.error(error);
+      }
+    }
+    
+    window.handleImageUpload = handleImageUpload;
     
     document.getElementById('save-btn').addEventListener('click', async () => {
       try {
