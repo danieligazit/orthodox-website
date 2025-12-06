@@ -429,6 +429,47 @@
       }
     });
     
+    let hasWritePermission = false;
+    let currentUsername = null;
+    
+    async function checkPermissions(username) {
+      try {
+        // Repository owner always has write permission
+        if (username === REPO_OWNER) {
+          hasWritePermission = true;
+          return true;
+        }
+        
+        // Check if user has write/admin permission to the repository
+        const permResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/collaborators/${username}/permission`, {
+          headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+        
+        if (permResponse.ok) {
+          const permData = await permResponse.json();
+          // User has write or admin permission
+          hasWritePermission = permData.permission === 'write' || permData.permission === 'admin';
+          return hasWritePermission;
+        } else if (permResponse.status === 404) {
+          // User is not a collaborator
+          hasWritePermission = false;
+          return false;
+        } else {
+          // Other error - assume no permission to be safe
+          hasWritePermission = false;
+          return false;
+        }
+      } catch (error) {
+        console.error('Error checking permissions:', error);
+        // If we can't check, assume no permission to be safe
+        hasWritePermission = false;
+        return false;
+      }
+    }
+    
     async function verifyToken() {
       try {
         const response = await fetch(`${PROXY_URL}/user`, {
@@ -437,9 +478,39 @@
         
         if (response.ok) {
           const user = await response.json();
+          currentUsername = user.login;
           document.getElementById('user-name').textContent = user.login;
-          showStatus(`Logged in as ${user.login}`, 'success');
-          loadContent();
+          
+          // Check permissions
+          const hasPermission = await checkPermissions(user.login);
+          
+          if (hasPermission) {
+            showStatus(`Logged in as ${user.login}`, 'success');
+            // Show edit controls
+            document.getElementById('save-btn').style.display = 'block';
+            document.getElementById('create-album-btn').style.display = 'block';
+            loadContent();
+          } else {
+            // User doesn't have write permission
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('content-section').classList.remove('hidden');
+            
+            // Hide edit controls
+            document.getElementById('save-btn').style.display = 'none';
+            document.getElementById('create-album-btn').style.display = 'none';
+            
+            document.getElementById('albums-list').innerHTML = `
+              <div style="padding: 40px; text-align: center; color: #721c24; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; margin: 20px;">
+                <h2 style="margin-top: 0;">Access Denied</h2>
+                <p>You are logged in as <strong>${user.login}</strong>, but you do not have write permissions to this repository.</p>
+                <p>Only collaborators with write or admin access can view and edit content.</p>
+                <p style="margin-top: 20px; font-size: 14px; color: #856404;">
+                  If you believe you should have access, please contact the repository owner to add you as a collaborator.
+                </p>
+              </div>
+            `;
+            showStatus('You do not have permission to access this admin panel.', 'error');
+          }
         } else {
           // Token is invalid or expired
           throw new Error('Token invalid');
@@ -456,6 +527,11 @@
     }
     
     async function loadContent() {
+      // Only load content if user has write permission
+      if (!hasWritePermission) {
+        return;
+      }
+      
       document.getElementById('auth-section').classList.add('hidden');
       document.getElementById('content-section').classList.remove('hidden');
       
@@ -771,10 +847,20 @@
         albumsData.albums[albumIndex].description.paragraphs = [];
       }
       
-      // Save current values before adding
-      saveListValues(`paragraphs-${albumIndex}`, albumIndex, 'paragraphs');
+      // Get current values from DOM before modifying
+      const container = document.getElementById(`paragraphs-${albumIndex}`);
+      if (container) {
+        const inputs = Array.from(container.querySelectorAll('input[type="text"]'));
+        const currentValues = inputs.map(input => input.value);
+        
+        // Update the data structure with current DOM values
+        albumsData.albums[albumIndex].description.paragraphs = currentValues;
+      }
       
+      // Add new empty paragraph
       albumsData.albums[albumIndex].description.paragraphs.push('');
+      
+      // Re-render the list
       renderList(`paragraphs-${albumIndex}`, albumsData.albums[albumIndex].description.paragraphs, albumIndex, 'paragraphs');
     }
     
@@ -789,10 +875,20 @@
         albumsData.albums[albumIndex].description.credits[creditType] = [];
       }
       
-      // Save current values before adding
-      saveListValues(`${creditType}-${albumIndex}`, albumIndex, `credits.${creditType}`);
+      // Get current values from DOM before modifying
+      const container = document.getElementById(`${creditType}-${albumIndex}`);
+      if (container) {
+        const inputs = Array.from(container.querySelectorAll('input[type="text"]'));
+        const currentValues = inputs.map(input => input.value);
+        
+        // Update the data structure with current DOM values
+        albumsData.albums[albumIndex].description.credits[creditType] = currentValues;
+      }
       
+      // Add new empty credit
       albumsData.albums[albumIndex].description.credits[creditType].push('');
+      
+      // Re-render the list
       renderList(`${creditType}-${albumIndex}`, albumsData.albums[albumIndex].description.credits[creditType], albumIndex, `credits.${creditType}`);
     }
     
