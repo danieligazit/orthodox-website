@@ -31,7 +31,7 @@ export function Header({ opacity }: HeaderProps) {
           <NavLink to="/about">ABOUT</NavLink>
         </div>
         <div className="pointer-events-auto">
-          <NavLink href="#press">PRESS</NavLink>
+          <NavLink to="/press">PRESS</NavLink>
         </div>
       </div>
     </>

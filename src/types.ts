@@ -16,3 +16,15 @@ export interface Album {
   };
   bandcampEmbedId?: number;
 }
+
+export interface PressItem {
+  id: number;
+  title: string;
+  publication: string;
+  author?: string;
+  date: string; // ISO date string (YYYY-MM-DD)
+  excerpt?: string;
+  link: string;
+  image?: string; // Optional image URL or filename
+  category?: string; // e.g., "Review", "Interview", "Feature", "News"
+}

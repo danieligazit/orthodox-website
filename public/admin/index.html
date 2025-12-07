@@ -562,7 +562,6 @@
           <button id="create-press-btn" class="btn btn-primary">Create New Press Item</button>
         </div>
         <div id="press-list" class="items-list"></div>
-        <p style="color: #666; padding: 20px;">Press items functionality coming soon. This is a placeholder.</p>
       </div>
       
       <button id="save-btn" class="btn btn-success" style="margin-top: 20px;">Save All Changes</button>
@@ -575,13 +574,14 @@
     const REPO_NAME = 'orthodox-website';
     const ALBUMS_FILE_PATH = 'src/data/albums.json';
     const ABOUT_FILE_PATH = 'src/data/about.json';
+    const PRESS_FILE_PATH = 'src/data/press.json';
     const BRANCH = 'main';
     const BASE_URL = 'https://danieligazit.github.io/orthodox-website';
     
     let token = localStorage.getItem('github-token');
     let albumsData = null;
     let aboutData = null;
-    let pressData = { items: [] }; // Placeholder for press items
+    let pressData = { items: [] };
     
     // Tab switching
     document.querySelectorAll('.tab').forEach(tab => {
@@ -649,9 +649,7 @@
     });
     
     document.getElementById('create-album-btn').addEventListener('click', createNewAlbum);
-    document.getElementById('create-press-btn').addEventListener('click', () => {
-      showStatus('Press items functionality coming soon!', 'info');
-    });
+    document.getElementById('create-press-btn').addEventListener('click', createNewPressItem);
     
     document.getElementById('apply-sort-btn').addEventListener('click', applySort);
     
@@ -661,6 +659,7 @@
         localStorage.removeItem('github-token');
         token = null;
         albumsData = null;
+        aboutData = null;
         pressData = { items: [] };
         
         // Clear any status messages
@@ -838,6 +837,33 @@
           aboutData = { paragraphs: [] };
         }
         
+        // Load press items
+        try {
+          const pressResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${PRESS_FILE_PATH}`, {
+            headers: {
+              'Authorization': `token ${token}`,
+              'Accept': 'application/vnd.github.v3+json'
+            }
+          });
+          
+          if (pressResponse.ok) {
+            const pressFile = await pressResponse.json();
+            const pressBinaryString = atob(pressFile.content);
+            const pressBytes = new Uint8Array(pressBinaryString.length);
+            for (let i = 0; i < pressBinaryString.length; i++) {
+              pressBytes[i] = pressBinaryString.charCodeAt(i);
+            }
+            const pressContent = new TextDecoder('utf-8').decode(pressBytes);
+            pressData = JSON.parse(pressContent);
+          } else {
+            // If file doesn't exist, initialize with empty structure
+            pressData = { items: [] };
+          }
+        } catch (error) {
+          console.warn('Failed to load press.json, initializing empty:', error);
+          pressData = { items: [] };
+        }
+        
         // Normalize data structure - ensure all albums use description.credits and description.paragraphs
         if (albumsData.albums && albumsData.albums.length > 0) {
           albumsData.albums.forEach((album, idx) => {
@@ -909,6 +935,7 @@
         
         renderAlbums();
         renderAbout();
+        renderPressItems();
         showStatus('Content loaded successfully', 'success');
       } catch (error) {
         showStatus('Error loading content: ' + error.message, 'error');
@@ -1989,6 +2016,64 @@
           }
         }
         
+        // Save press data
+        if (pressData) {
+          // Fetch fresh SHA right before saving
+          let pressSha = null;
+          try {
+            const pressFileResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${PRESS_FILE_PATH}`, {
+              headers: {
+                'Authorization': `token ${token}`,
+                'Accept': 'application/vnd.github.v3+json'
+              }
+            });
+            
+            if (pressFileResponse.ok) {
+              const pressFile = await pressFileResponse.json();
+              pressSha = pressFile.sha;
+            }
+          } catch (error) {
+            // File doesn't exist yet, that's fine
+            console.log('Press file does not exist yet, will create it');
+          }
+          
+          // Validate IDs are unique
+          const pressIds = pressData.items.map(item => item.id).filter(id => id !== undefined && id !== null);
+          const duplicatePressIds = pressIds.filter((id, index) => pressIds.indexOf(id) !== index);
+          if (duplicatePressIds.length > 0) {
+            throw new Error(`Error: Duplicate press item IDs found: ${duplicatePressIds.join(', ')}. Please ensure all IDs are unique.`);
+          }
+          
+          const pressContent = JSON.stringify(pressData, null, 2);
+          const pressEncoder = new TextEncoder();
+          const pressBytes = pressEncoder.encode(pressContent);
+          const pressBinaryString = String.fromCharCode(...pressBytes);
+          const pressEncodedContent = btoa(pressBinaryString);
+          
+          const pressUpdateResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${PRESS_FILE_PATH}`, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `token ${token}`,
+              'Accept': 'application/vnd.github.v3+json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              message: 'Update press items data via admin',
+              content: pressEncodedContent,
+              sha: pressSha,
+              branch: BRANCH
+            })
+          });
+          
+          if (!pressUpdateResponse.ok) {
+            const error = await pressUpdateResponse.json().catch(() => ({}));
+            if (error.message && error.message.includes('sha')) {
+              throw new Error(`Failed to save press items: SHA mismatch. This usually means the file was changed. Please refresh and try again.`);
+            }
+            throw new Error(error.message || `Failed to save press items: ${pressUpdateResponse.status} ${pressUpdateResponse.statusText}`);
+          }
+        }
+        
         // Dismiss the saving toast
         if (savingToast) {
           dismissToast(savingToast);
@@ -2079,6 +2164,200 @@
     }
     
     window.validateAlbumId = validateAlbumId;
+    
+    // Press Items Functions
+    function renderPressItems() {
+      const container = document.getElementById('press-list');
+      if (!container) return;
+      
+      container.innerHTML = '';
+      
+      if (!pressData || !pressData.items || pressData.items.length === 0) {
+        container.innerHTML = '<p style="color: #666; padding: 20px;">No press items yet. Click "Create New Press Item" to get started.</p>';
+        return;
+      }
+      
+      pressData.items.forEach((item, index) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'item-item';
+        itemDiv.setAttribute('data-index', index);
+        
+        const title = item.title || 'New Press Item (untitled)';
+        
+        itemDiv.innerHTML = `
+          <div class="item-header">
+            <h3>${escapeHtml(title)}</h3>
+            <div class="item-controls">
+              <button class="btn btn-small" onclick="movePressItem(${index}, 'up')" ${index === 0 ? 'disabled' : ''}>↑</button>
+              <button class="btn btn-small" onclick="movePressItem(${index}, 'down')" ${index === pressData.items.length - 1 ? 'disabled' : ''}>↓</button>
+              <button class="btn btn-small btn-danger" onclick="deletePressItem(${index})">Delete</button>
+            </div>
+          </div>
+          <div class="meta">
+            Publication: ${escapeHtml(item.publication || 'Not set')} | 
+            Date: ${item.date || 'Not set'} |
+            ${item.link ? `<a href="${escapeHtml(item.link)}" target="_blank" style="color: #0c5460; text-decoration: underline;">View Article</a>` : 'Link: Not set'}
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>ID <span style="color: #666; font-size: 12px;">(must be unique)</span></label>
+              <input type="number" data-field="id" data-index="${index}" value="${item.id || ''}" min="1" onchange="validatePressId(${index}, this)">
+              <div id="press-id-error-${index}" style="color: #dc3545; font-size: 12px; margin-top: 5px; display: none;"></div>
+            </div>
+            <div class="form-group">
+              <label>Title</label>
+              <input type="text" data-field="title" data-index="${index}" value="${escapeHtml(item.title || '')}">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Publication</label>
+              <input type="text" data-field="publication" data-index="${index}" value="${escapeHtml(item.publication || '')}">
+            </div>
+            <div class="form-group">
+              <label>Author <span style="color: #666; font-size: 12px;">(optional)</span></label>
+              <input type="text" data-field="author" data-index="${index}" value="${escapeHtml(item.author || '')}">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" data-field="date" data-index="${index}" value="${item.date || ''}">
+            </div>
+            <div class="form-group">
+              <label>Category <span style="color: #666; font-size: 12px;">(optional, e.g., Review, Interview, Feature)</span></label>
+              <input type="text" data-field="category" data-index="${index}" value="${escapeHtml(item.category || '')}">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Link <span style="color: #666; font-size: 12px;">(URL to the article)</span></label>
+              <input type="url" data-field="link" data-index="${index}" value="${escapeHtml(item.link || '')}" placeholder="https://...">
+            </div>
+            <div class="form-group">
+              <label>Image <span style="color: #666; font-size: 12px;">(optional, URL or filename)</span></label>
+              <input type="text" data-field="image" data-index="${index}" value="${escapeHtml(item.image || '')}" placeholder="URL or filename">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Excerpt <span style="color: #666; font-size: 12px;">(optional, short quote or description)</span></label>
+            <textarea data-field="excerpt" data-index="${index}" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit;">${escapeHtml(item.excerpt || '')}</textarea>
+          </div>
+        `;
+        
+        container.appendChild(itemDiv);
+      });
+      
+      // Attach input listeners
+      container.querySelectorAll('input[data-field][data-index], textarea[data-field][data-index]').forEach(input => {
+        input.addEventListener('change', updatePressItem);
+      });
+    }
+    
+    function createNewPressItem() {
+      if (!pressData) {
+        pressData = { items: [] };
+      }
+      
+      // Find the highest ID and add 1
+      const maxId = pressData.items.length > 0 
+        ? Math.max(...pressData.items.map(item => item.id || 0))
+        : 0;
+      
+      const newItem = {
+        id: maxId + 1,
+        title: '',
+        publication: '',
+        author: '',
+        date: new Date().toISOString().split('T')[0],
+        excerpt: '',
+        link: '',
+        image: '',
+        category: ''
+      };
+      
+      pressData.items.push(newItem);
+      renderPressItems();
+      showStatus('New press item created. Fill in the details and save.', 'info');
+      
+      // Scroll to the new item
+      setTimeout(() => {
+        const items = document.querySelectorAll('#press-list .item-item');
+        if (items.length > 0) {
+          items[items.length - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }, 100);
+    }
+    
+    function deletePressItem(index) {
+      if (confirm('Are you sure you want to delete this press item?')) {
+        pressData.items.splice(index, 1);
+        renderPressItems();
+        showStatus('Press item deleted. Remember to save changes.', 'info');
+      }
+    }
+    
+    function movePressItem(index, direction) {
+      if (direction === 'up' && index > 0) {
+        [pressData.items[index], pressData.items[index - 1]] = 
+          [pressData.items[index - 1], pressData.items[index]];
+        renderPressItems();
+      } else if (direction === 'down' && index < pressData.items.length - 1) {
+        [pressData.items[index], pressData.items[index + 1]] = 
+          [pressData.items[index + 1], pressData.items[index]];
+        renderPressItems();
+      }
+    }
+    
+    function updatePressItem(event) {
+      const input = event.target;
+      const field = input.dataset.field;
+      const index = parseInt(input.dataset.index);
+      const value = input.type === 'date' ? input.value : (input.type === 'number' ? (input.value ? parseInt(input.value) : undefined) : input.value);
+      
+      if (pressData.items[index]) {
+        pressData.items[index][field] = value;
+      }
+    }
+    
+    function validatePressId(itemIndex, input) {
+      const newId = parseInt(input.value);
+      const errorDiv = document.getElementById(`press-id-error-${itemIndex}`);
+      
+      if (!newId || newId < 1) {
+        errorDiv.textContent = 'ID must be a positive number';
+        errorDiv.style.display = 'block';
+        input.style.borderColor = '#dc3545';
+        return false;
+      }
+      
+      // Check for duplicates
+      const duplicates = pressData.items.filter((item, index) => 
+        item.id === newId && index !== itemIndex
+      );
+      
+      if (duplicates.length > 0) {
+        errorDiv.textContent = `ID ${newId} is already used by another press item`;
+        errorDiv.style.display = 'block';
+        input.style.borderColor = '#dc3545';
+        return false;
+      }
+      
+      errorDiv.style.display = 'none';
+      input.style.borderColor = '#ddd';
+      pressData.items[itemIndex].id = newId;
+      return true;
+    }
+    
+    window.createNewPressItem = createNewPressItem;
+    window.deletePressItem = deletePressItem;
+    window.movePressItem = movePressItem;
+    window.validatePressId = validatePressId;
     
     function showStatus(message, type) {
       const statusDiv = document.getElementById('status');
