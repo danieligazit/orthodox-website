@@ -243,6 +243,21 @@
       }
     }
     
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateX(100%);
+      }
+    }
+    
+    .toast.dismissing {
+      animation: fadeOut 0.3s ease-out forwards;
+    }
+    
     .deployment-status {
       margin-top: 8px;
       padding-top: 8px;
@@ -1654,17 +1669,29 @@
           throw new Error(error.message || `Failed to save: ${updateResponse.status} ${updateResponse.statusText}`);
         }
         
-        // Update toast to show success and start monitoring deployment
+        // Dismiss the saving toast
         if (savingToast) {
-          savingToast.className = 'toast success';
-          savingToast.querySelector('.toast-icon').textContent = '✓';
-          savingToast.querySelector('.toast-icon').style.color = '#28a745';
-          savingToast.querySelector('.toast-title').textContent = 'Changes Saved Successfully!';
-          savingToast.querySelector('.toast-message').textContent = 'Your changes have been committed to GitHub. Deployment is starting...';
-          
-          // Start monitoring GitHub Actions deployment status
-          setTimeout(() => monitorDeployment(savingToast), 2000); // Wait 2 seconds for workflow to start
+          dismissToast(savingToast);
         }
+        
+        // Show commit success toast (auto-dismisses after 5 seconds)
+        showToast(
+          'Changes Committed',
+          'Your changes have been successfully committed to GitHub.',
+          'success',
+          5000
+        );
+        
+        // Show deployment monitoring toast (separate toast)
+        const deploymentToast = showToast(
+          'Deployment Status',
+          'Checking deployment status...',
+          'info',
+          0 // Don't auto-dismiss, we'll handle it in monitorDeployment
+        );
+        
+        // Start monitoring GitHub Actions deployment status
+        setTimeout(() => monitorDeployment(deploymentToast), 2000); // Wait 2 seconds for workflow to start
         
         saveBtn.disabled = false;
         saveBtn.textContent = originalText;
@@ -1757,7 +1784,7 @@
           <div class="toast-title">${escapeHtml(title)}</div>
           <div class="toast-message">${escapeHtml(message)}</div>
         </div>
-        <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+        <button class="toast-close" onclick="dismissToast(this.parentElement)">×</button>
       `;
       
       container.appendChild(toast);
@@ -1765,15 +1792,25 @@
       // Auto-remove after duration (unless it's an error, which stays until manually closed)
       if (type !== 'error' && duration > 0) {
         setTimeout(() => {
-          if (toast.parentElement) {
-            toast.style.animation = 'slideIn 0.3s ease-out reverse';
-            setTimeout(() => toast.remove(), 300);
-          }
+          dismissToast(toast);
         }, duration);
       }
       
       return toast;
     }
+    
+    function dismissToast(toast) {
+      if (toast && toast.parentElement) {
+        toast.classList.add('dismissing');
+        setTimeout(() => {
+          if (toast.parentElement) {
+            toast.remove();
+          }
+        }, 300);
+      }
+    }
+    
+    window.dismissToast = dismissToast;
     
     async function checkGitHubActionsStatus() {
       try {
@@ -1821,43 +1858,65 @@
           return;
         }
         
-        // Update toast with deployment status
-        const statusDiv = toastElement.querySelector('.deployment-status');
-        if (!statusDiv) {
-          const deploymentStatus = document.createElement('div');
-          deploymentStatus.className = 'deployment-status active';
-          toastElement.querySelector('.toast-content').appendChild(deploymentStatus);
+        // Ensure deployment status div exists
+        let statusDivEl = toastElement.querySelector('.deployment-status');
+        if (!statusDivEl) {
+          statusDivEl = document.createElement('div');
+          statusDivEl.className = 'deployment-status active';
+          toastElement.querySelector('.toast-content').appendChild(statusDivEl);
         }
-        
-        const statusDivEl = toastElement.querySelector('.deployment-status');
         if (statusDivEl) {
           if (status.status === 'completed') {
+            clearInterval(checkInterval);
+            
             if (status.conclusion === 'success') {
+              // Update toast to show success
+              toastElement.className = 'toast success';
+              toastElement.querySelector('.toast-icon').textContent = '✓';
+              toastElement.querySelector('.toast-icon').style.color = '#28a745';
+              toastElement.querySelector('.toast-title').textContent = 'Deployment Completed';
+              toastElement.querySelector('.toast-message').textContent = 'Your changes are now live on the website!';
+              
               statusDivEl.innerHTML = `
-                <span class="deployment-spinner" style="border-top-color: #28a745;"></span>
-                <span>Deployment completed successfully!</span>
                 <a href="${status.html_url}" target="_blank" class="deployment-status-link">View workflow →</a>
               `;
-              clearInterval(checkInterval);
-              // Update toast to success after a moment
+              
+              // Auto-dismiss after 5 seconds
               setTimeout(() => {
-                toastElement.className = 'toast success';
-                toastElement.querySelector('.toast-icon').textContent = '✓';
-                toastElement.querySelector('.toast-icon').style.color = '#28a745';
-              }, 1000);
+                dismissToast(toastElement);
+              }, 5000);
             } else if (status.conclusion === 'failure') {
+              // Update toast to show error
+              toastElement.className = 'toast error';
+              toastElement.querySelector('.toast-icon').textContent = '✕';
+              toastElement.querySelector('.toast-icon').style.color = '#dc3545';
+              toastElement.querySelector('.toast-title').textContent = 'Deployment Failed';
+              toastElement.querySelector('.toast-message').textContent = 'Deployment failed. Check workflow for details.';
+              
               statusDivEl.innerHTML = `
-                <span style="color: #dc3545;">⚠</span>
-                <span>Deployment failed. Check workflow for details.</span>
                 <a href="${status.html_url}" target="_blank" class="deployment-status-link">View workflow →</a>
               `;
-              clearInterval(checkInterval);
+              
+              // Auto-dismiss after 5 seconds
+              setTimeout(() => {
+                dismissToast(toastElement);
+              }, 5000);
             } else {
+              // Other conclusion (cancelled, etc.)
+              toastElement.className = 'toast warning';
+              toastElement.querySelector('.toast-icon').textContent = '⚠';
+              toastElement.querySelector('.toast-icon').style.color = '#ffc107';
+              toastElement.querySelector('.toast-title').textContent = 'Deployment Status';
+              toastElement.querySelector('.toast-message').textContent = `Deployment ${status.conclusion || 'completed'}.`;
+              
               statusDivEl.innerHTML = `
-                <span>Deployment ${status.conclusion || 'completed'}.</span>
                 <a href="${status.html_url}" target="_blank" class="deployment-status-link">View workflow →</a>
               `;
-              clearInterval(checkInterval);
+              
+              // Auto-dismiss after 5 seconds
+              setTimeout(() => {
+                dismissToast(toastElement);
+              }, 5000);
             }
           } else if (status.status === 'in_progress' || status.status === 'queued') {
             statusDivEl.innerHTML = `
@@ -1872,10 +1931,16 @@
         if (checkCount >= maxChecks) {
           clearInterval(checkInterval);
           if (statusDivEl) {
+            toastElement.querySelector('.toast-title').textContent = 'Deployment Status';
+            toastElement.querySelector('.toast-message').textContent = 'Still deploying... Check back in a few minutes.';
             statusDivEl.innerHTML = `
-              <span>Still deploying... Check back in a few minutes.</span>
-              <a href="${status.html_url}" target="_blank" class="deployment-status-link">View workflow →</a>
+              <a href="${status.html_url || '#'}" target="_blank" class="deployment-status-link">View workflow →</a>
             `;
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+              dismissToast(toastElement);
+            }, 5000);
           }
         }
       }, 10000); // Check every 10 seconds
