@@ -82,12 +82,6 @@
       },
       "releaseDate": "2024-02-14",
       "cover": "do_i_care.jpg",
-      "paragraphs": [
-        "",
-        "Originally conceived as a way to adapt I Do Care for live performance, the project quickly evolved into a deeper exploration: can a finished work remain open to transformation? Do I Care stretches and blurs the edges between flux, continuity, and reinvention—not a sequel, nor a departure, but a counterpoint embracing process and fluidity.",
-        "Ljungsberg’s background in Musique Concrète and electro-acoustic techniques remains central as she reshapes and manipulates her own pre-recorded songs. Fragmented loops weave through the melodies and textures of I Do Care, while her ethereal voice lingers—both grounding and re-evoking her intimate sonic world.",
-        "More than a reinterpretation, Do I Care signals a shift—introducing doubt into the emotional and creative process. It is a meditation on transformation, where care and uncertainty coexist, and music remains in a state of becoming."
-      ],
       "credits": {
         "artists": [
           "All tracks composed, produced & mixed Daniella Ljungsberg",
@@ -112,7 +106,13 @@
       "releaseDate": "2025-04-11",
       "cover": "turn_of_a_millstone.jpg",
       "description": {
-        "paragraphs": [],
+        "paragraphs": [
+          "The wheel turns, the millstone grinds—an endless motion, eroding and renewing in equal measure. Turn of a Millstone is the debut studio album from SEVELLE, a trio consisting of sculptor and sound artist Niv Gafni (DIY bagpipe), musician and designer Daniel Treystman (drums), and musician Shaul Kohn (guitar).",
+          "Initially drawing their influences from Tony Conrad & Faust’s insights over drone minimalism and krautrock’s cosmic rhythm — Turn of a Millstone continue to rotate endlessly, paving the road of krautdrone’s foundations, they are opening a passage into an immersive dimension where minimalism becomes maximalism. The trio constructs parallel sonic plateaus—each locked in its own repetition, yet constantly evolving, grinding forward with a force that is both oppressive and liberating.",
+          "Their practice of continuous playing is a trial of physical and mental limits, a controlled collapse into chaos. The spiking drones and pounding rhythms resonate with the tension between order and entropy, structure and dissolution. In this space, Sevelle enacts a ritual of sonic self-sacrifice—driving themselves to exhaustion in pursuit of something beyond the self.",
+          "Like the turning of a grinding wheel, Turn of a Millstone is demanding yet deeply rewarding, revealing itself through endurance, through surrender. A meditation on repetition, failure, and transcendence—this is music at its breaking point.",
+          "Released as part of ROOMS, a new series on ORTHODOX dedicated to long-form sound works. Each release in this series is issued on cassette, with both sides carrying the same recording—an infinite loop of sound, a space to dwell in, leave, and return to. "
+        ],
         "credits": {
           "artists": [
             "Shaul Kohn - Guitar",
@@ -135,6 +135,13 @@
         }
       },
       "bandcampEmbedId": 2873345491,
+      "paragraphs": [
+        "The wheel turns, the millstone grinds—an endless motion, eroding and renewing in equal measure. Turn of a Millstone is the debut studio album from SEVELLE, a trio consisting of sculptor and sound artist Niv Gafni (DIY bagpipe), musician and designer Daniel Treystman (drums), and musician Shaul Kohn (guitar).",
+        "Initially drawing their influences from Tony Conrad & Faust’s insights over drone minimalism and krautrock’s cosmic rhythm — Turn of a Millstone continue to rotate endlessly, paving the road of krautdrone’s foundations, they are opening a passage into an immersive dimension where minimalism becomes maximalism. The trio constructs parallel sonic plateaus—each locked in its own repetition, yet constantly evolving, grinding forward with a force that is both oppressive and liberating.",
+        "Their practice of continuous playing is a trial of physical and mental limits, a controlled collapse into chaos. The spiking drones and pounding rhythms resonate with the tension between order and entropy, structure and dissolution. In this space, Sevelle enacts a ritual of sonic self-sacrifice—driving themselves to exhaustion in pursuit of something beyond the self.",
+        "Like the turning of a grinding wheel, Turn of a Millstone is demanding yet deeply rewarding, revealing itself through endurance, through surrender. A meditation on repetition, failure, and transcendence—this is music at its breaking point.",
+        "Released as part of ROOMS, a new series on ORTHODOX dedicated to long-form sound works. Each release in this series is issued on cassette, with both sides carrying the same recording—an infinite loop of sound, a space to dwell in, leave, and return to. "
+      ],
       "credits": {
         "artists": [
           "Shaul Kohn - Guitar",
