@@ -6,10 +6,12 @@ import { getContentOpacity, getContentTranslateY } from '../utils/animation';
 
 interface ContentSectionProps {
   scrollY: number;
+  isVirtualAnimation?: boolean;
 }
 
-export function ContentSection({ scrollY }: ContentSectionProps) {
-  const opacity = getContentOpacity(scrollY);
+export function ContentSection({ scrollY, isVirtualAnimation = false }: ContentSectionProps) {
+  // Hide content completely during virtual animation (logo click animation)
+  const opacity = isVirtualAnimation ? 0 : getContentOpacity(scrollY);
   const translateY = getContentTranslateY(scrollY);
 
   return (

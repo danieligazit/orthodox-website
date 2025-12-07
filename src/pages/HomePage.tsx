@@ -16,18 +16,22 @@ export function HomePage() {
   // We now also check the URL hash for '#albums'
   const isCatalogView = location.hash === '#albums';
 
-  const shouldStartScrolled = useMemo(() => {
-     const state = location.state as { scrollToCatalog?: boolean } | null;
-     const storage = typeof window !== 'undefined' ? sessionStorage.getItem('scrollToCatalog') : null;
-     return state?.scrollToCatalog === true || storage === 'true' || isCatalogView;
-  }, [location.state, location.key, isCatalogView]);
-
   // 2. Determine if we are doing the "Logo Click" animation (Virtual Animation)
   const shouldAnimateToTop = useMemo(() => {
       const state = location.state as { animateToTop?: boolean } | null;
       const storage = typeof window !== 'undefined' ? sessionStorage.getItem('animateToTop') : null;
       return state?.animateToTop === true || storage === 'true';
   }, [location.state, location.key]);
+
+  const shouldStartScrolled = useMemo(() => {
+     // If we're animating to top, don't start scrolled
+     if (shouldAnimateToTop) {
+       return false;
+     }
+     const state = location.state as { scrollToCatalog?: boolean } | null;
+     const storage = typeof window !== 'undefined' ? sessionStorage.getItem('scrollToCatalog') : null;
+     return state?.scrollToCatalog === true || storage === 'true' || isCatalogView;
+  }, [location.state, location.key, isCatalogView, shouldAnimateToTop]);
 
   // State to control the virtual animation progress (0 to 1)
   // If shouldAnimateToTop is true, we start at 1 (scrolled look). Otherwise null (use real scroll).
@@ -42,6 +46,12 @@ export function HomePage() {
     
     // Don't update hash during virtual animation (logo click animation)
     if (virtualProgress !== null) return;
+    
+    // After animation completes, ensure hash is cleared if we're at top
+    if (scrollY === 0 && location.hash === '#albums') {
+      navigate(location.pathname, { replace: true });
+      return;
+    }
 
     // Add hash when scrolled past animation (inclusive of the end point)
     if (scrollY >= ANIMATION_CONFIG.DISTANCE && location.hash !== '#albums') {
@@ -55,6 +65,11 @@ export function HomePage() {
 
   // Handle Physical Scroll (Back to Albums)
   useLayoutEffect(() => {
+    // Don't force scroll if we're in the middle of a virtual animation
+    if (virtualProgress !== null) {
+      return;
+    }
+    
     if (shouldStartScrolled) {
         // Only force scroll if we aren't already scrolled (avoids fighting browser restoration)
         if (window.scrollY < ANIMATION_CONFIG.DISTANCE) {
@@ -65,17 +80,22 @@ export function HomePage() {
     } else {
         setIsForcedScrolled(false);
     }
-  }, [shouldStartScrolled]); 
+  }, [shouldStartScrolled, virtualProgress]); 
 
   // Handle Virtual Animation (Logo Click)
   useEffect(() => {
     if (shouldAnimateToTop) {
         sessionStorage.removeItem('animateToTop');
+        // Clear scrollToCatalog to prevent scrolling after animation
+        sessionStorage.removeItem('scrollToCatalog');
         
         // Ensure URL hash is cleared when starting animation
         if (location.hash === '#albums') {
           navigate(location.pathname, { replace: true });
         }
+        
+        // Ensure we're at the top of the page
+        window.scrollTo(0, 0);
         
         let start: number | null = null;
         // CHANGE: Reduced duration from 800ms to 500ms for a faster, snappier feel
@@ -100,7 +120,16 @@ export function HomePage() {
             if (t < 1) {
                 requestAnimationFrame(animate);
             } else {
-                setVirtualProgress(null); 
+                // Animation complete - ensure we stay at top
+                setVirtualProgress(null);
+                // Ensure scroll position stays at top after animation
+                // Use multiple attempts to ensure it sticks
+                window.scrollTo(0, 0);
+                requestAnimationFrame(() => {
+                  window.scrollTo(0, 0);
+                  // Prevent any scroll-to-catalog behavior
+                  sessionStorage.removeItem('scrollToCatalog');
+                });
             }
         };
         
@@ -145,11 +174,9 @@ export function HomePage() {
       <Header opacity={virtualProgress !== null ? getHeaderOpacity(virtualProgress) : headerOpacity} />
       
       {/* Content Section: Driven by physical scrollY. 
-          If we are virtual animating, scrollY is 0.
-          So content is opacity 0 (hidden) automatically!
-          This solves the flash perfectly because content never shows up.
+          If we are virtual animating, hide content completely.
       */}
-      <ContentSection scrollY={scrollY} />
+      <ContentSection scrollY={scrollY} isVirtualAnimation={virtualProgress !== null} />
     </>
   );
 }
