@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { ANIMATION_CONFIG } from '../config/constants';
 
 interface HeaderProps {
@@ -27,7 +28,7 @@ export function Header({ opacity }: HeaderProps) {
         }}
       >
         <div className="pointer-events-auto">
-          <NavLink href="/about">ABOUT</NavLink>
+          <NavLink to="/about">ABOUT</NavLink>
         </div>
         <div className="pointer-events-auto">
           <NavLink href="#press">PRESS</NavLink>
@@ -38,11 +39,25 @@ export function Header({ opacity }: HeaderProps) {
 }
 
 interface NavLinkProps {
-  href: string;
+  to?: string;
+  href?: string;
   children: ReactNode;
 }
 
-function NavLink({ href, children }: NavLinkProps) {
+function NavLink({ to, href, children }: NavLinkProps) {
+  // Use React Router Link for internal routes, plain anchor for hash links
+  if (to) {
+    return (
+      <Link
+        to={to}
+        className="relative text-sm font-im-fell uppercase tracking-widest cursor-pointer group"
+      >
+        {children}
+        <span className="absolute left-0 top-1/2 w-full h-px bg-white transform -translate-y-1/2 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center"></span>
+      </Link>
+    );
+  }
+  
   return (
     <a
       href={href}
