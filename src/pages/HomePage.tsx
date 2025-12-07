@@ -39,6 +39,9 @@ export function HomePage() {
     // If we are currently "forcing" the scroll state (handling initial load/restore),
     // do NOT update the URL hash yet. Wait until the user actually scrolls or the restoration settles.
     if (isForcedScrolled) return;
+    
+    // Don't update hash during virtual animation (logo click animation)
+    if (virtualProgress !== null) return;
 
     // Add hash when scrolled past animation (inclusive of the end point)
     if (scrollY >= ANIMATION_CONFIG.DISTANCE && location.hash !== '#albums') {
@@ -48,7 +51,7 @@ export function HomePage() {
     else if (scrollY < ANIMATION_CONFIG.DISTANCE && location.hash === '#albums') {
       navigate(location.pathname, { replace: true });
     }
-  }, [scrollY, location.hash, navigate, location.pathname, isForcedScrolled]);
+  }, [scrollY, location.hash, navigate, location.pathname, isForcedScrolled, virtualProgress]);
 
   // Handle Physical Scroll (Back to Albums)
   useLayoutEffect(() => {
@@ -68,6 +71,11 @@ export function HomePage() {
   useEffect(() => {
     if (shouldAnimateToTop) {
         sessionStorage.removeItem('animateToTop');
+        
+        // Ensure URL hash is cleared when starting animation
+        if (location.hash === '#albums') {
+          navigate(location.pathname, { replace: true });
+        }
         
         let start: number | null = null;
         // CHANGE: Reduced duration from 800ms to 500ms for a faster, snappier feel
@@ -98,7 +106,7 @@ export function HomePage() {
         
         requestAnimationFrame(animate);
     }
-  }, [shouldAnimateToTop]);
+  }, [shouldAnimateToTop, location.hash, location.pathname, navigate]);
 
   // Standard calculations
   const realProgress = getScrollProgress(scrollY);

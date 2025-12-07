@@ -47,15 +47,18 @@ export function LogoLayer({ easedProgress, windowHeight, onClick }: LogoLayerPro
           behavior: 'smooth',
         });
       } else {
-        // Navigate to homepage.
-        // STRATEGY CHANGE: Do NOT start scrolled. Start at top, but trigger a visual-only animation.
-        // We remove scrollToCatalog: true to prevent the physical scroll jump.
-        sessionStorage.setItem('animateToTop', 'true');    
+        // Navigate to homepage from album page.
+        // Clear any hash and ensure we start at top with animation
+        sessionStorage.setItem('animateToTop', 'true');
+        // Clear scrollToCatalog to ensure we don't start scrolled
+        sessionStorage.removeItem('scrollToCatalog');
         
+        // Navigate to clean homepage URL (no hash)
         navigate('/', { 
+            replace: true, // Replace history entry
             state: { 
                 scrollToCatalog: false, // Don't physically scroll
-                animateToTop: true      // Just animate the logo
+                animateToTop: true      // Trigger the animation
             } 
         });
       }
