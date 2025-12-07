@@ -1788,8 +1788,9 @@
           throw new Error(error.message || `Failed to save albums: ${albumsUpdateResponse.status} ${albumsUpdateResponse.statusText}`);
         }
         
-        // Save about data
+        // Save about data - fetch SHA AFTER albums save to ensure we have the latest
         if (aboutData) {
+          // Fetch fresh SHA right before saving to avoid stale SHA issues
           let aboutSha = null;
           try {
             const aboutFileResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${ABOUT_FILE_PATH}`, {
@@ -1831,6 +1832,10 @@
           
           if (!aboutUpdateResponse.ok) {
             const error = await aboutUpdateResponse.json().catch(() => ({}));
+            // If it's a SHA mismatch error, provide helpful message
+            if (error.message && error.message.includes('sha')) {
+              throw new Error(`Failed to save about page: SHA mismatch. This usually means the file was changed. Please refresh and try again.`);
+            }
             throw new Error(error.message || `Failed to save about page: ${aboutUpdateResponse.status} ${aboutUpdateResponse.statusText}`);
           }
         }
@@ -1838,6 +1843,15 @@
         // Dismiss the saving toast
         if (savingToast) {
           dismissToast(savingToast);
+        }
+        
+        // Reload content to ensure we have the latest data and avoid stale state
+        // This prevents issues where subsequent saves use stale SHAs
+        try {
+          await loadContent();
+        } catch (reloadError) {
+          console.warn('Failed to reload content after save:', reloadError);
+          // Don't fail the save if reload fails, just log it
         }
         
         // Show commit success toast (auto-dismisses after 5 seconds)
