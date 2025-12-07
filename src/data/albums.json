@@ -60,8 +60,9 @@
       "description": {
         "paragraphs": [
           "Another year, another Valentine’s Day—Ljungsberg returns with Do I Care, a reimagining of her cult album I Do Care (ORTH001). Released exactly one year later, this album doesn’t just revisit its predecessor; it reflects on its emotional and structural foundations while questioning the role of music as an act of care in an uncertain world.",
-          "",
-          ""
+          "Originally conceived as a way to adapt I Do Care for live performance, the project quickly evolved into a deeper exploration: can a finished work remain open to transformation? Do I Care stretches and blurs the edges between flux, continuity, and reinvention—not a sequel, nor a departure, but a counterpoint embracing process and fluidity.",
+          "Ljungsberg’s background in Musique Concrète and electro-acoustic techniques remains central as she reshapes and manipulates her own pre-recorded songs. Fragmented loops weave through the melodies and textures of I Do Care, while her ethereal voice lingers—both grounding and re-evoking her intimate sonic world.",
+          "More than a reinterpretation, Do I Care signals a shift—introducing doubt into the emotional and creative process. It is a meditation on transformation, where care and uncertainty coexist, and music remains in a state of becoming."
         ],
         "credits": {
           "artists": [
@@ -81,6 +82,12 @@
       },
       "releaseDate": "2024-02-14",
       "cover": "do_i_care.jpg",
+      "paragraphs": [
+        "",
+        "Originally conceived as a way to adapt I Do Care for live performance, the project quickly evolved into a deeper exploration: can a finished work remain open to transformation? Do I Care stretches and blurs the edges between flux, continuity, and reinvention—not a sequel, nor a departure, but a counterpoint embracing process and fluidity.",
+        "Ljungsberg’s background in Musique Concrète and electro-acoustic techniques remains central as she reshapes and manipulates her own pre-recorded songs. Fragmented loops weave through the melodies and textures of I Do Care, while her ethereal voice lingers—both grounding and re-evoking her intimate sonic world.",
+        "More than a reinterpretation, Do I Care signals a shift—introducing doubt into the emotional and creative process. It is a meditation on transformation, where care and uncertainty coexist, and music remains in a state of becoming."
+      ],
       "credits": {
         "artists": [
           "All tracks composed, produced & mixed Daniella Ljungsberg",
@@ -95,13 +102,7 @@
         "additional": [
           "Artistic direction by Itzik Gil Avizohar"
         ]
-      },
-      "paragraphs": [
-        "Another year, another Valentine’s Day—Ljungsberg returns with Do I Care, a reimagining of her cult album I Do Care (ORTH001). Released exactly one year later, this album doesn’t just revisit its predecessor; it reflects on its emotional and structural foundations while questioning the role of music as an act of care in an uncertain world.",
-        "Originally conceived as a way to adapt I Do Care for live performance, the project quickly evolved into a deeper exploration: can a finished work remain open to transformation? Do I Care stretches and blurs the edges between flux, continuity, and reinvention—not a sequel, nor a departure, but a counterpoint embracing process and fluidity.",
-        "Ljungsberg’s background in Musique Concrète and electro-acoustic techniques remains central as she reshapes and manipulates her own pre-recorded songs. Fragmented loops weave through the melodies and textures of I Do Care, while her ethereal voice lingers—both grounding and re-evoking her intimate sonic world.",
-        "More than a reinterpretation, Do I Care signals a shift—introducing doubt into the emotional and creative process. It is a meditation on transformation, where care and uncertainty coexist, and music remains in a state of becoming."
-      ]
+      }
     },
     {
       "id": 7,
@@ -192,13 +193,6 @@
           ]
         }
       },
-      "paragraphs": [
-        "\"words don’t come easy\" is the first album by the new duo IMMA, rooted in a shared sonic curiosity between electroacoustic singer-songwriter Daniella Ljungsberg and multimedia artist and composer Itzik Gil Avizohar.",
-        "While each comes from a different musical world, one shaped by voice, intimacy, and traces of Nordic folklore; the other by distorted sound walls and sonic intensities drawn from a deep fascination with metal culture, their collaboration reveals a mutual attunement to the haunting presence of sound. Like distant echoes of traditions, this album is less about stylistic fusion than about an ever-evolving friendship.",
-        "Together, they hold polarities in tension with a consonant sensitivity: vast sonic spaces, emotional density, and the quiet pull of things held just before they collapse. Their music moves along blurred edges, between structured songs and polished sketches, free improvisation and defined form. Ljungsberg’s voice and subtly addictive melodies lead like a ray of light through the dense spectral fog shaped by Avizohar’s synthesis, sparsely unfolding across his repetitive basslines.",
-        "There is no central statement here. The songs announce themselves. They rest in unresolved moments, like fragments of eroded memory.",
-        "\"words don’t come easy\" is not a title, but a shared condition."
-      ],
       "credits": {
         "artists": [
           "All songs written, produced, and recorded by IMMA",
