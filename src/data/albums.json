@@ -162,37 +162,38 @@
         ],
         "credits": {
           "artists": [
-            "adc",
-            "asdf",
-            "123123"
+            "Composed by Cadaver Eyes",
+            "D Opp: Drums & Vocals",
+            "Eran Zax Sachs: No-Input Mixer"
           ],
           "production": [
             "Recorded and Mixed by Marco Tomasin Milevski at HaZira Theater in 2024",
             "Mastered by Ricardo Mazza",
-            "1231"
+            "Originaly Recorded as Best Kind in 2016 at Polar Studios"
           ],
           "coverArt": [
             "Artwork by D Opp",
-            "1231"
+            "Graphic Design by Ashger Zamana"
           ],
           "additional": []
         }
       },
       "undefined": "C:\\fakepath\\road_extends.jpg",
+      "bandcampEmbedId": 830241195,
       "credits": {
         "artists": [
           "Composed by Cadaver Eyes",
           "D Opp: Drums & Vocals",
           "Eran Zax Sachs: No-Input Mixer"
         ],
-        "coverArt": [
-          "Artwork by D Opp",
-          "Graphic Design by Ashger Zamana"
-        ],
         "production": [
           "Recorded and Mixed by Marco Tomasin Milevski at HaZira Theater in 2024",
           "Mastered by Ricardo Mazza",
           "Originaly Recorded as Best Kind in 2016 at Polar Studios"
+        ],
+        "coverArt": [
+          "Artwork by D Opp",
+          "Graphic Design by Ashger Zamana"
         ]
       }
     }
