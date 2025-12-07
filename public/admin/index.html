@@ -822,7 +822,8 @@
       
       // Build array from DOM values - preserve empty strings but ensure we get the full value
       const values = validInputs.map((input, idx) => {
-        // Get the value directly from the input element - force a fresh read
+        // Get the value directly from the input element's value property
+        // This is the most reliable way to get the current value
         let val = input.value;
         
         // If value is null/undefined, use empty string
@@ -830,12 +831,26 @@
           val = '';
         }
         
-        // Convert to string and ensure we have the full value
+        // Convert to string to ensure we have a string value
         val = String(val);
         
-        // Debug: Log if we detect a suspiciously short value that might indicate truncation
+        // Debug: Log detailed info for suspicious values (first item only, and only if very short)
         if (val.length > 0 && val.length < 5 && idx === 0) {
-          console.warn(`Warning: First value in ${fieldPath} for album ${albumIndex} seems short: "${val}"`);
+          console.warn(`Warning: First value in ${fieldPath} for album ${albumIndex} seems short: "${val}"`, {
+            inputValue: input.value,
+            inputValueLength: input.value?.length || 0,
+            defaultValue: input.defaultValue,
+            attributeValue: input.getAttribute('value'),
+            maxLength: input.maxLength,
+            dataItem: input.getAttribute('data-item')
+          });
+          
+          // If we detect a suspiciously short value, also log all inputs to see what's happening
+          console.log('All inputs in container:', Array.from(container.querySelectorAll('input[type="text"]')).map(inp => ({
+            dataItem: inp.getAttribute('data-item'),
+            value: inp.value,
+            valueLength: inp.value?.length || 0
+          })));
         }
         
         return val;
@@ -907,15 +922,25 @@
       items.forEach((item, itemIndex) => {
         const div = document.createElement('div');
         div.className = 'list-item';
-        div.innerHTML = `
-          <input type="text" 
-                 data-album="${albumIndex}" 
-                 data-field="${fieldPath}" 
-                 data-item="${itemIndex}" 
-                 value="${escapeHtml(item)}"
-                 onchange="updateList(this)">
-          <button type="button" class="btn btn-small btn-danger" onclick="removeListItem(${albumIndex}, '${fieldPath}', ${itemIndex})">Remove</button>
-        `;
+        
+        // Create input element properly to avoid HTML attribute issues
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.setAttribute('data-album', albumIndex);
+        input.setAttribute('data-field', fieldPath);
+        input.setAttribute('data-item', itemIndex);
+        input.value = item || ''; // Set value directly, not via HTML attribute
+        input.onchange = function() { updateList(this); };
+        
+        // Create remove button
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'btn btn-small btn-danger';
+        removeBtn.textContent = 'Remove';
+        removeBtn.onclick = function() { removeListItem(albumIndex, fieldPath, itemIndex); };
+        
+        div.appendChild(input);
+        div.appendChild(removeBtn);
         container.appendChild(div);
       });
     }
