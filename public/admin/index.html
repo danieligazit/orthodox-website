@@ -555,6 +555,19 @@
         const content = atob(file.content.replace(/\s/g, ''));
         albumsData = JSON.parse(content);
         
+        // Debug: Log the loaded data to check if it's already corrupted
+        console.log('Loaded albumsData:', albumsData);
+        if (albumsData.albums && albumsData.albums.length > 0) {
+          albumsData.albums.forEach((album, idx) => {
+            if (album.description?.credits?.artists && album.description.credits.artists.length > 0) {
+              const firstArtist = album.description.credits.artists[0];
+              if (firstArtist && firstArtist.length < 5) {
+                console.warn(`Album ${idx} has suspiciously short first artist credit: "${firstArtist}"`);
+              }
+            }
+          });
+        }
+        
         renderAlbums();
         showStatus('Content loaded successfully', 'success');
       } catch (error) {
@@ -856,11 +869,26 @@
         return val;
       });
       
-      // Debug logging - log the actual values being saved
+      // Debug logging - log the actual values being saved with detailed info
+      const currentDataValue = (() => {
+        const paths = (fieldPath === 'paragraphs' ? 'description.paragraphs' : fieldPath).split('.');
+        let target = albumsData.albums[albumIndex];
+        for (let i = 0; i < paths.length - 1; i++) {
+          if (paths[i] === 'description') target = target?.description;
+          else if (paths[i] === 'credits') target = target?.credits;
+          else target = target?.[paths[i]];
+        }
+        return target?.[paths[paths.length - 1]];
+      })();
+      
       console.log(`Saving ${fieldPath} for album ${albumIndex}:`, {
         inputCount: validInputs.length,
         values: values,
-        firstValueLength: values[0]?.length || 0
+        firstValueLength: values[0]?.length || 0,
+        firstValue: values[0],
+        // Compare with what's in albumsData
+        currentDataValue: currentDataValue,
+        dataMatches: JSON.stringify(currentDataValue) === JSON.stringify(values)
       });
       
       // Handle special case for 'paragraphs' field path
@@ -923,13 +951,34 @@
         const div = document.createElement('div');
         div.className = 'list-item';
         
+        // Ensure item is a string and not null/undefined
+        const itemValue = (item !== null && item !== undefined) ? String(item) : '';
+        
+        // Debug: Log if we're rendering a suspiciously short value
+        if (itemValue.length > 0 && itemValue.length < 5 && itemIndex === 0 && fieldPath.includes('credits')) {
+          console.warn(`Rendering short value for ${fieldPath}[${itemIndex}]: "${itemValue}"`, {
+            originalItem: item,
+            itemType: typeof item,
+            itemLength: itemValue.length,
+            albumIndex,
+            fieldPath
+          });
+        }
+        
         // Create input element properly to avoid HTML attribute issues
         const input = document.createElement('input');
         input.type = 'text';
         input.setAttribute('data-album', albumIndex);
         input.setAttribute('data-field', fieldPath);
         input.setAttribute('data-item', itemIndex);
-        input.value = item || ''; // Set value directly, not via HTML attribute
+        input.value = itemValue; // Set value directly, not via HTML attribute
+        
+        // Verify the value was set correctly
+        if (input.value !== itemValue) {
+          console.error(`Value mismatch when setting input: expected "${itemValue}", got "${input.value}"`);
+          input.value = itemValue; // Force set again
+        }
+        
         input.onchange = function() { updateList(this); };
         
         // Create remove button
@@ -986,14 +1035,25 @@
       let currentValues = [];
       if (container) {
         const inputs = Array.from(container.querySelectorAll('input[type="text"]'));
-        // Sort by data-item index to ensure correct order
+        // Sort by data-item index to ensure correct order - use getAttribute to handle "0" correctly
         inputs.sort((a, b) => {
-          const indexA = parseInt(a.dataset.item) || 0;
-          const indexB = parseInt(b.dataset.item) || 0;
+          const indexA = parseInt(a.getAttribute('data-item')) || 0;
+          const indexB = parseInt(b.getAttribute('data-item')) || 0;
           return indexA - indexB;
         });
-        currentValues = inputs.map(input => input.value || '');
-          } else {
+        currentValues = inputs.map(input => {
+          const val = input.value;
+          return (val !== null && val !== undefined) ? String(val) : '';
+        });
+        
+        // Debug: Log if we're reading suspicious values
+        if (currentValues.length > 0 && currentValues[0] && currentValues[0].length < 5) {
+          console.warn(`addCredit: Reading short first value for ${creditType}: "${currentValues[0]}"`, {
+            allValues: currentValues,
+            inputCount: inputs.length
+          });
+        }
+      } else {
         // If container doesn't exist, use existing values from data
         currentValues = albumsData.albums[albumIndex].description.credits[creditType] || [];
       }
@@ -1093,10 +1153,22 @@
     window.updateAlbumUrlPreview = updateAlbumUrlPreview;
     
     window.updateList = function(input) {
-      const albumIndex = parseInt(input.dataset.album);
-      const fieldPath = input.dataset.field;
-      const itemIndex = parseInt(input.dataset.item);
-      const value = input.value;
+      // Use getAttribute to handle "0" correctly
+      const albumIndex = parseInt(input.getAttribute('data-album')) || 0;
+      const fieldPath = input.getAttribute('data-field');
+      const itemIndex = parseInt(input.getAttribute('data-item')) || 0;
+      const value = input.value || '';
+      
+      // Debug: Log if we're updating with a suspiciously short value
+      if (value.length > 0 && value.length < 5 && itemIndex === 0 && fieldPath && fieldPath.includes('credits')) {
+        console.warn(`updateList: Updating with short value for ${fieldPath}[${itemIndex}]: "${value}"`, {
+          inputValue: input.value,
+          inputValueLength: input.value?.length || 0,
+          albumIndex,
+          fieldPath,
+          itemIndex
+        });
+      }
       
       const paths = fieldPath.split('.');
       let target = albumsData.albums[albumIndex];
@@ -1303,8 +1375,14 @@
     
     document.getElementById('save-btn').addEventListener('click', async () => {
       try {
+        // Debug: Log albumsData before saving to see if it's already corrupted
+        console.log('albumsData before saveAllCurrentValues:', JSON.parse(JSON.stringify(albumsData)));
+        
         // Save all current values from the DOM before saving
         saveAllCurrentValues();
+        
+        // Debug: Log albumsData after saving to see what changed
+        console.log('albumsData after saveAllCurrentValues:', JSON.parse(JSON.stringify(albumsData)));
         
         // Validate IDs are unique
         const ids = albumsData.albums.map(a => a.id).filter(id => id !== undefined && id !== null);
