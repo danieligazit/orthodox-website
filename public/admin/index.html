@@ -552,11 +552,75 @@
         }
         
         const file = await response.json();
-        const content = atob(file.content.replace(/\s/g, ''));
+        // Decode base64 content - handle UTF-8 properly
+        // GitHub API returns base64-encoded content, we need to decode it
+        const binaryString = atob(file.content);
+        // Convert binary string to UTF-8 string
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        const content = new TextDecoder('utf-8').decode(bytes);
         albumsData = JSON.parse(content);
         
+        // Normalize data structure - ensure all albums use description.credits and description.paragraphs
+        if (albumsData.albums && albumsData.albums.length > 0) {
+          albumsData.albums.forEach((album, idx) => {
+            // Ensure description exists
+            if (!album.description) {
+              album.description = { paragraphs: [], credits: {} };
+            }
+            
+            // Move top-level paragraphs to description.paragraphs if they exist
+            if (album.paragraphs && Array.isArray(album.paragraphs)) {
+              if (!album.description.paragraphs || album.description.paragraphs.length === 0) {
+                album.description.paragraphs = album.paragraphs;
+              }
+              delete album.paragraphs; // Remove top-level paragraphs
+            }
+            
+            // Move top-level credits to description.credits if description.credits is empty or corrupted
+            if (album.credits && typeof album.credits === 'object') {
+              // Check if description.credits is empty or has suspiciously short values
+              const hasValidDescriptionCredits = album.description.credits && 
+                Object.keys(album.description.credits).length > 0 &&
+                !Object.values(album.description.credits).some(arr => 
+                  Array.isArray(arr) && arr.length > 0 && arr[0] && arr[0].length < 5
+                );
+              
+              if (!hasValidDescriptionCredits && album.credits.artists && album.credits.artists.length > 0) {
+                // Use top-level credits if description.credits is invalid
+                album.description.credits = {
+                  artists: album.credits.artists || [],
+                  production: album.credits.production || [],
+                  coverArt: album.credits.coverArt || [],
+                  additional: album.credits.additional || []
+                };
+              }
+              delete album.credits; // Remove top-level credits
+            }
+            
+            // Ensure description.credits structure exists
+            if (!album.description.credits) {
+              album.description.credits = {
+                artists: [],
+                production: [],
+                coverArt: [],
+                additional: []
+              };
+            }
+            
+            // Clean up empty strings from credit arrays
+            Object.keys(album.description.credits).forEach(key => {
+              if (Array.isArray(album.description.credits[key])) {
+                album.description.credits[key] = album.description.credits[key].filter(item => item && item.trim().length > 0);
+              }
+            });
+          });
+        }
+        
         // Debug: Log the loaded data to check if it's already corrupted
-        console.log('Loaded albumsData:', albumsData);
+        console.log('Loaded albumsData (after normalization):', albumsData);
         if (albumsData.albums && albumsData.albums.length > 0) {
           albumsData.albums.forEach((album, idx) => {
             if (album.description?.credits?.artists && album.description.credits.artists.length > 0) {
@@ -1410,9 +1474,13 @@
         const file = await fileResponse.json();
         const sha = file.sha;
         
-        // Update file
+        // Update file - ensure proper UTF-8 encoding
         const content = JSON.stringify(albumsData, null, 2);
-        const encodedContent = btoa(unescape(encodeURIComponent(content)));
+        // Convert UTF-8 string to base64 properly
+        const encoder = new TextEncoder();
+        const bytes = encoder.encode(content);
+        const binaryString = String.fromCharCode(...bytes);
+        const encodedContent = btoa(binaryString);
         
         const updateResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${ALBUMS_FILE_PATH}`, {
           method: 'PUT',
