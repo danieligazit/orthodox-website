@@ -1902,9 +1902,8 @@
       return btoa(binaryString);
     }
     
-    // Helper function to create a single commit with multiple files using Git Data API
-    async function createSingleCommit(files, commitMessage) {
-      // Get the current commit SHA
+    // Helper function to get the latest commit SHA
+    async function getLatestCommitSha() {
       const refResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/git/ref/heads/${BRANCH}`, {
         headers: {
           'Authorization': `token ${token}`,
@@ -1918,7 +1917,15 @@
       }
       
       const refData = await refResponse.json();
-      const currentCommitSha = refData.object.sha;
+      return refData.object.sha;
+    }
+    
+    // Helper function to create a single commit with multiple files using Git Data API
+    async function createSingleCommit(files, commitMessage, retryCount = 0) {
+      const maxRetries = 3;
+      
+      // Get the current commit SHA - fetch fresh each time
+      const currentCommitSha = await getLatestCommitSha();
       
       // Get the commit object
       const commitResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/git/commits/${currentCommitSha}`, {
@@ -1991,6 +1998,10 @@
       
       const newTreeData = await newTreeResponse.json();
       
+      // Fetch the latest commit SHA again right before creating the commit
+      // This minimizes the window for race conditions
+      const latestCommitSha = await getLatestCommitSha();
+      
       // Create new commit
       const newCommitResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/git/commits`, {
         method: 'POST',
@@ -2002,7 +2013,7 @@
         body: JSON.stringify({
           message: commitMessage,
           tree: newTreeData.sha,
-          parents: [currentCommitSha]
+          parents: [latestCommitSha]
         })
       });
       
@@ -2013,7 +2024,20 @@
       
       const newCommitData = await newCommitResponse.json();
       
-      // Update branch reference
+      // Update branch reference - fetch latest SHA one more time right before update
+      const finalCommitSha = await getLatestCommitSha();
+      
+      // If the branch moved, we need to retry
+      if (finalCommitSha !== latestCommitSha) {
+        if (retryCount < maxRetries) {
+          // Wait a bit before retrying
+          await new Promise(resolve => setTimeout(resolve, 500));
+          return createSingleCommit(files, commitMessage, retryCount + 1);
+        } else {
+          throw new Error('Branch was updated multiple times. Please try again.');
+        }
+      }
+      
       const updateRefResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/git/refs/heads/${BRANCH}`, {
         method: 'PATCH',
         headers: {
@@ -2022,12 +2046,20 @@
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          sha: newCommitData.sha
+          sha: newCommitData.sha,
+          force: false // Ensure we don't force push
         })
       });
       
       if (!updateRefResponse.ok) {
         const error = await updateRefResponse.json().catch(() => ({}));
+        
+        // If it's a fast-forward error and we haven't retried too many times, retry
+        if (error.message && error.message.includes('fast forward') && retryCount < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+          return createSingleCommit(files, commitMessage, retryCount + 1);
+        }
+        
         throw new Error(error.message || `Failed to update branch: ${updateRefResponse.status}`);
       }
       
