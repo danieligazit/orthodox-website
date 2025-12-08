@@ -1894,6 +1894,146 @@
       saveListValues('about-paragraphs', null, 'about-paragraphs');
     }
     
+    // Helper function to encode content to base64 with proper UTF-8 handling
+    function encodeContent(content) {
+      const encoder = new TextEncoder();
+      const bytes = encoder.encode(content);
+      const binaryString = String.fromCharCode(...bytes);
+      return btoa(binaryString);
+    }
+    
+    // Helper function to create a single commit with multiple files using Git Data API
+    async function createSingleCommit(files, commitMessage) {
+      // Get the current commit SHA
+      const refResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/git/ref/heads/${BRANCH}`, {
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
+      
+      if (!refResponse.ok) {
+        const error = await refResponse.json().catch(() => ({}));
+        throw new Error(error.message || `Failed to get branch ref: ${refResponse.status}`);
+      }
+      
+      const refData = await refResponse.json();
+      const currentCommitSha = refData.object.sha;
+      
+      // Get the commit object
+      const commitResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/git/commits/${currentCommitSha}`, {
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
+      
+      if (!commitResponse.ok) {
+        const error = await commitResponse.json().catch(() => ({}));
+        throw new Error(error.message || `Failed to get commit: ${commitResponse.status}`);
+      }
+      
+      const commitData = await commitResponse.json();
+      const baseTreeSha = commitData.tree.sha;
+      
+      // Create blobs for all files first
+      const blobPromises = files.map(async (file) => {
+        const encodedContent = encodeContent(file.content);
+        const blobResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/git/blobs`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            content: encodedContent,
+            encoding: 'base64'
+          })
+        });
+        
+        if (!blobResponse.ok) {
+          const error = await blobResponse.json().catch(() => ({}));
+          throw new Error(error.message || `Failed to create blob for ${file.path}: ${blobResponse.status}`);
+        }
+        
+        return await blobResponse.json();
+      });
+      
+      const blobs = await Promise.all(blobPromises);
+      
+      // Build tree entries - use base_tree to preserve existing files, then add/update our files
+      const treeEntries = files.map((file, index) => ({
+        path: file.path,
+        mode: '100644', // Regular file
+        type: 'blob',
+        sha: blobs[index].sha
+      }));
+      
+      // Create new tree using base_tree to preserve all existing files
+      const newTreeResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/git/trees`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          base_tree: baseTreeSha,
+          tree: treeEntries
+        })
+      });
+      
+      if (!newTreeResponse.ok) {
+        const error = await newTreeResponse.json().catch(() => ({}));
+        throw new Error(error.message || `Failed to create tree: ${newTreeResponse.status}`);
+      }
+      
+      const newTreeData = await newTreeResponse.json();
+      
+      // Create new commit
+      const newCommitResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/git/commits`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: commitMessage,
+          tree: newTreeData.sha,
+          parents: [currentCommitSha]
+        })
+      });
+      
+      if (!newCommitResponse.ok) {
+        const error = await newCommitResponse.json().catch(() => ({}));
+        throw new Error(error.message || `Failed to create commit: ${newCommitResponse.status}`);
+      }
+      
+      const newCommitData = await newCommitResponse.json();
+      
+      // Update branch reference
+      const updateRefResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/git/refs/heads/${BRANCH}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          sha: newCommitData.sha
+        })
+      });
+      
+      if (!updateRefResponse.ok) {
+        const error = await updateRefResponse.json().catch(() => ({}));
+        throw new Error(error.message || `Failed to update branch: ${updateRefResponse.status}`);
+      }
+      
+      return newCommitData;
+    }
+    
     document.getElementById('save-btn').addEventListener('click', async () => {
       try {
         // Debug: Log albumsData before saving to see if it's already corrupted
@@ -1926,117 +2066,27 @@
           0 // Don't auto-close
         );
         
-        // Save albums data
-        const albumsFileResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${ALBUMS_FILE_PATH}`, {
-          headers: {
-            'Authorization': `token ${token}`,
-            'Accept': 'application/vnd.github.v3+json'
-          }
-        });
+        // Prepare files to save
+        const filesToSave = [];
         
-        const albumsFile = await albumsFileResponse.json();
-        const albumsSha = albumsFile.sha;
-        
-        // Update albums file - ensure proper UTF-8 encoding
+        // Add albums file
         const albumsContent = JSON.stringify(albumsData, null, 2);
-        const albumsEncoder = new TextEncoder();
-        const albumsBytes = albumsEncoder.encode(albumsContent);
-        const albumsBinaryString = String.fromCharCode(...albumsBytes);
-        const albumsEncodedContent = btoa(albumsBinaryString);
-        
-        const albumsUpdateResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${ALBUMS_FILE_PATH}`, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `token ${token}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            message: 'Update albums data via admin',
-            content: albumsEncodedContent,
-            sha: albumsSha,
-            branch: BRANCH
-          })
+        filesToSave.push({
+          path: ALBUMS_FILE_PATH,
+          content: albumsContent
         });
         
-        if (!albumsUpdateResponse.ok) {
-          const error = await albumsUpdateResponse.json().catch(() => ({}));
-          throw new Error(error.message || `Failed to save albums: ${albumsUpdateResponse.status} ${albumsUpdateResponse.statusText}`);
-        }
-        
-        // Save about data - fetch SHA AFTER albums save to ensure we have the latest
+        // Add about file if it exists
         if (aboutData) {
-          // Fetch fresh SHA right before saving to avoid stale SHA issues
-          let aboutSha = null;
-          try {
-            const aboutFileResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${ABOUT_FILE_PATH}`, {
-              headers: {
-                'Authorization': `token ${token}`,
-                'Accept': 'application/vnd.github.v3+json'
-              }
-            });
-            
-            if (aboutFileResponse.ok) {
-              const aboutFile = await aboutFileResponse.json();
-              aboutSha = aboutFile.sha;
-            }
-          } catch (error) {
-            // File doesn't exist yet, that's fine
-            console.log('About file does not exist yet, will create it');
-          }
-          
           const aboutContent = JSON.stringify(aboutData, null, 2);
-          const aboutEncoder = new TextEncoder();
-          const aboutBytes = aboutEncoder.encode(aboutContent);
-          const aboutBinaryString = String.fromCharCode(...aboutBytes);
-          const aboutEncodedContent = btoa(aboutBinaryString);
-          
-          const aboutUpdateResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${ABOUT_FILE_PATH}`, {
-            method: 'PUT',
-            headers: {
-              'Authorization': `token ${token}`,
-              'Accept': 'application/vnd.github.v3+json',
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              message: 'Update about page data via admin',
-              content: aboutEncodedContent,
-              sha: aboutSha,
-              branch: BRANCH
-            })
+          filesToSave.push({
+            path: ABOUT_FILE_PATH,
+            content: aboutContent
           });
-          
-          if (!aboutUpdateResponse.ok) {
-            const error = await aboutUpdateResponse.json().catch(() => ({}));
-            // If it's a SHA mismatch error, provide helpful message
-            if (error.message && error.message.includes('sha')) {
-              throw new Error(`Failed to save about page: SHA mismatch. This usually means the file was changed. Please refresh and try again.`);
-            }
-            throw new Error(error.message || `Failed to save about page: ${aboutUpdateResponse.status} ${aboutUpdateResponse.statusText}`);
-          }
         }
         
-        // Save press data
+        // Add press file if it exists and validate IDs
         if (pressData) {
-          // Fetch fresh SHA right before saving
-          let pressSha = null;
-          try {
-            const pressFileResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${PRESS_FILE_PATH}`, {
-              headers: {
-                'Authorization': `token ${token}`,
-                'Accept': 'application/vnd.github.v3+json'
-              }
-            });
-            
-            if (pressFileResponse.ok) {
-              const pressFile = await pressFileResponse.json();
-              pressSha = pressFile.sha;
-            }
-          } catch (error) {
-            // File doesn't exist yet, that's fine
-            console.log('Press file does not exist yet, will create it');
-          }
-          
           // Validate IDs are unique
           const pressIds = pressData.items.map(item => item.id).filter(id => id !== undefined && id !== null);
           const duplicatePressIds = pressIds.filter((id, index) => pressIds.indexOf(id) !== index);
@@ -2045,34 +2095,15 @@
           }
           
           const pressContent = JSON.stringify(pressData, null, 2);
-          const pressEncoder = new TextEncoder();
-          const pressBytes = pressEncoder.encode(pressContent);
-          const pressBinaryString = String.fromCharCode(...pressBytes);
-          const pressEncodedContent = btoa(pressBinaryString);
-          
-          const pressUpdateResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${PRESS_FILE_PATH}`, {
-            method: 'PUT',
-            headers: {
-              'Authorization': `token ${token}`,
-              'Accept': 'application/vnd.github.v3+json',
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              message: 'Update press items data via admin',
-              content: pressEncodedContent,
-              sha: pressSha,
-              branch: BRANCH
-            })
+          filesToSave.push({
+            path: PRESS_FILE_PATH,
+            content: pressContent
           });
-          
-          if (!pressUpdateResponse.ok) {
-            const error = await pressUpdateResponse.json().catch(() => ({}));
-            if (error.message && error.message.includes('sha')) {
-              throw new Error(`Failed to save press items: SHA mismatch. This usually means the file was changed. Please refresh and try again.`);
-            }
-            throw new Error(error.message || `Failed to save press items: ${pressUpdateResponse.status} ${pressUpdateResponse.statusText}`);
-          }
         }
+        
+        // Create a single commit with all files
+        const commitMessage = 'Update content via admin';
+        await createSingleCommit(filesToSave, commitMessage);
         
         // Dismiss the saving toast
         if (savingToast) {
