@@ -605,29 +605,13 @@
     const storedToken = localStorage.getItem('github-token');
     
     if (accessToken) {
-      // Only auto-login if we don't have a stored token (fresh login)
-      if (!storedToken) {
-        token = accessToken;
-        localStorage.setItem('github-token', token);
-        window.history.replaceState({}, document.title, window.location.pathname);
-        // Get user info and load content
-        fetch(`${PROXY_URL}/user`, {
-          headers: { 'Authorization': `token ${token}` }
-        })
-        .then(response => {
-          if (response.ok) {
-            return response.json().then(user => {
-              document.getElementById('user-name').textContent = user.login;
-              loadContent();
-            });
-          }
-          loadContent();
-        })
-        .catch(() => loadContent());
-      } else {
-        // Clear URL params if we already have a token (prevent re-login)
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
+      // Update token if a new one is provided (handles token refresh)
+      token = accessToken;
+      localStorage.setItem('github-token', token);
+      // Clear URL params immediately
+      window.history.replaceState({}, document.title, window.location.pathname);
+      // Verify token and load content
+      verifyToken();
     } else if (token) {
       verifyToken();
     }
@@ -691,7 +675,7 @@
         }
         
         // Check if user has write/admin permission to the repository
-        const permResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/collaborators/${username}/permission`, {
+        const permResponse = await fetch(`${PROXY_URL}/repos/${REPO_OWNER}/${REPO_NAME}/collaborators/${username}/permission`, {
           headers: {
             'Authorization': `token ${token}`,
             'Accept': 'application/vnd.github.v3+json'
@@ -789,7 +773,7 @@
         showStatus('Loading content...', 'info');
         
         // Load albums
-        const albumsResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${ALBUMS_FILE_PATH}`, {
+        const albumsResponse = await fetch(`${PROXY_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${ALBUMS_FILE_PATH}`, {
           headers: {
             'Authorization': `token ${token}`,
             'Accept': 'application/vnd.github.v3+json'
@@ -812,7 +796,7 @@
         
         // Load about page
         try {
-          const aboutResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${ABOUT_FILE_PATH}`, {
+          const aboutResponse = await fetch(`${PROXY_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${ABOUT_FILE_PATH}`, {
             headers: {
               'Authorization': `token ${token}`,
               'Accept': 'application/vnd.github.v3+json'
@@ -839,7 +823,7 @@
         
         // Load press items
         try {
-          const pressResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${PRESS_FILE_PATH}`, {
+          const pressResponse = await fetch(`${PROXY_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${PRESS_FILE_PATH}`, {
             headers: {
               'Authorization': `token ${token}`,
               'Accept': 'application/vnd.github.v3+json'
@@ -1774,7 +1758,7 @@
             // Check if file already exists
             let sha = null;
             try {
-              const existingFile = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${filePath}`, {
+              const existingFile = await fetch(`${PROXY_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${filePath}`, {
                 headers: {
                   'Authorization': `token ${token}`,
                   'Accept': 'application/vnd.github.v3+json'
@@ -1790,7 +1774,7 @@
             }
             
             // Upload file to GitHub
-            const uploadResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${filePath}`, {
+            const uploadResponse = await fetch(`${PROXY_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${filePath}`, {
               method: 'PUT',
               headers: {
                 'Authorization': `token ${token}`,
@@ -1904,7 +1888,7 @@
     
     // Helper function to get the latest commit SHA
     async function getLatestCommitSha() {
-      const refResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/git/ref/heads/${BRANCH}`, {
+      const refResponse = await fetch(`${PROXY_URL}/repos/${REPO_OWNER}/${REPO_NAME}/git/ref/heads/${BRANCH}`, {
         headers: {
           'Authorization': `token ${token}`,
           'Accept': 'application/vnd.github.v3+json'
@@ -1928,7 +1912,7 @@
       const currentCommitSha = await getLatestCommitSha();
       
       // Get the commit object
-      const commitResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/git/commits/${currentCommitSha}`, {
+      const commitResponse = await fetch(`${PROXY_URL}/repos/${REPO_OWNER}/${REPO_NAME}/git/commits/${currentCommitSha}`, {
         headers: {
           'Authorization': `token ${token}`,
           'Accept': 'application/vnd.github.v3+json'
@@ -1946,7 +1930,7 @@
       // Create blobs for all files first
       const blobPromises = files.map(async (file) => {
         const encodedContent = encodeContent(file.content);
-        const blobResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/git/blobs`, {
+        const blobResponse = await fetch(`${PROXY_URL}/repos/${REPO_OWNER}/${REPO_NAME}/git/blobs`, {
           method: 'POST',
           headers: {
             'Authorization': `token ${token}`,
@@ -1978,7 +1962,7 @@
       }));
       
       // Create new tree using base_tree to preserve all existing files
-      const newTreeResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/git/trees`, {
+      const newTreeResponse = await fetch(`${PROXY_URL}/repos/${REPO_OWNER}/${REPO_NAME}/git/trees`, {
         method: 'POST',
         headers: {
           'Authorization': `token ${token}`,
@@ -2003,7 +1987,7 @@
       const latestCommitSha = await getLatestCommitSha();
       
       // Create new commit
-      const newCommitResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/git/commits`, {
+      const newCommitResponse = await fetch(`${PROXY_URL}/repos/${REPO_OWNER}/${REPO_NAME}/git/commits`, {
         method: 'POST',
         headers: {
           'Authorization': `token ${token}`,
@@ -2038,7 +2022,7 @@
         }
       }
       
-      const updateRefResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/git/refs/heads/${BRANCH}`, {
+      const updateRefResponse = await fetch(`${PROXY_URL}/repos/${REPO_OWNER}/${REPO_NAME}/git/refs/heads/${BRANCH}`, {
         method: 'PATCH',
         headers: {
           'Authorization': `token ${token}`,
@@ -2490,7 +2474,7 @@
       try {
         // If commit SHA is provided, find the workflow run for that specific commit
         // Otherwise, get the latest workflow run
-        let url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/actions/runs?per_page=10`;
+        let url = `${PROXY_URL}/repos/${REPO_OWNER}/${REPO_NAME}/actions/runs?per_page=10`;
         if (commitSha) {
           url += `&head_sha=${commitSha}`;
         }
