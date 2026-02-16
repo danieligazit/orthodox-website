@@ -17,12 +17,9 @@ export function PressPage() {
     });
   }, []);
 
-  // Sort items by date (newest first)
-  const sortedItems = [...pressItems].sort((a, b) => {
-    const dateA = new Date(a.date).getTime();
-    const dateB = new Date(b.date).getTime();
-    return dateB - dateA;
-  });
+  // Use items in the order they appear in the JSON file
+  // The order can be changed via the admin console sorting feature
+  const sortedItems = pressItems;
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

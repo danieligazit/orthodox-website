@@ -5,12 +5,13 @@ import albumsData from './albums.json';
 export const ALBUMS: Album[] = albumsData.albums as Album[];
 
 /**
- * Get albums sorted by release date (newest first)
+ * Get albums in the order they appear in the JSON file
+ * The order can be changed via the admin console sorting feature
  */
 export function getSortedAlbums(): Album[] {
-  return [...ALBUMS].sort((a, b) => {
-    return new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime();
-  });
+  // Return albums in the order they appear in the JSON (no sorting)
+  // This respects the manual ordering set via the admin console
+  return [...ALBUMS];
 }
 
 /**
