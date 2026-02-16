@@ -11,7 +11,7 @@ export default {
     // CORS headers
     const corsHeaders = {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     };
 
@@ -26,12 +26,17 @@ export default {
       const redirectUri = `${url.origin}/callback`;
       const state = url.searchParams.get('state') || generateRandomString();
       const scope = url.searchParams.get('scope') || 'repo';
+      const forceLogin = url.searchParams.get('force') === 'true' || url.searchParams.get('prompt') === 'login';
 
       const authUrl = new URL('https://github.com/login/oauth/authorize');
       authUrl.searchParams.set('client_id', clientId);
       authUrl.searchParams.set('redirect_uri', redirectUri);
       authUrl.searchParams.set('state', state);
       authUrl.searchParams.set('scope', scope);
+      // Force re-authentication if requested
+      if (forceLogin) {
+        authUrl.searchParams.set('prompt', 'login');
+      }
 
       return Response.redirect(authUrl.toString(), 302);
     }
@@ -157,6 +162,59 @@ export default {
             ...corsHeaders,
             'Content-Type': contentType,
           },
+        });
+      } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
+    // Revoke token endpoint
+    if (path === '/revoke' || path === '/revoke/') {
+      if (request.method !== 'POST') {
+        return new Response('Method not allowed', {
+          status: 405,
+          headers: corsHeaders,
+        });
+      }
+
+      try {
+        const body = await request.json();
+        const token = body.token;
+
+        if (!token) {
+          return new Response(JSON.stringify({ error: 'Token is required' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        // Revoke the token via GitHub API
+        // Uses DELETE /applications/{client_id}/token with Basic auth
+        const revokeResponse = await fetch(`https://api.github.com/applications/${env.GITHUB_CLIENT_ID}/token`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Basic ${btoa(env.GITHUB_CLIENT_ID + ':' + env.GITHUB_CLIENT_SECRET)}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ access_token: token }),
+        });
+
+        // GitHub returns 204 on success, 404 if token doesn't exist (already revoked)
+        if (revokeResponse.status === 204 || revokeResponse.status === 404) {
+          return new Response(JSON.stringify({ success: true }), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        const errorData = await revokeResponse.text();
+        return new Response(JSON.stringify({ error: 'Failed to revoke token', details: errorData }), {
+          status: revokeResponse.status,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       } catch (error) {
         return new Response(JSON.stringify({ error: error.message }), {

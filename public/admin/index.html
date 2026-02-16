@@ -629,7 +629,8 @@
       btn.disabled = true;
       btn.textContent = 'Redirecting...';
       
-      window.location.href = `${PROXY_URL}/auth?t=${timestamp}&state=${randomState}&force=true`;
+      // Add prompt=login to force re-authentication
+      window.location.href = `${PROXY_URL}/auth?t=${timestamp}&state=${randomState}&force=true&prompt=login`;
     });
     
     document.getElementById('create-album-btn').addEventListener('click', createNewAlbum);
@@ -637,14 +638,18 @@
     
     document.getElementById('apply-sort-btn').addEventListener('click', applySort);
     
-    document.getElementById('logout-btn').addEventListener('click', () => {
-      if (confirm('Clear admin session? You will need to login again to access the admin.')) {
-        // Clear all state
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      if (confirm('Log out?\n\nThis will revoke your GitHub authorization and log you out completely. You will need to sign in again the next time you access the admin panel.')) {
+        const tokenToRevoke = token;
+        
+        // Clear all state immediately
         localStorage.removeItem('github-token');
         token = null;
         albumsData = null;
         aboutData = null;
         pressData = { items: [] };
+        hasWritePermission = false;
+        currentUsername = null;
         
         // Clear any status messages
         const statusDiv = document.getElementById('status');
@@ -659,7 +664,20 @@
         // Clear URL parameters
         window.history.replaceState({}, document.title, window.location.pathname);
         
-        showStatus('Session cleared. Please login again.', 'success');
+        // Try to revoke the token (don't wait for it to complete)
+        if (tokenToRevoke) {
+          fetch(`${PROXY_URL}/revoke`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ token: tokenToRevoke }),
+          }).catch(() => {
+            // Ignore errors - token might already be revoked or expired
+          });
+        }
+        
+        showStatus('Logged out successfully. Click login to sign in again.', 'success');
       }
     });
     
