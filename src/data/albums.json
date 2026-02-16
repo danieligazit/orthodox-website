@@ -4,7 +4,7 @@
       "id": 4,
       "urlPath": "change-the-process",
       "artist": "Wackelkontakt",
-      "title": "Title 2",
+      "title": "Press Item 1",
       "releaseDate": "2024-10-25",
       "cover": "change-the-process.jpg",
       "description": {
@@ -41,13 +41,13 @@
         }
       },
       "bandcampEmbedId": 2356669583,
-      "publication": "Publication 2",
-      "author": "Author2",
+      "publication": "Publication 1",
+      "author": "Author 1",
       "date": "2026-02-16",
-      "category": "Category 2",
-      "link": "https://www.wikfinal.shop/?ggcid=772693",
-      "image": "https://cpimg.tistatic.com/05246494/b/4/Outdoor-See-Saw.jpg",
-      "excerpt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tincidunt, dui eget feugiat tristique, neque odio tempor ligula, placerat dignissim felis sem quis tortor. Aliquam metus ipsum, facilisis non libero eget, tristique vehicula enim. In posuere ipsum et urna placerat pellentesque. Morbi dolor velit, sagittis et congue sed, congue id erat. Cras id massa cursus, cursus massa sed, sodales lectus. Fusce porttitor, turpis quis tristique elementum, sem augue auctor sem, non dignissim nulla lacus nec tellus. Vestibulum dignissim bibendum sem eget consequat. Sed augue massa, iaculis ut tincidunt ac, facilisis at risus. Nunc laoreet lacinia tortor ac convallis.",
+      "category": "Category 1",
+      "link": "https://www.pbs.org/wnet/nature/blog/dolphin-fact-sheet/",
+      "image": "https://www.pbs.org/wnet/nature/files/2020/07/Dolphin-1280x720.png",
+      "excerpt": "Excerpt 1",
       "credits": {
         "artists": [
           "All music by Wackelkontakt",
@@ -77,7 +77,7 @@
       "urlPath": "do-i-care",
       "id": 6,
       "artist": "Daniella Ljungsberg",
-      "title": "Press Item 1",
+      "title": "Title 2",
       "bandcampEmbedId": 1641334869,
       "description": {
         "paragraphs": [
@@ -104,13 +104,13 @@
       },
       "releaseDate": "2024-02-14",
       "cover": "do_i_care.jpg",
-      "publication": "Publication 1",
-      "author": "Author 1",
+      "publication": "Publication 2",
+      "author": "Author2",
       "date": "2026-02-16",
-      "category": "Category 1",
-      "link": "https://www.pbs.org/wnet/nature/blog/dolphin-fact-sheet/",
-      "image": "https://www.pbs.org/wnet/nature/files/2020/07/Dolphin-1280x720.png",
-      "excerpt": "Excerpt 1",
+      "category": "Category 2",
+      "link": "https://www.wikfinal.shop/?ggcid=772693",
+      "image": "https://cpimg.tistatic.com/05246494/b/4/Outdoor-See-Saw.jpg",
+      "excerpt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tincidunt, dui eget feugiat tristique, neque odio tempor ligula, placerat dignissim felis sem quis tortor. Aliquam metus ipsum, facilisis non libero eget, tristique vehicula enim. In posuere ipsum et urna placerat pellentesque. Morbi dolor velit, sagittis et congue sed, congue id erat. Cras id massa cursus, cursus massa sed, sodales lectus. Fusce porttitor, turpis quis tristique elementum, sem augue auctor sem, non dignissim nulla lacus nec tellus. Vestibulum dignissim bibendum sem eget consequat. Sed augue massa, iaculis ut tincidunt ac, facilisis at risus. Nunc laoreet lacinia tortor ac convallis.",
       "credits": {
         "artists": [
           "All tracks composed, produced & mixed Daniella Ljungsberg",
