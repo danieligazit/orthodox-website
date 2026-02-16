@@ -1,3 +1,15 @@
 {
-  "items": []
+  "items": [
+    {
+      "id": 1,
+      "title": "",
+      "publication": "",
+      "author": "",
+      "date": "2026-02-16",
+      "excerpt": "",
+      "link": "",
+      "image": "",
+      "category": ""
+    }
+  ]
 }
