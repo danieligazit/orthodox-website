@@ -2,14 +2,14 @@
   "items": [
     {
       "id": 1,
-      "title": "",
-      "publication": "",
-      "author": "",
+      "title": "Press Item 1",
+      "publication": "Publication 1",
+      "author": "Author 1",
       "date": "2026-02-16",
-      "excerpt": "",
-      "link": "",
-      "image": "",
-      "category": ""
+      "excerpt": "Excerpt",
+      "link": "https://www.pbs.org/wnet/nature/blog/dolphin-fact-sheet/",
+      "image": "https://www.pbs.org/wnet/nature/files/2020/07/Dolphin-1280x720.png",
+      "category": "Category 1"
     }
   ]
 }

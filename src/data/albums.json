@@ -4,7 +4,7 @@
       "id": 5,
       "urlPath": "road-extends",
       "artist": "Cadaver Eyes",
-      "title": "",
+      "title": "Press Item 1",
       "releaseDate": "2025-12-06",
       "cover": "road-extends.jpg",
       "description": {
@@ -34,13 +34,13 @@
       },
       "undefined": "C:\\fakepath\\road_extends.jpg",
       "bandcampEmbedId": 830241195,
-      "publication": "",
-      "author": "",
+      "publication": "Publication 1",
+      "author": "Author 1",
       "date": "2026-02-16",
-      "category": "",
-      "link": "",
-      "image": "",
-      "excerpt": "",
+      "category": "Category 1",
+      "link": "https://www.pbs.org/wnet/nature/blog/dolphin-fact-sheet/",
+      "image": "https://www.pbs.org/wnet/nature/files/2020/07/Dolphin-1280x720.png",
+      "excerpt": "Excerpt",
       "credits": {
         "artists": [
           "Composed by Cadaver Eyes",
