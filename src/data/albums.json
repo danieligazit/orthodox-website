@@ -1,10 +1,64 @@
 {
   "albums": [
     {
+      "urlPath": "do-i-care",
+      "id": 7,
+      "artist": "Daniella Ljungsberg",
+      "title": "Press Item 1",
+      "bandcampEmbedId": 1641334869,
+      "description": {
+        "paragraphs": [
+          "Another year, another Valentine’s Day—Ljungsberg returns with Do I Care, a reimagining of her cult album I Do Care (ORTH001). Released exactly one year later, this album doesn’t just revisit its predecessor; it reflects on its emotional and structural foundations while questioning the role of music as an act of care in an uncertain world.",
+          "Originally conceived as a way to adapt I Do Care for live performance, the project quickly evolved into a deeper exploration: can a finished work remain open to transformation? Do I Care stretches and blurs the edges between flux, continuity, and reinvention—not a sequel, nor a departure, but a counterpoint embracing process and fluidity.",
+          "Ljungsberg’s background in Musique Concrète and electro-acoustic techniques remains central as she reshapes and manipulates her own pre-recorded songs. Fragmented loops weave through the melodies and textures of I Do Care, while her ethereal voice lingers—both grounding and re-evoking her intimate sonic world.",
+          "More than a reinterpretation, Do I Care signals a shift—introducing doubt into the emotional and creative process. It is a meditation on transformation, where care and uncertainty coexist, and music remains in a state of becoming."
+        ],
+        "credits": {
+          "artists": [
+            "All tracks composed, produced & mixed Daniella Ljungsberg",
+            "All songs written by Daniella Ljungsberg"
+          ],
+          "production": [
+            "Mastered by James Ginzburg"
+          ],
+          "coverArt": [
+            "Photography by Johan Ljungsberg"
+          ],
+          "additional": [
+            "Artistic direction by Itzik Gil Avizohar"
+          ]
+        }
+      },
+      "releaseDate": "2024-02-14",
+      "cover": "do_i_care.jpg",
+      "publication": "Publication 1",
+      "author": "Author 1",
+      "date": "2026-02-16",
+      "category": "Category 1",
+      "link": "https://www.pbs.org/wnet/nature/blog/dolphin-fact-sheet/",
+      "image": "https://www.pbs.org/wnet/nature/files/2020/07/Dolphin-1280x720.png",
+      "excerpt": "Excerpt 1",
+      "credits": {
+        "artists": [
+          "All tracks composed, produced & mixed Daniella Ljungsberg",
+          "All songs written by Daniella Ljungsberg"
+        ],
+        "production": [
+          "Mastered by James Ginzburg"
+        ],
+        "coverArt": [
+          "Photography by Johan Ljungsberg"
+        ],
+        "additional": [
+          "Artistic direction by Itzik Gil Avizohar"
+        ]
+      }
+    },
+    {
       "id": 4,
       "urlPath": "change-the-process",
       "artist": "Wackelkontakt",
-      "title": "Press Item 1",
+      "title": "Title 2",
       "releaseDate": "2024-10-25",
       "cover": "change-the-process.jpg",
       "description": {
@@ -41,13 +95,13 @@
         }
       },
       "bandcampEmbedId": 2356669583,
-      "publication": "Publication 1",
-      "author": "Author 1",
+      "publication": "Publication 2",
+      "author": "Author2",
       "date": "2026-02-16",
-      "category": "Category 1",
-      "link": "https://www.pbs.org/wnet/nature/blog/dolphin-fact-sheet/",
-      "image": "https://www.pbs.org/wnet/nature/files/2020/07/Dolphin-1280x720.png",
-      "excerpt": "Excerpt 1",
+      "category": "Category 2",
+      "link": "https://www.reifelbirdsanctuary.com/mall.html",
+      "image": "https://www.reifelbirdsanctuary.com/Site/themed_images/portfolio-large-12.jpg",
+      "excerpt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tincidunt, dui eget feugiat tristique, neque odio tempor ligula, placerat dignissim felis sem quis tortor. Aliquam metus ipsum, facilisis non libero eget, tristique vehicula enim. In posuere ipsum et urna placerat pellentesque. Morbi dolor velit, sagittis et congue sed, congue id erat. Cras id massa cursus, cursus massa sed, sodales lectus. Fusce porttitor, turpis quis tristique elementum, sem augue auctor sem, non dignissim nulla lacus nec tellus. Vestibulum dignissim bibendum sem eget consequat. Sed augue massa, iaculis ut tincidunt ac, facilisis at risus. Nunc laoreet lacinia tortor ac convallis.",
       "credits": {
         "artists": [
           "All music by Wackelkontakt",
@@ -74,119 +128,6 @@
       }
     },
     {
-      "urlPath": "do-i-care",
-      "id": 6,
-      "artist": "Daniella Ljungsberg",
-      "title": "Title 2",
-      "bandcampEmbedId": 1641334869,
-      "description": {
-        "paragraphs": [
-          "Another year, another Valentine’s Day—Ljungsberg returns with Do I Care, a reimagining of her cult album I Do Care (ORTH001). Released exactly one year later, this album doesn’t just revisit its predecessor; it reflects on its emotional and structural foundations while questioning the role of music as an act of care in an uncertain world.",
-          "Originally conceived as a way to adapt I Do Care for live performance, the project quickly evolved into a deeper exploration: can a finished work remain open to transformation? Do I Care stretches and blurs the edges between flux, continuity, and reinvention—not a sequel, nor a departure, but a counterpoint embracing process and fluidity.",
-          "Ljungsberg’s background in Musique Concrète and electro-acoustic techniques remains central as she reshapes and manipulates her own pre-recorded songs. Fragmented loops weave through the melodies and textures of I Do Care, while her ethereal voice lingers—both grounding and re-evoking her intimate sonic world.",
-          "More than a reinterpretation, Do I Care signals a shift—introducing doubt into the emotional and creative process. It is a meditation on transformation, where care and uncertainty coexist, and music remains in a state of becoming."
-        ],
-        "credits": {
-          "artists": [
-            "All tracks composed, produced & mixed Daniella Ljungsberg",
-            "All songs written by Daniella Ljungsberg"
-          ],
-          "production": [
-            "Mastered by James Ginzburg"
-          ],
-          "coverArt": [
-            "Photography by Johan Ljungsberg"
-          ],
-          "additional": [
-            "Artistic direction by Itzik Gil Avizohar"
-          ]
-        }
-      },
-      "releaseDate": "2024-02-14",
-      "cover": "do_i_care.jpg",
-      "publication": "Publication 2",
-      "author": "Author2",
-      "date": "2026-02-16",
-      "category": "Category 2",
-      "link": "https://www.reifelbirdsanctuary.com/mall.html",
-      "image": "https://www.reifelbirdsanctuary.com/Site/themed_images/portfolio-large-12.jpg",
-      "excerpt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tincidunt, dui eget feugiat tristique, neque odio tempor ligula, placerat dignissim felis sem quis tortor. Aliquam metus ipsum, facilisis non libero eget, tristique vehicula enim. In posuere ipsum et urna placerat pellentesque. Morbi dolor velit, sagittis et congue sed, congue id erat. Cras id massa cursus, cursus massa sed, sodales lectus. Fusce porttitor, turpis quis tristique elementum, sem augue auctor sem, non dignissim nulla lacus nec tellus. Vestibulum dignissim bibendum sem eget consequat. Sed augue massa, iaculis ut tincidunt ac, facilisis at risus. Nunc laoreet lacinia tortor ac convallis.",
-      "credits": {
-        "artists": [
-          "All tracks composed, produced & mixed Daniella Ljungsberg",
-          "All songs written by Daniella Ljungsberg"
-        ],
-        "production": [
-          "Mastered by James Ginzburg"
-        ],
-        "coverArt": [
-          "Photography by Johan Ljungsberg"
-        ],
-        "additional": [
-          "Artistic direction by Itzik Gil Avizohar"
-        ]
-      }
-    },
-    {
-      "id": 5,
-      "urlPath": "road-extends",
-      "artist": "Cadaver Eyes",
-      "title": "Road Extends",
-      "releaseDate": "2025-12-06",
-      "cover": "road-extends.jpg",
-      "description": {
-        "paragraphs": [
-          "ROAD EXTENDS, the latest offering from Cadaver Eyes on ORTHODOX, is a bold and challenging release from the veteran duo of drummer/vocalist David Opp (BARBARA, Carnation Dingthang, Heart & Crossbone Records) and no-input-mixer virtuoso Eran \"Zax\" Sachs (Dumitrescu's Hyperion Ensemble, Asher.Zax).",
-          "Over the past two decades, Cadaver Eyes have been exploring the experimental terrains introduced by John Cage and Gordon Mumma, using unpredictable electronic systems to crack apart and access sheer cosmic openness, and then harness the emergent dynamic forces through the propulsive and cemented structures of Extreme Metal and Hardcore Punk. Playing instruments that act in surprising and unexpected ways, their musical task is daunting: to write songs that reveal themselves differently and that are manifested anew every time they are performed, resulting in a total immersive sonic experience - heavy, pounding, and punishing. Cadaver Eyes' sensory overload operates on the primal substrate of our creature selves, acting on the very mechanisms that situate us in the world.",
-          "ROAD EXTENDS is the result of a long and arduous process of trying to translate this intense sonorous experience into a recorded format. Originally titled Best Kind, this album initially dealt with the pain and suffering experienced at the most writhing and primal levels of existence, touching upon the coercive experience of being flooded by an overwhelming dehumanizing barrage of information undergone by people living in our age of accelerated capitalism. The album still addresses all these themes; but over the long stretch of time, another, very personal layer, had accumulated and became deeply infused in the underlying essence of this album: life. Life in its hardships and its tribulations, its turns and its crises and the traumatizing scars that it leaves upon us.",
-          "ROAD EXTENDS is the result of a long and arduous process of trying to translate this intense sonorous experience into a recorded format. Originally titled Best Kind, this album initially dealt with the pain and suffering experienced at the most writhing and primal levels of existence, touching upon the coercive experience of being flooded by an overwhelming dehumanizing barrage of information undergone by people living in our age of accelerated capitalism. The album still addresses all these themes; but over the long stretch of time, another, very personal layer, had accumulated and became deeply infused in the underlying essence of this album: life. Life in its hardships and its tribulations, its turns and its crises and the traumatizing scars that it leaves upon us."
-        ],
-        "credits": {
-          "artists": [
-            "Composed by Cadaver Eyes",
-            "D Opp: Drums & Vocals",
-            "Eran Zax Sachs: No-Input Mixer"
-          ],
-          "production": [
-            "Recorded and Mixed by Marco Tomasin Milevski at HaZira Theater in 2024",
-            "Mastered by Ricardo Mazza",
-            "Originaly Recorded as Best Kind in 2016 at Polar Studios"
-          ],
-          "coverArt": [
-            "Artwork by D Opp",
-            "Graphic Design by Ashger Zamana"
-          ],
-          "additional": []
-        }
-      },
-      "undefined": "C:\\fakepath\\road_extends.jpg",
-      "bandcampEmbedId": 830241195,
-      "publication": "Publication 1",
-      "author": "Author 1",
-      "date": "2026-02-16",
-      "category": "Category 1",
-      "link": "https://www.pbs.org/wnet/nature/blog/dolphin-fact-sheet/",
-      "image": "https://www.pbs.org/wnet/nature/files/2020/07/Dolphin-1280x720.png",
-      "excerpt": "Excerpt",
-      "credits": {
-        "artists": [
-          "Composed by Cadaver Eyes",
-          "D Opp: Drums & Vocals",
-          "Eran Zax Sachs: No-Input Mixer"
-        ],
-        "production": [
-          "Recorded and Mixed by Marco Tomasin Milevski at HaZira Theater in 2024",
-          "Mastered by Ricardo Mazza",
-          "Originaly Recorded as Best Kind in 2016 at Polar Studios"
-        ],
-        "coverArt": [
-          "Artwork by D Opp",
-          "Graphic Design by Ashger Zamana"
-        ]
-      }
-    },
-    {
-      "id": 7,
       "urlPath": "turn-of-a-millstone",
       "artist": "SEVELLE",
       "title": "Turn of a Millstone",
@@ -298,6 +239,180 @@
         "additional": [
           "Additional vocals on fault song by MC Slice",
           "Drums on watchman's song by Uri Rennert"
+        ]
+      }
+    },
+    {
+      "id": 5,
+      "urlPath": "road-extends",
+      "artist": "Cadaver Eyes",
+      "title": "Road Extends",
+      "releaseDate": "2025-12-06",
+      "cover": "road-extends.jpg",
+      "description": {
+        "paragraphs": [
+          "ROAD EXTENDS, the latest offering from Cadaver Eyes on ORTHODOX, is a bold and challenging release from the veteran duo of drummer/vocalist David Opp (BARBARA, Carnation Dingthang, Heart & Crossbone Records) and no-input-mixer virtuoso Eran \"Zax\" Sachs (Dumitrescu's Hyperion Ensemble, Asher.Zax).",
+          "Over the past two decades, Cadaver Eyes have been exploring the experimental terrains introduced by John Cage and Gordon Mumma, using unpredictable electronic systems to crack apart and access sheer cosmic openness, and then harness the emergent dynamic forces through the propulsive and cemented structures of Extreme Metal and Hardcore Punk. Playing instruments that act in surprising and unexpected ways, their musical task is daunting: to write songs that reveal themselves differently and that are manifested anew every time they are performed, resulting in a total immersive sonic experience - heavy, pounding, and punishing. Cadaver Eyes' sensory overload operates on the primal substrate of our creature selves, acting on the very mechanisms that situate us in the world.",
+          "ROAD EXTENDS is the result of a long and arduous process of trying to translate this intense sonorous experience into a recorded format. Originally titled Best Kind, this album initially dealt with the pain and suffering experienced at the most writhing and primal levels of existence, touching upon the coercive experience of being flooded by an overwhelming dehumanizing barrage of information undergone by people living in our age of accelerated capitalism. The album still addresses all these themes; but over the long stretch of time, another, very personal layer, had accumulated and became deeply infused in the underlying essence of this album: life. Life in its hardships and its tribulations, its turns and its crises and the traumatizing scars that it leaves upon us.",
+          "ROAD EXTENDS is the result of a long and arduous process of trying to translate this intense sonorous experience into a recorded format. Originally titled Best Kind, this album initially dealt with the pain and suffering experienced at the most writhing and primal levels of existence, touching upon the coercive experience of being flooded by an overwhelming dehumanizing barrage of information undergone by people living in our age of accelerated capitalism. The album still addresses all these themes; but over the long stretch of time, another, very personal layer, had accumulated and became deeply infused in the underlying essence of this album: life. Life in its hardships and its tribulations, its turns and its crises and the traumatizing scars that it leaves upon us."
+        ],
+        "credits": {
+          "artists": [
+            "Composed by Cadaver Eyes",
+            "D Opp: Drums & Vocals",
+            "Eran Zax Sachs: No-Input Mixer"
+          ],
+          "production": [
+            "Recorded and Mixed by Marco Tomasin Milevski at HaZira Theater in 2024",
+            "Mastered by Ricardo Mazza",
+            "Originaly Recorded as Best Kind in 2016 at Polar Studios"
+          ],
+          "coverArt": [
+            "Artwork by D Opp",
+            "Graphic Design by Ashger Zamana"
+          ],
+          "additional": []
+        }
+      },
+      "undefined": "C:\\fakepath\\road_extends.jpg",
+      "bandcampEmbedId": 830241195,
+      "publication": "Publication 1",
+      "author": "Author 1",
+      "date": "2026-02-16",
+      "category": "Category 1",
+      "link": "https://www.pbs.org/wnet/nature/blog/dolphin-fact-sheet/",
+      "image": "https://www.pbs.org/wnet/nature/files/2020/07/Dolphin-1280x720.png",
+      "excerpt": "Excerpt",
+      "credits": {
+        "artists": [
+          "Composed by Cadaver Eyes",
+          "D Opp: Drums & Vocals",
+          "Eran Zax Sachs: No-Input Mixer"
+        ],
+        "production": [
+          "Recorded and Mixed by Marco Tomasin Milevski at HaZira Theater in 2024",
+          "Mastered by Ricardo Mazza",
+          "Originaly Recorded as Best Kind in 2016 at Polar Studios"
+        ],
+        "coverArt": [
+          "Artwork by D Opp",
+          "Graphic Design by Ashger Zamana"
+        ]
+      }
+    },
+    {
+      "id": 1,
+      "urlPath": "i-do-care",
+      "artist": "Daniella Ljungsberg",
+      "title": "I Do Care",
+      "releaseDate": "2023-02-14",
+      "cover": "i-do-care.jpg",
+      "description": {
+        "paragraphs": [
+          "Celebrating ORTHODOX's first release with 'I Do Care', a stunning debut by composer, producer and singer Daniella Ljungsberg, a sort of musician whose definition is elusive, but if we had to insist we would simply define her as captivating. With her unique ethereal voice, she expresses a warm invitation, a welcoming gesture into her sonic world. ",
+          "Ljungsberg’s comes from an experimental musical background, where she spent her last years exploring electro acoustic techniques, with an emphasis on the field of Musique Concréte, by extensively using field recordings and acoustic instrumentation heavily processed into digital loops and granulations in order to create fragmental sonic environments. ",
+          "In 'I Do Care', Daniella unveils her biographical artistic journey by returning to her origins, and in particular, to her childhood memories in Sweden. The album is composed of sample based songs, inspired by nordic folklore, returning to the most primal and basic forms of composition such as loops, lucid melodies and harmonies interwoven with Ljungsberg’s iconic vocals. A musical odyssey that traverses realms of compassion, humor and sentimentality, forming a musical collage that lingers between, Folk, Dream-pop and Lo-fi Ambient."
+        ],
+        "credits": {
+          "artists": [
+            ""
+          ],
+          "production": [
+            ""
+          ],
+          "coverArt": [
+            ""
+          ],
+          "additional": [
+            ""
+          ]
+        }
+      },
+      "paragraphs": [
+        "Celebrating ORTHODOX's first release with 'I Do Care', a stunning debut by composer, producer and singer Daniella Ljungsberg, a sort of musician whose definition is elusive, but if we had to insist we would simply define her as captivating. With her unique ethereal voice, she expresses a warm invitation, a welcoming gesture into her sonic world. ",
+        "Ljungsberg’s comes from an experimental musical background, where she spent her last years exploring electro acoustic techniques, with an emphasis on the field of Musique Concréte, by extensively using field recordings and acoustic instrumentation heavily processed into digital loops and granulations in order to create fragmental sonic environments. ",
+        "In 'I Do Care', Daniella unveils her biographical artistic journey by returning to her origins, and in particular, to her childhood memories in Sweden. The album is composed of sample based songs, inspired by nordic folklore, returning to the most primal and basic forms of composition such as loops, lucid melodies and harmonies interwoven with Ljungsberg’s iconic vocals. A musical odyssey that traverses realms of compassion, humor and sentimentality, forming a musical collage that lingers between, Folk, Dream-pop and Lo-fi Ambient.",
+        "'I Do Care' invites us into Ljugnsberg's haunted world, not only by its spectrality, but by its sense of nostalgia, as if we share a collective memory. The familiarity embedded within her music tenderly guides us back home, even if we hadn’t realized we'd left it. "
+      ],
+      "credits": {
+        "artists": [
+          ""
+        ],
+        "production": [
+          ""
+        ],
+        "coverArt": [
+          ""
+        ],
+        "additional": [
+          ""
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "urlPath": "froom-behind-the-door",
+      "artist": "Na'ama Zisser",
+      "title": "From Behind the Door",
+      "releaseDate": "2024-06-21",
+      "cover": "froom-behind-the-door.jpg",
+      "description": {
+        "paragraphs": [
+          "What happens when your neuroses come to life? What shapes will they take?",
+          " ‘From Behind the Door’ is a concept album by composer Na’ama Zisser, stemming from her original soundtrack for LUSUS (2023), a psychological horror anthology by BBC Radio 4. Set in a dreamlike state between sleep and wakefulness, the album delves into themes of inner demons, modern-day fears and anxieties, and their physical manifestations. ",
+          "Crafted in intimate settings with just a handful of collaborators, the album unveils an atmospheric soundscape that navigates through a myriad of existential states. It depicts a world that feels simultaneously suffocating and spacious, tranquil yet deeply unsettling—harmoniously discordant. Its minimalistic lo-fi approach intertwines subtle vocal drones, delicate whispers, and disembodied voices with the warmth of nostalgic analog synths and creaking out-of-tune pianos captured via iPhone memos. ",
+          "At the heart of ‘From Behind the Door’ lies the human voice, serving as a central character. As the music unfolds, listeners are drawn into an auditory labyrinth that oscillates between serene void and mental chaos, as Zisser leads us through a sonic journey that explores the depths of our inner disorders."
+        ],
+        "credits": {
+          "artists": [
+            "All music composed and produced by Na'ama Zisser ",
+            "Vocals by Tomer Damsky, Aya Gabriel, Ron Sheskin (Quantum Choir)",
+            "Additional Vocals, Piano, Keyboards by Na’ama Zisser ",
+            "Lead Vocals on 'Black Dog' by Na'ama Zisser ",
+            ""
+          ],
+          "production": [
+            "Vocal Recordings by Marco Milveski, Mazkeka Studio ",
+            "Vocals & Piano Recording on 'Black Dog' by Mephisto Wunderbar ",
+            "Mix by Stella Gotshtein ",
+            ""
+          ],
+          "coverArt": [
+            "Artwork by Uri Lifshitz, courtesy of Uri Lifshitz Building ",
+            ""
+          ],
+          "additional": [
+            ""
+          ]
+        }
+      },
+      "bandcampEmbedId": 2784044891,
+      "paragraphs": [
+        "What happens when your neuroses come to life? What shapes will they take?",
+        " ‘From Behind the Door’ is a concept album by composer Na’ama Zisser, stemming from her original soundtrack for LUSUS (2023), a psychological horror anthology by BBC Radio 4. Set in a dreamlike state between sleep and wakefulness, the album delves into themes of inner demons, modern-day fears and anxieties, and their physical manifestations. ",
+        "Crafted in intimate settings with just a handful of collaborators, the album unveils an atmospheric soundscape that navigates through a myriad of existential states. It depicts a world that feels simultaneously suffocating and spacious, tranquil yet deeply unsettling—harmoniously discordant. Its minimalistic lo-fi approach intertwines subtle vocal drones, delicate whispers, and disembodied voices with the warmth of nostalgic analog synths and creaking out-of-tune pianos captured via iPhone memos. ",
+        "At the heart of ‘From Behind the Door’ lies the human voice, serving as a central character. As the music unfolds, listeners are drawn into an auditory labyrinth that oscillates between serene void and mental chaos, as Zisser leads us through a sonic journey that explores the depths of our inner disorders."
+      ],
+      "credits": {
+        "artists": [
+          "All music composed and produced by Na'ama Zisser ",
+          "Vocals by Tomer Damsky, Aya Gabriel, Ron Sheskin (Quantum Choir)",
+          "Additional Vocals, Piano, Keyboards by Na’ama Zisser ",
+          "Lead Vocals on 'Black Dog' by Na'ama Zisser ",
+          "Lyrics on 'Black Dog' by Samantha Newton "
+        ],
+        "production": [
+          "Vocal Recordings by Marco Milveski, Mazkeka Studio ",
+          "Vocals & Piano Recording on 'Black Dog' by Mephisto Wunderbar ",
+          "Mix by Stella Gotshtein ",
+          "Mastering by Avi Elbaz "
+        ],
+        "coverArt": [
+          "Artwork by Uri Lifshitz, courtesy of Uri Lifshitz Building ",
+          "Graphic Design by Ashger Zamna"
+        ],
+        "additional": [
+          "Special Thanks To Sam, Rach, Sara, and the Lusus Team. "
         ]
       }
     }
