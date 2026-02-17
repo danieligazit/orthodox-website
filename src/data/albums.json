@@ -317,45 +317,28 @@
         "credits": {
           "artists": [
             "All tracks composed, produced & mixed Daniella Ljungsberg",
-            "All songs written by Daniella Ljungsberg ",
-            ""
+            "All songs written by Daniella Ljungsberg "
           ],
           "production": [
-            "Vocal recordings and additional mixing by Ami Ben Zvi at Pluto Studios ",
-            ""
+            "Vocal recordings and additional mixing by Ami Ben Zvi at Pluto Studios "
           ],
           "coverArt": [
-            "Photography by Johan Ljungsberg ",
-            ""
+            "Photography by Johan Ljungsberg "
           ],
-          "additional": [
-            ""
-          ]
+          "additional": []
         }
       },
       "bandcampEmbedId": 2204156015,
-      "paragraphs": [
-        "",
-        "",
-        "",
-        "'I Do Care' invites us into Ljugnsberg's haunted world, not only by its spectrality, but by its sense of nostalgia, as if we share a collective memory. The familiarity embedded within her music tenderly guides us back home, even if we hadn’t realized we'd left it."
-      ],
       "credits": {
         "artists": [
           "All tracks composed, produced & mixed Daniella Ljungsberg",
-          "All songs written by Daniella Ljungsberg ",
-          "except of The Wrote & The Writ, written by Johnny Flynn"
+          "All songs written by Daniella Ljungsberg "
         ],
         "production": [
-          "Vocal recordings and additional mixing by Ami Ben Zvi at Pluto Studios ",
-          "Mastered by James Ginzburg"
+          "Vocal recordings and additional mixing by Ami Ben Zvi at Pluto Studios "
         ],
         "coverArt": [
-          "Photography by Johan Ljungsberg ",
-          "Artistic direction by Itzik Gil Avizohar "
-        ],
-        "additional": [
-          "Special thanks to Avraham Kober and Amit Dagim"
+          "Photography by Johan Ljungsberg "
         ]
       }
     },
@@ -383,29 +366,38 @@
           "production": [
             "Vocal Recordings by Marco Milveski, Mazkeka Studio ",
             "Vocals & Piano Recording on 'Black Dog' by Mephisto Wunderbar ",
-            "Mix by Stella Gotshtein "
+            "Mix by Stella Gotshtein ",
+            ""
           ],
           "coverArt": [
-            "Artwork by Uri Lifshitz, courtesy of Uri Lifshitz Building "
+            "Artwork by Uri Lifshitz, courtesy of Uri Lifshitz Building ",
+            ""
           ],
-          "additional": []
+          "additional": [
+            ""
+          ]
         }
       },
       "bandcampEmbedId": 2784044891,
       "credits": {
+        "coverArt": [
+          "Artwork by Uri Lifshitz, courtesy of Uri Lifshitz Building ",
+          "Graphic Design by Ashger Zamna"
+        ],
+        "additional": [
+          "Special Thanks To Sam, Rach, Sara, and the Lusus Team."
+        ],
+        "production": [
+          "Vocal Recordings by Marco Milveski, Mazkeka Studio ",
+          "Vocals & Piano Recording on 'Black Dog' by Mephisto Wunderbar ",
+          "Mix by Stella Gotshtein ",
+          "Mastering by Avi Elbaz "
+        ],
         "artists": [
           "All music composed and produced by Na'ama Zisser ",
           "Vocals by Tomer Damsky, Aya Gabriel, Ron Sheskin (Quantum Choir)",
           "Additional Vocals, Piano, Keyboards by Na’ama Zisser ",
           "Lead Vocals on 'Black Dog' by Na'ama Zisser "
-        ],
-        "production": [
-          "Vocal Recordings by Marco Milveski, Mazkeka Studio ",
-          "Vocals & Piano Recording on 'Black Dog' by Mephisto Wunderbar ",
-          "Mix by Stella Gotshtein "
-        ],
-        "coverArt": [
-          "Artwork by Uri Lifshitz, courtesy of Uri Lifshitz Building "
         ]
       }
     }
