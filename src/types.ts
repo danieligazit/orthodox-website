@@ -1,5 +1,5 @@
 export interface Album {
-  id: number;
+  id: string; // e.g., "orth001", "room001"
   urlPath: string;
   artist: string;
   title: string;

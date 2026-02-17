@@ -969,13 +969,24 @@
         albumsData = { albums: [] };
       }
       
-      // Find the highest ID and add 1
-      const maxId = albumsData.albums.length > 0 
-        ? Math.max(...albumsData.albums.map(a => a.id || 0))
-        : 0;
+      // Generate a new ID in format "orth001", "orth002", etc.
+      // Find the highest number from existing "orth" IDs
+      const orthIds = albumsData.albums
+        .map(a => {
+          if (typeof a.id === 'string' && a.id.toLowerCase().startsWith('orth')) {
+            const numPart = parseInt(a.id.toLowerCase().replace('orth', ''));
+            return isNaN(numPart) ? 0 : numPart;
+          }
+          return 0;
+        })
+        .filter(n => n > 0);
+      
+      const maxOrthNum = orthIds.length > 0 ? Math.max(...orthIds) : 0;
+      const newIdNum = maxOrthNum + 1;
+      const newId = `orth${newIdNum.toString().padStart(3, '0')}`;
       
       const newAlbum = {
-        id: maxId + 1,
+        id: newId,
         urlPath: '',
         artist: '',
         title: '',
@@ -1056,8 +1067,9 @@
         
         switch (sortField) {
           case 'id':
-            aValue = a.id || 0;
-            bValue = b.id || 0;
+            // Compare string IDs (e.g., "orth001", "room001")
+            aValue = (a.id || '').toLowerCase();
+            bValue = (b.id || '').toLowerCase();
             break;
           case 'releaseDate':
             // Parse dates for proper comparison (YYYY-MM-DD format)
@@ -1134,8 +1146,9 @@
         
         switch (sortField) {
           case 'id':
-            aValue = a.id || 0;
-            bValue = b.id || 0;
+            // Compare string IDs
+            aValue = (a.id || '').toLowerCase();
+            bValue = (b.id || '').toLowerCase();
             break;
           case 'date':
             // Parse dates for proper comparison (YYYY-MM-DD format)
@@ -1211,43 +1224,43 @@
           
           <div class="form-row">
             <div class="form-group">
-              <label>ID <span style="color: #666; font-size: 12px;">(must be unique)</span></label>
-              <input type="number" data-field="id" data-index="${index}" value="${album.id || ''}" min="1" onchange="validateAlbumId(${index}, this)">
+              <label>ID <span style="color: #666; font-size: 12px;">(required, e.g., orth001, room001)</span></label>
+              <input type="text" data-field="id" data-index="${index}" value="${album.id || ''}" required pattern="[a-z]{3,4}[0-9]{3}" placeholder="orth001" onchange="validateAlbumId(${index}, this)" onblur="validateAlbumId(${index}, this)" style="${!album.id ? 'border-color: #dc3545;' : ''}">
               <div id="id-error-${index}" style="color: #dc3545; font-size: 12px; margin-top: 5px; display: none;"></div>
             </div>
             <div class="form-group">
-              <label>Artist</label>
-              <input type="text" data-field="artist" data-index="${index}" value="${escapeHtml(album.artist || '')}">
+              <label>Artist <span style="color: #dc3545;">*</span></label>
+              <input type="text" data-field="artist" data-index="${index}" value="${escapeHtml(album.artist || '')}" required style="${!album.artist ? 'border-color: #dc3545;' : ''}">
             </div>
           </div>
           
           <div class="form-row">
             <div class="form-group">
-              <label>Title</label>
-              <input type="text" data-field="title" data-index="${index}" value="${escapeHtml(album.title || '')}">
+              <label>Title <span style="color: #dc3545;">*</span></label>
+              <input type="text" data-field="title" data-index="${index}" value="${escapeHtml(album.title || '')}" required style="${!album.title ? 'border-color: #dc3545;' : ''}">
             </div>
             <div class="form-group"></div>
           </div>
           
           <div class="form-row">
             <div class="form-group">
-              <label>URL Path <span style="color: #666; font-size: 12px;">(used in album URL)</span></label>
-              <input type="text" data-field="urlPath" data-index="${index}" value="${escapeHtml(album.urlPath || '')}" placeholder="e.g., do-i-care" onchange="updateAlbumUrlPreview(${index})">
+              <label>URL Path <span style="color: #dc3545;">*</span> <span style="color: #666; font-size: 12px;">(used in album URL)</span></label>
+              <input type="text" data-field="urlPath" data-index="${index}" value="${escapeHtml(album.urlPath || '')}" placeholder="e.g., do-i-care" required pattern="[a-z0-9-]+" onchange="updateAlbumUrlPreview(${index})" style="${!album.urlPath ? 'border-color: #dc3545;' : ''}">
               <div id="url-preview-${index}" style="margin-top: 5px; font-size: 12px; color: #666;">
                 ${album.urlPath ? `Full URL: <a href="${BASE_URL}/album/${escapeHtml(album.urlPath)}" target="_blank" style="color: #0c5460; text-decoration: underline;">${BASE_URL}/album/${escapeHtml(album.urlPath)}</a>` : 'Enter a URL path to see the full album URL'}
               </div>
             </div>
             <div class="form-group">
-              <label>Release Date</label>
-              <input type="date" data-field="releaseDate" data-index="${index}" value="${album.releaseDate || ''}">
+              <label>Release Date <span style="color: #dc3545;">*</span></label>
+              <input type="date" data-field="releaseDate" data-index="${index}" value="${album.releaseDate || ''}" required style="${!album.releaseDate ? 'border-color: #dc3545;' : ''}">
             </div>
           </div>
           
           <div class="form-row">
             <div class="form-group">
-              <label>Cover Image</label>
+              <label>Cover Image <span style="color: #dc3545;">*</span></label>
               <div style="display: flex; gap: 10px; align-items: flex-start;">
-                <input type="text" data-field="cover" data-index="${index}" value="${escapeHtml(album.cover || '')}" style="flex: 1;">
+                <input type="text" data-field="cover" data-index="${index}" value="${escapeHtml(album.cover || '')}" required style="flex: 1; ${!album.cover ? 'border-color: #dc3545;' : ''}">
                 <input type="file" accept="image/*" data-index="${index}" id="cover-upload-${index}" style="display: none;" onchange="handleImageUpload(${index}, this)">
                 <button type="button" class="btn btn-small" onclick="document.getElementById('cover-upload-${index}').click()">Upload</button>
               </div>
@@ -1705,6 +1718,11 @@
         return;
       }
       
+      // Skip ID field - it's handled by validateAlbumId
+      if (field === 'id') {
+        return;
+      }
+      
       const value = event.target.type === 'number' ? (event.target.value ? parseInt(event.target.value) : undefined) : event.target.value;
       
       albumsData.albums[index][field] = value;
@@ -1988,6 +2006,30 @@
       
       // Save about page paragraphs
       saveListValues('about-paragraphs', null, 'about-paragraphs');
+      
+      // Save press item values
+      if (pressData && pressData.items) {
+        const pressContainer = document.getElementById('press-items-list');
+        if (pressContainer) {
+          pressContainer.querySelectorAll('input[data-field][data-index], textarea[data-field][data-index]').forEach(input => {
+            const field = input.dataset.field;
+            const index = parseInt(input.dataset.index);
+            
+            if (pressData.items[index]) {
+              const value = input.type === 'date' 
+                ? input.value 
+                : (input.type === 'number' 
+                  ? (input.value ? parseInt(input.value) : undefined) 
+                  : input.value);
+              
+              // Skip ID field as it's handled by validatePressId
+              if (field !== 'id') {
+                pressData.items[index][field] = value;
+              }
+            }
+          });
+        }
+      }
     }
     
     // Helper function to encode content to base64 with proper UTF-8 handling
@@ -2174,11 +2216,44 @@
         // Debug: Log albumsData after saving to see what changed
         console.log('albumsData after saveAllCurrentValues:', JSON.parse(JSON.stringify(albumsData)));
         
+        // Validate all required fields
+        const requiredFields = ['id', 'artist', 'title', 'urlPath', 'releaseDate', 'cover'];
+        const missingFields = [];
+        
+        albumsData.albums.forEach((album, index) => {
+          const missing = [];
+          requiredFields.forEach(field => {
+            const value = album[field];
+            if (!value || (typeof value === 'string' && value.trim() === '')) {
+              missing.push(field);
+            }
+          });
+          if (missing.length > 0) {
+            missingFields.push({ index, fields: missing });
+          }
+        });
+        
+        if (missingFields.length > 0) {
+          const errorMsg = missingFields.map(({ index, fields }) => 
+            `Album ${index + 1}: missing ${fields.join(', ')}`
+          ).join('; ');
+          showStatus(`Error: Missing required fields. ${errorMsg}. Please fill in all required fields (marked with *).`, 'error');
+          return;
+        }
+        
         // Validate IDs are unique
-        const ids = albumsData.albums.map(a => a.id).filter(id => id !== undefined && id !== null);
+        const ids = albumsData.albums.map(a => a.id ? a.id.toLowerCase().trim() : '').filter(id => id !== '');
         const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
         if (duplicateIds.length > 0) {
           showStatus(`Error: Duplicate IDs found: ${duplicateIds.join(', ')}. Please ensure all IDs are unique.`, 'error');
+          return;
+        }
+        
+        // Validate URL paths are unique
+        const urlPaths = albumsData.albums.map(a => a.urlPath ? a.urlPath.toLowerCase().trim() : '').filter(path => path !== '');
+        const duplicatePaths = urlPaths.filter((path, index) => urlPaths.indexOf(path) !== index);
+        if (duplicatePaths.length > 0) {
+          showStatus(`Error: Duplicate URL paths found: ${duplicatePaths.join(', ')}. Please ensure all URL paths are unique.`, 'error');
           return;
         }
         
@@ -2214,8 +2289,32 @@
           });
         }
         
-        // Add press file if it exists and validate IDs
-        if (pressData) {
+        // Add press file if it exists and validate required fields
+        if (pressData && pressData.items) {
+          // Validate required fields for press items
+          const requiredPressFields = ['id', 'title', 'publication', 'date', 'link'];
+          const missingPressFields = [];
+          
+          pressData.items.forEach((item, index) => {
+            const missing = [];
+            requiredPressFields.forEach(field => {
+              const value = item[field];
+              if (value === undefined || value === null || (typeof value === 'string' && value.trim() === '')) {
+                missing.push(field);
+              }
+            });
+            if (missing.length > 0) {
+              missingPressFields.push({ index, fields: missing });
+            }
+          });
+          
+          if (missingPressFields.length > 0) {
+            const errorMsg = missingPressFields.map(({ index, fields }) => 
+              `Press Item ${index + 1}: missing ${fields.join(', ')}`
+            ).join('; ');
+            throw new Error(`Error: Missing required fields in press items. ${errorMsg}. Please fill in all required fields (marked with *).`);
+          }
+          
           // Validate IDs are unique
           const pressIds = pressData.items.map(item => item.id).filter(id => id !== undefined && id !== null);
           const duplicatePressIds = pressIds.filter((id, index) => pressIds.indexOf(id) !== index);
@@ -2297,11 +2396,21 @@
     });
     
     function validateAlbumId(albumIndex, input) {
-      const newId = parseInt(input.value);
+      const newId = input.value.trim().toLowerCase();
       const errorDiv = document.getElementById(`id-error-${albumIndex}`);
       
-      if (!newId || newId < 1) {
-        errorDiv.textContent = 'ID must be a positive number';
+      // Validate format: 3-4 lowercase letters followed by 3 digits (e.g., orth001, room001)
+      const idPattern = /^[a-z]{3,4}[0-9]{3}$/;
+      
+      if (!newId) {
+        errorDiv.textContent = 'ID is required (e.g., orth001, room001)';
+        errorDiv.style.display = 'block';
+        input.style.borderColor = '#dc3545';
+        return false;
+      }
+      
+      if (!idPattern.test(newId)) {
+        errorDiv.textContent = 'ID must be in format: 3-4 lowercase letters followed by 3 digits (e.g., orth001, room001)';
         errorDiv.style.display = 'block';
         input.style.borderColor = '#dc3545';
         return false;
@@ -2309,7 +2418,7 @@
       
       // Check for duplicates
       const duplicates = albumsData.albums.filter((album, index) => 
-        album.id === newId && index !== albumIndex
+        album.id && album.id.toLowerCase() === newId && index !== albumIndex
       );
       
       if (duplicates.length > 0) {
@@ -2363,20 +2472,20 @@
           
           <div class="form-row">
             <div class="form-group">
-              <label>ID <span style="color: #666; font-size: 12px;">(must be unique)</span></label>
-              <input type="number" data-field="id" data-index="${index}" value="${item.id || ''}" min="1" onchange="validatePressId(${index}, this)">
+              <label>ID <span style="color: #dc3545;">*</span> <span style="color: #666; font-size: 12px;">(must be unique)</span></label>
+              <input type="number" data-field="id" data-index="${index}" value="${item.id || ''}" min="1" required onchange="validatePressId(${index}, this)" style="${!item.id ? 'border-color: #dc3545;' : ''}">
               <div id="press-id-error-${index}" style="color: #dc3545; font-size: 12px; margin-top: 5px; display: none;"></div>
             </div>
             <div class="form-group">
-              <label>Title</label>
-              <input type="text" data-field="title" data-index="${index}" value="${escapeHtml(item.title || '')}">
+              <label>Title <span style="color: #dc3545;">*</span></label>
+              <input type="text" data-field="title" data-index="${index}" value="${escapeHtml(item.title || '')}" required style="${!item.title ? 'border-color: #dc3545;' : ''}">
             </div>
           </div>
           
           <div class="form-row">
             <div class="form-group">
-              <label>Publication</label>
-              <input type="text" data-field="publication" data-index="${index}" value="${escapeHtml(item.publication || '')}">
+              <label>Publication <span style="color: #dc3545;">*</span></label>
+              <input type="text" data-field="publication" data-index="${index}" value="${escapeHtml(item.publication || '')}" required style="${!item.publication ? 'border-color: #dc3545;' : ''}">
             </div>
             <div class="form-group">
               <label>Author <span style="color: #666; font-size: 12px;">(optional)</span></label>
@@ -2386,8 +2495,8 @@
           
           <div class="form-row">
             <div class="form-group">
-              <label>Date</label>
-              <input type="date" data-field="date" data-index="${index}" value="${item.date || ''}">
+              <label>Date <span style="color: #dc3545;">*</span></label>
+              <input type="date" data-field="date" data-index="${index}" value="${item.date || ''}" required style="${!item.date ? 'border-color: #dc3545;' : ''}">
             </div>
             <div class="form-group">
               <label>Category <span style="color: #666; font-size: 12px;">(optional, e.g., Review, Interview, Feature)</span></label>
@@ -2397,8 +2506,8 @@
           
           <div class="form-row">
             <div class="form-group">
-              <label>Link <span style="color: #666; font-size: 12px;">(URL to the article)</span></label>
-              <input type="url" data-field="link" data-index="${index}" value="${escapeHtml(item.link || '')}" placeholder="https://...">
+              <label>Link <span style="color: #dc3545;">*</span> <span style="color: #666; font-size: 12px;">(URL to the article)</span></label>
+              <input type="url" data-field="link" data-index="${index}" value="${escapeHtml(item.link || '')}" placeholder="https://..." required style="${!item.link ? 'border-color: #dc3545;' : ''}">
             </div>
             <div class="form-group">
               <label>Image <span style="color: #666; font-size: 12px;">(optional, URL or filename)</span></label>

@@ -2,7 +2,7 @@
   "albums": [
     {
       "urlPath": "do-i-care",
-      "id": 7,
+      "id": "orth007",
       "artist": "Daniella Ljungsberg",
       "title": "Press Item 1",
       "bandcampEmbedId": 1641334869,
@@ -55,7 +55,7 @@
       }
     },
     {
-      "id": 4,
+      "id": "orth004",
       "urlPath": "change-the-process",
       "artist": "Wackelkontakt",
       "title": "Title 2",
@@ -163,7 +163,7 @@
         }
       },
       "bandcampEmbedId": 2873345491,
-      "id": 12,
+      "id": "room001",
       "credits": {
         "artists": [
           "Shaul Kohn - Guitar",
@@ -186,7 +186,7 @@
       }
     },
     {
-      "id": 8,
+      "id": "orth008",
       "urlPath": "words-dont-come-easy",
       "artist": "IMMA",
       "title": "words don't come easy",
@@ -244,7 +244,7 @@
       }
     },
     {
-      "id": 5,
+      "id": "orth005",
       "urlPath": "road-extends",
       "artist": "Cadaver Eyes",
       "title": "Road Extends",
@@ -302,7 +302,7 @@
       }
     },
     {
-      "id": 1,
+      "id": "orth001",
       "urlPath": "i-do-care",
       "artist": "Daniella Ljungsberg",
       "title": "I Do Care",
@@ -344,7 +344,7 @@
       }
     },
     {
-      "id": 2,
+      "id": "orth002",
       "urlPath": "froom-behind-the-door",
       "artist": "Na'ama Zisser",
       "title": "From Behind the Door",
@@ -394,7 +394,7 @@
       }
     },
     {
-      "id": 3,
+      "id": "orth003",
       "urlPath": "days",
       "artist": "Kashaiof",
       "title": "Days",

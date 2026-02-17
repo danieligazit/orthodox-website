@@ -60,15 +60,41 @@ export function AlbumPage() {
     );
   }
 
-  // Generate serial number
-  const serialNumber = `ORTH${album.id.toString().padStart(3, '0')}`;
+  // Defensive checks for required fields
+  if (!album.id || !album.artist || !album.title || !album.cover || !album.releaseDate) {
+    console.error('AlbumPage: Missing required fields', album);
+    return (
+      <div className="text-center pt-32">
+        <h1 className="text-2xl mb-4 text-[#e8e6df] font-im-fell">Album data is incomplete</h1>
+        <button
+          onClick={() => navigate('/')}
+          className="font-im-fell uppercase tracking-widest text-sm border border-[#e8e6df] text-[#e8e6df] px-4 py-2 hover:bg-[#e8e6df] hover:text-[#050505] transition-colors duration-500"
+        >
+          Back to Home
+        </button>
+      </div>
+    );
+  }
 
-  // Format release date
-  const releaseDate = new Date(album.releaseDate).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
+  // Use the album id directly (e.g., "orth001", "room001")
+  const serialNumber = album.id.toUpperCase();
+
+  // Format release date with validation
+  let releaseDate: string;
+  try {
+    const dateObj = new Date(album.releaseDate);
+    if (isNaN(dateObj.getTime())) {
+      releaseDate = album.releaseDate; // Fallback to raw string if invalid
+    } else {
+      releaseDate = dateObj.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    }
+  } catch (error) {
+    releaseDate = album.releaseDate; // Fallback to raw string on error
+  }
 
   const getBandcampEmbedUrl = () => {
     if (album.bandcampEmbedId) {
@@ -139,13 +165,15 @@ export function AlbumPage() {
                     ) : (
                       <div className="space-y-8">
                         {/* Paragraphs */}
-                        <div className="space-y-6">
-                          {album.description.paragraphs.map((paragraph, index) => (
-                            <p key={index} className="font-im-fell text-[#e8e6df] leading-loose text-lg opacity-90">
-                              {formatTextWithLinks(paragraph)}
-                            </p>
-                          ))}
-                        </div>
+                        {album.description.paragraphs && Array.isArray(album.description.paragraphs) && album.description.paragraphs.length > 0 && (
+                          <div className="space-y-6">
+                            {album.description.paragraphs.map((paragraph, index) => (
+                              <p key={index} className="font-im-fell text-[#e8e6df] leading-loose text-lg opacity-90">
+                                {formatTextWithLinks(paragraph)}
+                              </p>
+                            ))}
+                          </div>
+                        )}
 
                                        {/* Date: Subtle italic text */}
                 <div className="font-im-fell text-[#e8e6df]/60 italic text-sm ml-1">

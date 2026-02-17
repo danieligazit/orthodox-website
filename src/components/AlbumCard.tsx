@@ -8,8 +8,15 @@ interface AlbumCardProps {
 
 export function AlbumCard({ album }: AlbumCardProps) {
   const navigate = useNavigate();
-  // Generate serial number from album id (ORTH001, ORTH002, etc.)
-  const serialNumber = `ORTH${album.id.toString().padStart(3, '0')}`;
+  
+  // Defensive checks for required fields
+  if (!album || !album.id || !album.urlPath || !album.artist || !album.title || !album.cover) {
+    console.error('AlbumCard: Missing required fields', album);
+    return null;
+  }
+  
+  // Use the album id directly (e.g., "orth001", "room001")
+  const serialNumber = album.id.toUpperCase();
 
   const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
     // Allow default behavior for modifier keys (new tab, etc.)

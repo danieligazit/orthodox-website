@@ -22,12 +22,20 @@ export function PressPage() {
   const sortedItems = pressItems;
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    if (!dateString) return 'Date not set';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return dateString; // Return raw string if invalid
+      }
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch (error) {
+      return dateString; // Fallback to raw string on error
+    }
   };
 
   return (
@@ -78,29 +86,41 @@ export function PressPage() {
                           )}
 
                           {/* Title */}
-                          <h2 className="font-im-fell text-2xl md:text-3xl text-[#e8e6df] mb-3 leading-tight">
-                            <a
-                              href={item.link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="hover:text-[#b4b0a7] transition-colors duration-300"
-                            >
-                              {item.title}
-                            </a>
-                          </h2>
+                          {item.title && (
+                            <h2 className="font-im-fell text-2xl md:text-3xl text-[#e8e6df] mb-3 leading-tight">
+                              {item.link ? (
+                                <a
+                                  href={item.link}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="hover:text-[#b4b0a7] transition-colors duration-300"
+                                >
+                                  {item.title}
+                                </a>
+                              ) : (
+                                item.title
+                              )}
+                            </h2>
+                          )}
 
                           {/* Publication & Author */}
-                          <div className="font-im-fell text-sm text-[#e8e6df]/70 mb-3">
-                            <span className="font-semibold">{item.publication}</span>
-                            {item.author && (
-                              <span className="mx-2">•</span>
-                            )}
-                            {item.author && (
-                              <span>{item.author}</span>
-                            )}
-                            <span className="mx-2">•</span>
-                            <span className="text-[#e8e6df]/60">{formatDate(item.date)}</span>
-                          </div>
+                          {(item.publication || item.date) && (
+                            <div className="font-im-fell text-sm text-[#e8e6df]/70 mb-3">
+                              {item.publication && <span className="font-semibold">{item.publication}</span>}
+                              {item.author && (
+                                <>
+                                  <span className="mx-2">•</span>
+                                  <span>{item.author}</span>
+                                </>
+                              )}
+                              {item.date && (
+                                <>
+                                  <span className="mx-2">•</span>
+                                  <span className="text-[#e8e6df]/60">{formatDate(item.date)}</span>
+                                </>
+                              )}
+                            </div>
+                          )}
 
                           {/* Excerpt */}
                           {item.excerpt && (
@@ -110,15 +130,17 @@ export function PressPage() {
                           )}
 
                           {/* Read More Link */}
-                          <a
-                            href={item.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="font-im-fell text-sm uppercase tracking-widest text-[#b4b0a7] hover:text-[#e8e6df] transition-colors duration-300 inline-flex items-center gap-2"
-                          >
-                            Read Article
-                            <span className="text-xs">→</span>
-                          </a>
+                          {item.link && (
+                            <a
+                              href={item.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-im-fell text-sm uppercase tracking-widest text-[#b4b0a7] hover:text-[#e8e6df] transition-colors duration-300 inline-flex items-center gap-2"
+                            >
+                              Read Article
+                              <span className="text-xs">→</span>
+                            </a>
+                          )}
                         </div>
                       </div>
                     </article>
