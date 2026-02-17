@@ -366,38 +366,86 @@
           "production": [
             "Vocal Recordings by Marco Milveski, Mazkeka Studio ",
             "Vocals & Piano Recording on 'Black Dog' by Mephisto Wunderbar ",
-            "Mix by Stella Gotshtein ",
-            ""
+            "Mix by Stella Gotshtein "
           ],
           "coverArt": [
-            "Artwork by Uri Lifshitz, courtesy of Uri Lifshitz Building ",
-            ""
+            "Artwork by Uri Lifshitz, courtesy of Uri Lifshitz Building "
           ],
-          "additional": [
-            ""
-          ]
+          "additional": []
         }
       },
       "bandcampEmbedId": 2784044891,
       "credits": {
-        "coverArt": [
-          "Artwork by Uri Lifshitz, courtesy of Uri Lifshitz Building ",
-          "Graphic Design by Ashger Zamna"
-        ],
-        "additional": [
-          "Special Thanks To Sam, Rach, Sara, and the Lusus Team."
-        ],
-        "production": [
-          "Vocal Recordings by Marco Milveski, Mazkeka Studio ",
-          "Vocals & Piano Recording on 'Black Dog' by Mephisto Wunderbar ",
-          "Mix by Stella Gotshtein ",
-          "Mastering by Avi Elbaz "
-        ],
         "artists": [
           "All music composed and produced by Na'ama Zisser ",
           "Vocals by Tomer Damsky, Aya Gabriel, Ron Sheskin (Quantum Choir)",
           "Additional Vocals, Piano, Keyboards by Na’ama Zisser ",
           "Lead Vocals on 'Black Dog' by Na'ama Zisser "
+        ],
+        "production": [
+          "Vocal Recordings by Marco Milveski, Mazkeka Studio ",
+          "Vocals & Piano Recording on 'Black Dog' by Mephisto Wunderbar ",
+          "Mix by Stella Gotshtein "
+        ],
+        "coverArt": [
+          "Artwork by Uri Lifshitz, courtesy of Uri Lifshitz Building "
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "urlPath": "days",
+      "artist": "Kashaiof",
+      "title": "Days",
+      "releaseDate": "2023-08-30",
+      "cover": "days.jpg",
+      "description": {
+        "paragraphs": [
+          "What if beating a drum could raise a thunderstorm, as if a sound could alter the very fabric of reality? And conversely, what if reality could shape and transform that sound in return? ",
+          "In their latest album 'Days,' the experimental duo Kashaiof transcends their conventional artistic boundaries, drawing from their electro-acoustic practices. They integrate extended techniques of modular synthesis, ultrasonic feedback, field recordings, and acoustic instrumentation to expand their sonic explorations. ",
+          "In contrast to their previous releases 'Home' (2020) and 'MA' (2022), where the voice was submerged in electrical responses and processing, in 'Days,' the voice undergoes a gradual process of refinement until it is exposed to the listener, presenting fragments of personal experiences and reflections. ",
+          "As a result, the album welds together elements of repetitive post-industrial beats, folk chants, quaking synthesis, and mystifying sound objects. These resonating sounds construct the compositions akin to the gradual process of crystallization unfolding from within. It is an album that emerges from a place of vulnerability, revealing a longing for grace, where the weight of gravity becomes an overwhelming burden. ",
+          "'Days' offers a deep listening experience that delves into the mystical potential of sound, questioning its ability to shape the world’s order. However, Kashaiof finds themselves confronted with the realization that sound itself is subject to transformation, its effects reverberating throughout the universe in unforeseen ways.  "
+        ],
+        "credits": {
+          "artists": [
+            "All tracks recorded, produced and composed by Eyal Lally Bitton and Itzik Gil Avizohar ",
+            "All songs were written by Itzik Gil Avizohar, apart from Sulphur, an ancient Sumerian lullaby. ",
+            ""
+          ],
+          "production": [
+            "Recorded between 2022-2023 at Excessive Studios ",
+            "Bass guitar recordings in 'Grace' by Adam Scheflan at Ampa Studio",
+            ""
+          ],
+          "coverArt": [
+            "Photographs by Eyal Lally Bitton ",
+            ""
+          ],
+          "additional": []
+        }
+      },
+      "bandcampEmbedId": 3424865268,
+      "paragraphs": [
+        "What if beating a drum could raise a thunderstorm, as if a sound could alter the very fabric of reality? And conversely, what if reality could shape and transform that sound in return? ",
+        "In their latest album 'Days,' the experimental duo Kashaiof transcends their conventional artistic boundaries, drawing from their electro-acoustic practices. They integrate extended techniques of modular synthesis, ultrasonic feedback, field recordings, and acoustic instrumentation to expand their sonic explorations. ",
+        "In contrast to their previous releases 'Home' (2020) and 'MA' (2022), where the voice was submerged in electrical responses and processing, in 'Days,' the voice undergoes a gradual process of refinement until it is exposed to the listener, presenting fragments of personal experiences and reflections. ",
+        "As a result, the album welds together elements of repetitive post-industrial beats, folk chants, quaking synthesis, and mystifying sound objects. These resonating sounds construct the compositions akin to the gradual process of crystallization unfolding from within. It is an album that emerges from a place of vulnerability, revealing a longing for grace, where the weight of gravity becomes an overwhelming burden. ",
+        "'Days' offers a deep listening experience that delves into the mystical potential of sound, questioning its ability to shape the world’s order. However, Kashaiof finds themselves confronted with the realization that sound itself is subject to transformation, its effects reverberating throughout the universe in unforeseen ways.  "
+      ],
+      "credits": {
+        "artists": [
+          "All tracks recorded, produced and composed by Eyal Lally Bitton and Itzik Gil Avizohar ",
+          "All songs were written by Itzik Gil Avizohar, apart from Sulphur, an ancient Sumerian lullaby. "
+        ],
+        "production": [
+          "Recorded between 2022-2023 at Excessive Studios ",
+          "Bass guitar recordings in 'Grace' by Adam Scheflan at Ampa Studio",
+          "Vocal recordings, mixing and mastering by James Ginzburg "
+        ],
+        "coverArt": [
+          "Photographs by Eyal Lally Bitton ",
+          "Graphic Design by Ashger Zamana"
         ]
       }
     }
