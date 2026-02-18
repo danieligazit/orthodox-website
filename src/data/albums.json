@@ -1,10 +1,140 @@
 {
   "albums": [
     {
-      "urlPath": "do-i-care",
       "id": "orth007",
-      "artist": "Daniella Ljungsberg",
+      "urlPath": "words-dont-come-easy",
+      "artist": "IMMA",
       "title": "Press Item 1",
+      "releaseDate": "2025-10-10",
+      "cover": "words_dont_come_easy.jpg",
+      "bandcampEmbedId": 3908082222,
+      "description": {
+        "paragraphs": [
+          "\"words don’t come easy\" is the first album by the new duo IMMA, rooted in a shared sonic curiosity between electroacoustic singer-songwriter Daniella Ljungsberg and multimedia artist and composer Itzik Gil Avizohar.",
+          "While each comes from a different musical world, one shaped by voice, intimacy, and traces of Nordic folklore; the other by distorted sound walls and sonic intensities drawn from a deep fascination with metal culture, their collaboration reveals a mutual attunement to the haunting presence of sound. Like distant echoes of traditions, this album is less about stylistic fusion than about an ever-evolving friendship.",
+          "Together, they hold polarities in tension with a consonant sensitivity: vast sonic spaces, emotional density, and the quiet pull of things held just before they collapse. Their music moves along blurred edges, between structured songs and polished sketches, free improvisation and defined form. Ljungsberg’s voice and subtly addictive melodies lead like a ray of light through the dense spectral fog shaped by Avizohar’s synthesis, sparsely unfolding across his repetitive basslines.",
+          "There is no central statement here. The songs announce themselves. They rest in unresolved moments, like fragments of eroded memory.",
+          "\"words don’t come easy\" is not a title, but a shared condition."
+        ],
+        "credits": {
+          "artists": [
+            "All songs written, produced, and recorded by IMMA",
+            "Daniella Ljungsberg – vocals, electronics",
+            "Itzik Gil Avizohar – bass guitar, electronics",
+            "Lyrics by Daniella Ljungsberg"
+          ],
+          "additional": [
+            "Additional vocals on fault song by MC Slice",
+            "Drums on watchman's song by Uri Rennert"
+          ],
+          "coverArt": [
+            "Album cover 'Ancestral Shrine' by Dana Weingart"
+          ],
+          "production": [
+            "Recorded at Studio St. Rémy",
+            "Mixed by Yair Elazar Glotman",
+            "Mastered by James Ginzburg"
+          ]
+        }
+      },
+      "publication": "Publication 1",
+      "author": "Author 1",
+      "date": "2026-02-16",
+      "category": "Category 1",
+      "link": "https://www.pbs.org/wnet/nature/blog/dolphin-fact-sheet/",
+      "image": "https://www.pbs.org/wnet/nature/files/2020/07/Dolphin-1280x720.png",
+      "excerpt": "Excerpt 1",
+      "credits": {
+        "artists": [
+          "All songs written, produced, and recorded by IMMA",
+          "Daniella Ljungsberg – vocals, electronics",
+          "Itzik Gil Avizohar – bass guitar, electronics",
+          "Lyrics by Daniella Ljungsberg"
+        ],
+        "production": [
+          "Recorded at Studio St. Rémy",
+          "Mixed by Yair Elazar Glotman",
+          "Mastered by James Ginzburg"
+        ],
+        "coverArt": [
+          "Album cover 'Ancestral Shrine' by Dana Weingart"
+        ],
+        "additional": [
+          "Additional vocals on fault song by MC Slice",
+          "Drums on watchman's song by Uri Rennert"
+        ]
+      }
+    },
+    {
+      "urlPath": "turn-of-a-millstone",
+      "artist": "SEVELLE",
+      "title": "Title 2",
+      "releaseDate": "2025-04-11",
+      "cover": "turn_of_a_millstone.jpg",
+      "description": {
+        "paragraphs": [
+          "The wheel turns, the millstone grinds—an endless motion, eroding and renewing in equal measure. Turn of a Millstone is the debut studio album from SEVELLE, a trio consisting of sculptor and sound artist Niv Gafni (DIY bagpipe), musician and designer Daniel Treystman (drums), and musician Shaul Kohn (guitar).",
+          "Initially drawing their influences from Tony Conrad & Faust’s insights over drone minimalism and krautrock’s cosmic rhythm — Turn of a Millstone continue to rotate endlessly, paving the road of krautdrone’s foundations, they are opening a passage into an immersive dimension where minimalism becomes maximalism. The trio constructs parallel sonic plateaus—each locked in its own repetition, yet constantly evolving, grinding forward with a force that is both oppressive and liberating.",
+          "Their practice of continuous playing is a trial of physical and mental limits, a controlled collapse into chaos. The spiking drones and pounding rhythms resonate with the tension between order and entropy, structure and dissolution. In this space, Sevelle enacts a ritual of sonic self-sacrifice—driving themselves to exhaustion in pursuit of something beyond the self.",
+          "Like the turning of a grinding wheel, Turn of a Millstone is demanding yet deeply rewarding, revealing itself through endurance, through surrender. A meditation on repetition, failure, and transcendence—this is music at its breaking point.",
+          "Released as part of ROOMS, a new series on ORTHODOX dedicated to long-form sound works. Each release in this series is issued on cassette, with both sides carrying the same recording—an infinite loop of sound, a space to dwell in, leave, and return to. "
+        ],
+        "credits": {
+          "artists": [
+            "Shaul Kohn - Guitar",
+            "Niv Gafni - DIY Bagpipes",
+            "Daniel Treystman - Drums"
+          ],
+          "additional": [
+            "Special thanks:",
+            "Eyal Lally Bitton, Yoel Peled, Ori Kadishay, Marco Milevski, Tomer Damsky, Amit Drori, Svenja Steurer Jene, Eddie Botstein, Hazira Performance Art Arena, Musrarasonics"
+          ],
+          "production": [
+            "Mixed by Joe Talia | joetalia.com",
+            "Mastered by Amit Dagim | linktr.ee/amitdagim",
+            "Recorded by Ron Sheskin at HaZira",
+            "Graphics by Ashger Zamana | ashger.com"
+          ],
+          "coverArt": [
+            "Artwork by Or Shloman | orshloman.com"
+          ]
+        }
+      },
+      "bandcampEmbedId": 2873345491,
+      "id": "room001",
+      "publication": "Publication 2",
+      "author": "Author2",
+      "date": "2026-02-16",
+      "category": "Category 2",
+      "link": "https://www.reifelbirdsanctuary.com/mall.html",
+      "image": "https://www.reifelbirdsanctuary.com/Site/themed_images/portfolio-large-12.jpg",
+      "excerpt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tincidunt, dui eget feugiat tristique, neque odio tempor ligula, placerat dignissim felis sem quis tortor. Aliquam metus ipsum, facilisis non libero eget, tristique vehicula enim. In posuere ipsum et urna placerat pellentesque. Morbi dolor velit, sagittis et congue sed, congue id erat. Cras id massa cursus, cursus massa sed, sodales lectus. Fusce porttitor, turpis quis tristique elementum, sem augue auctor sem, non dignissim nulla lacus nec tellus. Vestibulum dignissim bibendum sem eget consequat. Sed augue massa, iaculis ut tincidunt ac, facilisis at risus. Nunc laoreet lacinia tortor ac convallis.",
+      "credits": {
+        "artists": [
+          "Shaul Kohn - Guitar",
+          "Niv Gafni - DIY Bagpipes",
+          "Daniel Treystman - Drums"
+        ],
+        "production": [
+          "Mixed by Joe Talia | joetalia.com",
+          "Mastered by Amit Dagim | linktr.ee/amitdagim",
+          "Recorded by Ron Sheskin at HaZira",
+          "Graphics by Ashger Zamana | ashger.com"
+        ],
+        "coverArt": [
+          "Artwork by Or Shloman | orshloman.com"
+        ],
+        "additional": [
+          "Special thanks:",
+          "Eyal Lally Bitton, Yoel Peled, Ori Kadishay, Marco Milevski, Tomer Damsky, Amit Drori, Svenja Steurer Jene, Eddie Botstein, Hazira Performance Art Arena, Musrarasonics"
+        ]
+      }
+    },
+    {
+      "urlPath": "do-i-care",
+      "id": "orth006",
+      "artist": "Daniella Ljungsberg",
+      "title": "Do I Care",
       "bandcampEmbedId": 1641334869,
       "description": {
         "paragraphs": [
@@ -51,195 +181,6 @@
         ],
         "additional": [
           "Artistic direction by Itzik Gil Avizohar"
-        ]
-      }
-    },
-    {
-      "id": "orth004",
-      "urlPath": "change-the-process",
-      "artist": "Wackelkontakt",
-      "title": "Title 2",
-      "releaseDate": "2024-10-25",
-      "cover": "change-the-process.jpg",
-      "description": {
-        "paragraphs": [
-          "The shapeshifting hellscapes of Wackelkontakt (Tomer Damsky aka MC Slice, Marco Milevski Tomasin, and Eyal Lally Bitton) return with new garments in their second album Change the Process, on a collaborative release between Orthodox (France) & JauneOrange (Belgium).",
-          "Attempts to define Wackelkontakt’s singular sound resulted in definitions such as Psychotrap and Doom R&B, with their debut album being acclaimed for its dynamism and reluctance to stick to one genre. In Change the Process, the group broadens the palette of styles even further. It is a collection of fragments: each song in the album sets a distinct mental scene, as if created by a different author. As the song sequence unfolds, it paves a journey between psycho-sensory states. Emblematic of Wackelkontakt’s genre-defiant artistry, Change the Process does not conform to a single theme but flourishes as a multiple entity, a schizophrenic crossroads of influences where each pathway gives birth to an encounter with an ever-weirder facet of human consciousness.",
-          "The album’s musical universe is set in the enchanted forest of ancient fantasies and proto-narratives: a liminal space of transformation, harboring both unknown dangers and a refuge from the world. A story unfinished and unfinishable, it moves from symbol to allegory; it comes and goes, crossing through various realms of the conceptual imagination, on a route spread over time and space, to be ultimately left pending.",
-          "In Change the Process Wackelkontakt steer the heavy, noise-influenced sound of their debut album into a more melodic terrain. They evolved into a new mutation, melting together drone, industrial, and metal aesthetics with bleak soundscapes and soulful laments. Milevski’s blasting percussion, a hybrid of acoustic drums and sample-based beats, couple with Damsky’s sensitive yet intensive vocals to form the core musical storytelling: moving, affective, and at times downright terrifying. The album’s lyrics are Damsky’s characteristic mash of biblical verse and taunting self-irony, uttered in an array of vocal deliveries: terse whispers, spitting rap, and venomous screeches alongside hopeful melodies and cantorial Arabesque. A new addition to Wackelkontakt’s sonic arsenal, the string instruments are woven throughout the story as a cinematic motif, an echo of the emotional states the songs attempt to tackle.",
-          "In ever-evolving ways to communicate with their audience, Wackelkontakt will release the album alongside a 35-minute short film, an audiovisual poem filmed in four countries. It features their signature visual-sonic storytelling, smashing together visceral docu-fiction, psycho-drama, mytho-poetics, and religious symbolism. "
-        ],
-        "credits": {
-          "artists": [
-            "All music by Wackelkontakt",
-            "Tomer Damsky aka Slice: Vocals, electronics, string arrangements"
-          ],
-          "production": [
-            "“Babymother” & “Shaar” recorded by Marco Milevski Tomasin at Bat Yam Museum of Art & Excessive Studios",
-            "“Progress” recorded by Wackelkontakt at Excessive Studios",
-            "“Skin for Skin” recorded by Wackelkontakt at Karl Ehman Strasse Studios, Liege & by Gad Torrefranca & Roy Chen at Polar Studios",
-            "“Orr Shinay” recorded by Gad Torrefranca & Roy Chen at Polar Studios",
-            "“Change the Outcome” Recorded by Wackelkontakt at Hazira Theater",
-            "Strings Recorded by Ori Kadishay at Mazkeka Studios",
-            "Mixed by James Ginzburg"
-          ],
-          "coverArt": [
-            "Artwork photography: Eyal Lally Bitton"
-          ],
-          "additional": [
-            "Double Bass: Erez Meyuhas",
-            "Cello: Tom Klein",
-            "Violin: Johanna Riethmueller",
-            "Additional double bass in “Skin for Skin” & “Orr Shinay”: Or Sinai"
-          ]
-        }
-      },
-      "bandcampEmbedId": 2356669583,
-      "publication": "Publication 2",
-      "author": "Author2",
-      "date": "2026-02-16",
-      "category": "Category 2",
-      "link": "https://www.reifelbirdsanctuary.com/mall.html",
-      "image": "https://www.reifelbirdsanctuary.com/Site/themed_images/portfolio-large-12.jpg",
-      "excerpt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tincidunt, dui eget feugiat tristique, neque odio tempor ligula, placerat dignissim felis sem quis tortor. Aliquam metus ipsum, facilisis non libero eget, tristique vehicula enim. In posuere ipsum et urna placerat pellentesque. Morbi dolor velit, sagittis et congue sed, congue id erat. Cras id massa cursus, cursus massa sed, sodales lectus. Fusce porttitor, turpis quis tristique elementum, sem augue auctor sem, non dignissim nulla lacus nec tellus. Vestibulum dignissim bibendum sem eget consequat. Sed augue massa, iaculis ut tincidunt ac, facilisis at risus. Nunc laoreet lacinia tortor ac convallis.",
-      "credits": {
-        "artists": [
-          "All music by Wackelkontakt",
-          "Tomer Damsky aka Slice: Vocals, electronics, string arrangements"
-        ],
-        "production": [
-          "“Babymother” & “Shaar” recorded by Marco Milevski Tomasin at Bat Yam Museum of Art & Excessive Studios",
-          "“Progress” recorded by Wackelkontakt at Excessive Studios",
-          "“Skin for Skin” recorded by Wackelkontakt at Karl Ehman Strasse Studios, Liege & by Gad Torrefranca & Roy Chen at Polar Studios",
-          "“Orr Shinay” recorded by Gad Torrefranca & Roy Chen at Polar Studios",
-          "“Change the Outcome” Recorded by Wackelkontakt at Hazira Theater",
-          "Strings Recorded by Ori Kadishay at Mazkeka Studios",
-          "Mixed by James Ginzburg"
-        ],
-        "coverArt": [
-          "Artwork photography: Eyal Lally Bitton"
-        ],
-        "additional": [
-          "Double Bass: Erez Meyuhas",
-          "Cello: Tom Klein",
-          "Violin: Johanna Riethmueller",
-          "Additional double bass in “Skin for Skin” & “Orr Shinay”: Or Sinai"
-        ]
-      }
-    },
-    {
-      "urlPath": "turn-of-a-millstone",
-      "artist": "SEVELLE",
-      "title": "Turn of a Millstone",
-      "releaseDate": "2025-04-11",
-      "cover": "turn_of_a_millstone.jpg",
-      "description": {
-        "paragraphs": [
-          "The wheel turns, the millstone grinds—an endless motion, eroding and renewing in equal measure. Turn of a Millstone is the debut studio album from SEVELLE, a trio consisting of sculptor and sound artist Niv Gafni (DIY bagpipe), musician and designer Daniel Treystman (drums), and musician Shaul Kohn (guitar).",
-          "Initially drawing their influences from Tony Conrad & Faust’s insights over drone minimalism and krautrock’s cosmic rhythm — Turn of a Millstone continue to rotate endlessly, paving the road of krautdrone’s foundations, they are opening a passage into an immersive dimension where minimalism becomes maximalism. The trio constructs parallel sonic plateaus—each locked in its own repetition, yet constantly evolving, grinding forward with a force that is both oppressive and liberating.",
-          "Their practice of continuous playing is a trial of physical and mental limits, a controlled collapse into chaos. The spiking drones and pounding rhythms resonate with the tension between order and entropy, structure and dissolution. In this space, Sevelle enacts a ritual of sonic self-sacrifice—driving themselves to exhaustion in pursuit of something beyond the self.",
-          "Like the turning of a grinding wheel, Turn of a Millstone is demanding yet deeply rewarding, revealing itself through endurance, through surrender. A meditation on repetition, failure, and transcendence—this is music at its breaking point.",
-          "Released as part of ROOMS, a new series on ORTHODOX dedicated to long-form sound works. Each release in this series is issued on cassette, with both sides carrying the same recording—an infinite loop of sound, a space to dwell in, leave, and return to. "
-        ],
-        "credits": {
-          "artists": [
-            "Shaul Kohn - Guitar",
-            "Niv Gafni - DIY Bagpipes",
-            "Daniel Treystman - Drums"
-          ],
-          "additional": [
-            "Special thanks:",
-            "Eyal Lally Bitton, Yoel Peled, Ori Kadishay, Marco Milevski, Tomer Damsky, Amit Drori, Svenja Steurer Jene, Eddie Botstein, Hazira Performance Art Arena, Musrarasonics"
-          ],
-          "production": [
-            "Mixed by Joe Talia | joetalia.com",
-            "Mastered by Amit Dagim | linktr.ee/amitdagim",
-            "Recorded by Ron Sheskin at HaZira",
-            "Graphics by Ashger Zamana | ashger.com"
-          ],
-          "coverArt": [
-            "Artwork by Or Shloman | orshloman.com"
-          ]
-        }
-      },
-      "bandcampEmbedId": 2873345491,
-      "id": "room001",
-      "credits": {
-        "artists": [
-          "Shaul Kohn - Guitar",
-          "Niv Gafni - DIY Bagpipes",
-          "Daniel Treystman - Drums"
-        ],
-        "production": [
-          "Mixed by Joe Talia | joetalia.com",
-          "Mastered by Amit Dagim | linktr.ee/amitdagim",
-          "Recorded by Ron Sheskin at HaZira",
-          "Graphics by Ashger Zamana | ashger.com"
-        ],
-        "coverArt": [
-          "Artwork by Or Shloman | orshloman.com"
-        ],
-        "additional": [
-          "Special thanks:",
-          "Eyal Lally Bitton, Yoel Peled, Ori Kadishay, Marco Milevski, Tomer Damsky, Amit Drori, Svenja Steurer Jene, Eddie Botstein, Hazira Performance Art Arena, Musrarasonics"
-        ]
-      }
-    },
-    {
-      "id": "orth008",
-      "urlPath": "words-dont-come-easy",
-      "artist": "IMMA",
-      "title": "words don't come easy",
-      "releaseDate": "2025-10-10",
-      "cover": "words_dont_come_easy.jpg",
-      "bandcampEmbedId": 3908082222,
-      "description": {
-        "paragraphs": [
-          "\"words don’t come easy\" is the first album by the new duo IMMA, rooted in a shared sonic curiosity between electroacoustic singer-songwriter Daniella Ljungsberg and multimedia artist and composer Itzik Gil Avizohar.",
-          "While each comes from a different musical world, one shaped by voice, intimacy, and traces of Nordic folklore; the other by distorted sound walls and sonic intensities drawn from a deep fascination with metal culture, their collaboration reveals a mutual attunement to the haunting presence of sound. Like distant echoes of traditions, this album is less about stylistic fusion than about an ever-evolving friendship.",
-          "Together, they hold polarities in tension with a consonant sensitivity: vast sonic spaces, emotional density, and the quiet pull of things held just before they collapse. Their music moves along blurred edges, between structured songs and polished sketches, free improvisation and defined form. Ljungsberg’s voice and subtly addictive melodies lead like a ray of light through the dense spectral fog shaped by Avizohar’s synthesis, sparsely unfolding across his repetitive basslines.",
-          "There is no central statement here. The songs announce themselves. They rest in unresolved moments, like fragments of eroded memory.",
-          "\"words don’t come easy\" is not a title, but a shared condition."
-        ],
-        "credits": {
-          "artists": [
-            "All songs written, produced, and recorded by IMMA",
-            "Daniella Ljungsberg – vocals, electronics",
-            "Itzik Gil Avizohar – bass guitar, electronics",
-            "Lyrics by Daniella Ljungsberg"
-          ],
-          "additional": [
-            "Additional vocals on fault song by MC Slice",
-            "Drums on watchman's song by Uri Rennert"
-          ],
-          "coverArt": [
-            "Album cover 'Ancestral Shrine' by Dana Weingart"
-          ],
-          "production": [
-            "Recorded at Studio St. Rémy",
-            "Mixed by Yair Elazar Glotman",
-            "Mastered by James Ginzburg"
-          ]
-        }
-      },
-      "credits": {
-        "artists": [
-          "All songs written, produced, and recorded by IMMA",
-          "Daniella Ljungsberg – vocals, electronics",
-          "Itzik Gil Avizohar – bass guitar, electronics",
-          "Lyrics by Daniella Ljungsberg"
-        ],
-        "production": [
-          "Recorded at Studio St. Rémy",
-          "Mixed by Yair Elazar Glotman",
-          "Mastered by James Ginzburg"
-        ],
-        "coverArt": [
-          "Album cover 'Ancestral Shrine' by Dana Weingart"
-        ],
-        "additional": [
-          "Additional vocals on fault song by MC Slice",
-          "Drums on watchman's song by Uri Rennert"
         ]
       }
     },
@@ -302,44 +243,142 @@
       }
     },
     {
-      "id": "orth001",
-      "urlPath": "i-do-care",
-      "artist": "Daniella Ljungsberg",
-      "title": "I Do Care",
-      "releaseDate": "2023-02-14",
-      "cover": "i-do-care.jpg",
+      "id": "orth004",
+      "urlPath": "change-the-process",
+      "artist": "Wackelkontakt",
+      "title": "Change the Process",
+      "releaseDate": "2024-10-25",
+      "cover": "change-the-process.jpg",
       "description": {
         "paragraphs": [
-          "Celebrating ORTHODOX's first release with 'I Do Care', a stunning debut by composer, producer and singer Daniella Ljungsberg, a sort of musician whose definition is elusive, but if we had to insist we would simply define her as captivating. With her unique ethereal voice, she expresses a warm invitation, a welcoming gesture into her sonic world. ",
-          "Ljungsberg’s comes from an experimental musical background, where she spent her last years exploring electro acoustic techniques, with an emphasis on the field of Musique Concréte, by extensively using field recordings and acoustic instrumentation heavily processed into digital loops and granulations in order to create fragmental sonic environments. ",
-          "In 'I Do Care', Daniella unveils her biographical artistic journey by returning to her origins, and in particular, to her childhood memories in Sweden. The album is composed of sample based songs, inspired by nordic folklore, returning to the most primal and basic forms of composition such as loops, lucid melodies and harmonies interwoven with Ljungsberg’s iconic vocals. A musical odyssey that traverses realms of compassion, humor and sentimentality, forming a musical collage that lingers between, Folk, Dream-pop and Lo-fi Ambient.",
-          "'I Do Care' invites us into Ljugnsberg's haunted world, not only by its spectrality, but by its sense of nostalgia, as if we share a collective memory. The familiarity embedded within her music tenderly guides us back home, even if we hadn’t realized we'd left it."
+          "The shapeshifting hellscapes of Wackelkontakt (Tomer Damsky aka MC Slice, Marco Milevski Tomasin, and Eyal Lally Bitton) return with new garments in their second album Change the Process, on a collaborative release between Orthodox (France) & JauneOrange (Belgium).",
+          "Attempts to define Wackelkontakt’s singular sound resulted in definitions such as Psychotrap and Doom R&B, with their debut album being acclaimed for its dynamism and reluctance to stick to one genre. In Change the Process, the group broadens the palette of styles even further. It is a collection of fragments: each song in the album sets a distinct mental scene, as if created by a different author. As the song sequence unfolds, it paves a journey between psycho-sensory states. Emblematic of Wackelkontakt’s genre-defiant artistry, Change the Process does not conform to a single theme but flourishes as a multiple entity, a schizophrenic crossroads of influences where each pathway gives birth to an encounter with an ever-weirder facet of human consciousness.",
+          "The album’s musical universe is set in the enchanted forest of ancient fantasies and proto-narratives: a liminal space of transformation, harboring both unknown dangers and a refuge from the world. A story unfinished and unfinishable, it moves from symbol to allegory; it comes and goes, crossing through various realms of the conceptual imagination, on a route spread over time and space, to be ultimately left pending.",
+          "In Change the Process Wackelkontakt steer the heavy, noise-influenced sound of their debut album into a more melodic terrain. They evolved into a new mutation, melting together drone, industrial, and metal aesthetics with bleak soundscapes and soulful laments. Milevski’s blasting percussion, a hybrid of acoustic drums and sample-based beats, couple with Damsky’s sensitive yet intensive vocals to form the core musical storytelling: moving, affective, and at times downright terrifying. The album’s lyrics are Damsky’s characteristic mash of biblical verse and taunting self-irony, uttered in an array of vocal deliveries: terse whispers, spitting rap, and venomous screeches alongside hopeful melodies and cantorial Arabesque. A new addition to Wackelkontakt’s sonic arsenal, the string instruments are woven throughout the story as a cinematic motif, an echo of the emotional states the songs attempt to tackle.",
+          "In ever-evolving ways to communicate with their audience, Wackelkontakt will release the album alongside a 35-minute short film, an audiovisual poem filmed in four countries. It features their signature visual-sonic storytelling, smashing together visceral docu-fiction, psycho-drama, mytho-poetics, and religious symbolism. "
         ],
         "credits": {
           "artists": [
-            "All tracks composed, produced & mixed Daniella Ljungsberg",
-            "All songs written by Daniella Ljungsberg "
+            "All music by Wackelkontakt",
+            "Tomer Damsky aka Slice: Vocals, electronics, string arrangements",
+            "Marco Milevski Tomasin: Drums & electronics ",
+            "Eyal Lally Bitton: Visuals & electronics ",
+            "Double Bass: Erez Meyuhas ",
+            "Cello: Tom Klein ",
+            "Violin: Johanna Riethmueller ",
+            "Additional double bass in “Skin for Skin” & “Orr Shinay”: Or Sinai ",
+            "Additional vocals in “Orr Shinay”: Ron Sheskin ",
+            ""
           ],
           "production": [
-            "Vocal recordings and additional mixing by Ami Ben Zvi at Pluto Studios "
+            "“Babymother” & “Shaar” recorded by Marco Milevski Tomasin at Bat Yam Museum of Art & Excessive Studios",
+            "“Progress” recorded by Wackelkontakt at Excessive Studios",
+            "“Skin for Skin” recorded by Wackelkontakt at Karl Ehman Strasse Studios, Liege & by Gad Torrefranca & Roy Chen at Polar Studios",
+            "“Orr Shinay” recorded by Gad Torrefranca & Roy Chen at Polar Studios",
+            "“Change the Outcome” Recorded by Wackelkontakt at Hazira Theater",
+            "Strings Recorded by Ori Kadishay at Mazkeka Studios",
+            "Mixed by James Ginzburg",
+            ""
           ],
           "coverArt": [
-            "Photography by Johan Ljungsberg "
+            "Artwork photography: Eyal Lally Bitton",
+            ""
+          ],
+          "additional": [
+            "Double Bass: Erez Meyuhas",
+            "Cello: Tom Klein",
+            "Violin: Johanna Riethmueller",
+            "Additional double bass in “Skin for Skin” & “Orr Shinay”: Or Sinai",
+            "Additional vocals in “Orr Shinay”: Ron Sheskin ",
+            ""
+          ]
+        }
+      },
+      "bandcampEmbedId": 2356669583,
+      "publication": "Publication 2",
+      "author": "Author2",
+      "date": "2026-02-16",
+      "category": "Category 2",
+      "link": "https://www.reifelbirdsanctuary.com/mall.html",
+      "image": "https://www.reifelbirdsanctuary.com/Site/themed_images/portfolio-large-12.jpg",
+      "excerpt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tincidunt, dui eget feugiat tristique, neque odio tempor ligula, placerat dignissim felis sem quis tortor. Aliquam metus ipsum, facilisis non libero eget, tristique vehicula enim. In posuere ipsum et urna placerat pellentesque. Morbi dolor velit, sagittis et congue sed, congue id erat. Cras id massa cursus, cursus massa sed, sodales lectus. Fusce porttitor, turpis quis tristique elementum, sem augue auctor sem, non dignissim nulla lacus nec tellus. Vestibulum dignissim bibendum sem eget consequat. Sed augue massa, iaculis ut tincidunt ac, facilisis at risus. Nunc laoreet lacinia tortor ac convallis.",
+      "credits": {
+        "artists": [
+          "All music by Wackelkontakt",
+          "Tomer Damsky aka Slice: Vocals, electronics, string arrangements",
+          "Marco Milevski Tomasin: Drums & electronics ",
+          "Eyal Lally Bitton: Visuals & electronics "
+        ],
+        "coverArt": [
+          "Artwork photography: Eyal Lally Bitton",
+          "Design: Ashger Zamana "
+        ],
+        "production": [
+          "“Babymother” & “Shaar” recorded by Marco Milevski Tomasin at Bat Yam Museum of Art & Excessive Studios",
+          "“Progress” recorded by Wackelkontakt at Excessive Studios",
+          "“Skin for Skin” recorded by Wackelkontakt at Karl Ehman Strasse Studios, Liege & by Gad Torrefranca & Roy Chen at Polar Studios",
+          "“Orr Shinay” recorded by Gad Torrefranca & Roy Chen at Polar Studios",
+          "“Change the Outcome” Recorded by Wackelkontakt at Hazira Theater",
+          "Strings Recorded by Ori Kadishay at Mazkeka Studios",
+          "Mixed by James Ginzburg",
+          "Mastered by James Plotkin "
+        ],
+        "additional": [
+          "Double Bass: Erez Meyuhas",
+          "Cello: Tom Klein",
+          "Violin: Johanna Riethmueller",
+          "Additional double bass in “Skin for Skin” & “Orr Shinay”: Or Sinai",
+          "Additional vocals in “Orr Shinay”: Ron Sheskin ",
+          "Additional voices by the Quantum Choir, recorded at Haritun Cave & Hazira Theater: Amir Meir, Itamar Shlomo Cohen, Avraham Kober, Gidon Levy, Daniel Gamlieli, Carmel Riboch, Yaara Haim, Ron Dahan, Adi Ben Pazi, Sam Braverman, Gilli Amar, Sapir Sharon, Tamar Balas."
+        ]
+      }
+    },
+    {
+      "id": "orth003",
+      "urlPath": "days",
+      "artist": "Kashaiof",
+      "title": "Days",
+      "releaseDate": "2023-08-30",
+      "cover": "days.jpg",
+      "description": {
+        "paragraphs": [
+          "What if beating a drum could raise a thunderstorm, as if a sound could alter the very fabric of reality? And conversely, what if reality could shape and transform that sound in return? ",
+          "In their latest album 'Days,' the experimental duo Kashaiof transcends their conventional artistic boundaries, drawing from their electro-acoustic practices. They integrate extended techniques of modular synthesis, ultrasonic feedback, field recordings, and acoustic instrumentation to expand their sonic explorations. ",
+          "In contrast to their previous releases 'Home' (2020) and 'MA' (2022), where the voice was submerged in electrical responses and processing, in 'Days,' the voice undergoes a gradual process of refinement until it is exposed to the listener, presenting fragments of personal experiences and reflections. ",
+          "As a result, the album welds together elements of repetitive post-industrial beats, folk chants, quaking synthesis, and mystifying sound objects. These resonating sounds construct the compositions akin to the gradual process of crystallization unfolding from within. It is an album that emerges from a place of vulnerability, revealing a longing for grace, where the weight of gravity becomes an overwhelming burden. ",
+          "'Days' offers a deep listening experience that delves into the mystical potential of sound, questioning its ability to shape the world’s order. However, Kashaiof finds themselves confronted with the realization that sound itself is subject to transformation, its effects reverberating throughout the universe in unforeseen ways.  "
+        ],
+        "credits": {
+          "artists": [
+            "All tracks recorded, produced and composed by Eyal Lally Bitton and Itzik Gil Avizohar ",
+            "All songs were written by Itzik Gil Avizohar, apart from Sulphur, an ancient Sumerian lullaby. "
+          ],
+          "production": [
+            "Recorded between 2022-2023 at Excessive Studios ",
+            "Bass guitar recordings in 'Grace' by Adam Scheflan at Ampa Studio",
+            ""
+          ],
+          "coverArt": [
+            "Photographs by Eyal Lally Bitton ",
+            ""
           ],
           "additional": []
         }
       },
-      "bandcampEmbedId": 2204156015,
+      "bandcampEmbedId": 3424865268,
       "credits": {
-        "artists": [
-          "All tracks composed, produced & mixed Daniella Ljungsberg",
-          "All songs written by Daniella Ljungsberg "
+        "coverArt": [
+          "Photographs by Eyal Lally Bitton ",
+          "Graphic Design by Ashger Zamana"
         ],
         "production": [
-          "Vocal recordings and additional mixing by Ami Ben Zvi at Pluto Studios "
+          "Recorded between 2022-2023 at Excessive Studios ",
+          "Bass guitar recordings in 'Grace' by Adam Scheflan at Ampa Studio",
+          "Vocal recordings, mixing and mastering by James Ginzburg "
         ],
-        "coverArt": [
-          "Photography by Johan Ljungsberg "
+        "artists": [
+          "All tracks recorded, produced and composed by Eyal Lally Bitton and Itzik Gil Avizohar ",
+          "All songs were written by Itzik Gil Avizohar, apart from Sulphur, an ancient Sumerian lullaby. "
         ]
       }
     },
@@ -394,47 +433,46 @@
       }
     },
     {
-      "id": "orth003",
-      "urlPath": "days",
-      "artist": "Kashaiof",
-      "title": "Days",
-      "releaseDate": "2023-08-30",
-      "cover": "days.jpg",
+      "id": "orth001",
+      "urlPath": "i-do-care",
+      "artist": "Daniella Ljungsberg",
+      "title": "I Do Care",
+      "releaseDate": "2023-02-14",
+      "cover": "i-do-care.jpg",
       "description": {
         "paragraphs": [
-          "What if beating a drum could raise a thunderstorm, as if a sound could alter the very fabric of reality? And conversely, what if reality could shape and transform that sound in return? ",
-          "In their latest album 'Days,' the experimental duo Kashaiof transcends their conventional artistic boundaries, drawing from their electro-acoustic practices. They integrate extended techniques of modular synthesis, ultrasonic feedback, field recordings, and acoustic instrumentation to expand their sonic explorations. ",
-          "In contrast to their previous releases 'Home' (2020) and 'MA' (2022), where the voice was submerged in electrical responses and processing, in 'Days,' the voice undergoes a gradual process of refinement until it is exposed to the listener, presenting fragments of personal experiences and reflections. ",
-          "As a result, the album welds together elements of repetitive post-industrial beats, folk chants, quaking synthesis, and mystifying sound objects. These resonating sounds construct the compositions akin to the gradual process of crystallization unfolding from within. It is an album that emerges from a place of vulnerability, revealing a longing for grace, where the weight of gravity becomes an overwhelming burden. ",
-          "'Days' offers a deep listening experience that delves into the mystical potential of sound, questioning its ability to shape the world’s order. However, Kashaiof finds themselves confronted with the realization that sound itself is subject to transformation, its effects reverberating throughout the universe in unforeseen ways.  "
+          "Celebrating ORTHODOX's first release with 'I Do Care', a stunning debut by composer, producer and singer Daniella Ljungsberg, a sort of musician whose definition is elusive, but if we had to insist we would simply define her as captivating. With her unique ethereal voice, she expresses a warm invitation, a welcoming gesture into her sonic world. ",
+          "Ljungsberg’s comes from an experimental musical background, where she spent her last years exploring electro acoustic techniques, with an emphasis on the field of Musique Concréte, by extensively using field recordings and acoustic instrumentation heavily processed into digital loops and granulations in order to create fragmental sonic environments. ",
+          "In 'I Do Care', Daniella unveils her biographical artistic journey by returning to her origins, and in particular, to her childhood memories in Sweden. The album is composed of sample based songs, inspired by nordic folklore, returning to the most primal and basic forms of composition such as loops, lucid melodies and harmonies interwoven with Ljungsberg’s iconic vocals. A musical odyssey that traverses realms of compassion, humor and sentimentality, forming a musical collage that lingers between, Folk, Dream-pop and Lo-fi Ambient.",
+          "'I Do Care' invites us into Ljugnsberg's haunted world, not only by its spectrality, but by its sense of nostalgia, as if we share a collective memory. The familiarity embedded within her music tenderly guides us back home, even if we hadn’t realized we'd left it."
         ],
         "credits": {
           "artists": [
-            "All tracks recorded, produced and composed by Eyal Lally Bitton and Itzik Gil Avizohar ",
-            "All songs were written by Itzik Gil Avizohar, apart from Sulphur, an ancient Sumerian lullaby. "
+            "All tracks composed, produced & mixed Daniella Ljungsberg",
+            "All songs written by Daniella Ljungsberg "
           ],
           "production": [
-            "Recorded between 2022-2023 at Excessive Studios ",
-            "Bass guitar recordings in 'Grace' by Adam Scheflan at Ampa Studio"
+            "Vocal recordings and additional mixing by Ami Ben Zvi at Pluto Studios ",
+            ""
           ],
           "coverArt": [
-            "Photographs by Eyal Lally Bitton "
+            "Photography by Johan Ljungsberg "
           ],
           "additional": []
         }
       },
-      "bandcampEmbedId": 3424865268,
+      "bandcampEmbedId": 2204156015,
       "credits": {
-        "artists": [
-          "All tracks recorded, produced and composed by Eyal Lally Bitton and Itzik Gil Avizohar ",
-          "All songs were written by Itzik Gil Avizohar, apart from Sulphur, an ancient Sumerian lullaby. "
-        ],
         "production": [
-          "Recorded between 2022-2023 at Excessive Studios ",
-          "Bass guitar recordings in 'Grace' by Adam Scheflan at Ampa Studio"
+          "Vocal recordings and additional mixing by Ami Ben Zvi at Pluto Studios ",
+          "Mastered by James Ginzburg "
+        ],
+        "artists": [
+          "All tracks composed, produced & mixed Daniella Ljungsberg",
+          "All songs written by Daniella Ljungsberg "
         ],
         "coverArt": [
-          "Photographs by Eyal Lally Bitton "
+          "Photography by Johan Ljungsberg "
         ]
       }
     }
