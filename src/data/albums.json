@@ -430,7 +430,7 @@
       "id": "orth001",
       "urlPath": "i-do-care",
       "artist": "Daniella Ljungsberg",
-      "title": "I Do Care",
+      "title": "I Do Care - test",
       "releaseDate": "2023-02-14",
       "cover": "i-do-care.jpg",
       "description": {
@@ -446,8 +446,7 @@
             "All songs written by Daniella Ljungsberg "
           ],
           "production": [
-            "Vocal recordings and additional mixing by Ami Ben Zvi at Pluto Studios ",
-            ""
+            "Vocal recordings and additional mixing by Ami Ben Zvi at Pluto Studios "
           ],
           "coverArt": [
             "Photography by Johan Ljungsberg "
@@ -457,13 +456,12 @@
       },
       "bandcampEmbedId": 2204156015,
       "credits": {
-        "production": [
-          "Vocal recordings and additional mixing by Ami Ben Zvi at Pluto Studios ",
-          "test"
-        ],
         "artists": [
           "All tracks composed, produced & mixed Daniella Ljungsberg",
           "All songs written by Daniella Ljungsberg "
+        ],
+        "production": [
+          "Vocal recordings and additional mixing by Ami Ben Zvi at Pluto Studios "
         ],
         "coverArt": [
           "Photography by Johan Ljungsberg "
