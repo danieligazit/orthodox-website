@@ -1498,6 +1498,13 @@
       // Save current values before clearing
       saveListValues(containerId, albumIndex, fieldPath);
       
+      renderListWithoutSaving(containerId, items, albumIndex, fieldPath);
+    }
+    
+    function renderListWithoutSaving(containerId, items, albumIndex, fieldPath) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      
       container.innerHTML = '';
       
       items.forEach((item, itemIndex) => {
@@ -1576,7 +1583,21 @@
       const container = document.getElementById('about-paragraphs');
       if (container) {
         const inputs = Array.from(container.querySelectorAll('input[type="text"]'));
-        const currentValues = inputs.map(input => input.value);
+        // Filter to only include inputs with valid data-item attribute (same logic as saveListValues)
+        const validInputs = inputs.filter(input => {
+          const itemIndex = input.getAttribute('data-item');
+          return itemIndex !== null;
+        });
+        // Sort by data-item index to ensure correct order
+        validInputs.sort((a, b) => {
+          const indexA = parseInt(a.getAttribute('data-item')) || 0;
+          const indexB = parseInt(b.getAttribute('data-item')) || 0;
+          return indexA - indexB;
+        });
+        const currentValues = validInputs.map(input => {
+          const val = input.value;
+          return (val !== null && val !== undefined) ? String(val) : '';
+        });
         
         // Update the data structure with current DOM values
         aboutData.paragraphs = currentValues;
@@ -1585,8 +1606,8 @@
       // Add new empty paragraph
       aboutData.paragraphs.push('');
       
-      // Re-render the list
-      renderList('about-paragraphs', aboutData.paragraphs, null, 'about-paragraphs');
+      // Re-render the list - skip saving since we've already synced the DOM values to the data structure
+      renderListWithoutSaving('about-paragraphs', aboutData.paragraphs, null, 'about-paragraphs');
     }
     
     function removeAboutParagraph(itemIndex) {
@@ -1595,7 +1616,8 @@
       
       if (aboutData && aboutData.paragraphs) {
         aboutData.paragraphs.splice(itemIndex, 1);
-        renderList('about-paragraphs', aboutData.paragraphs, null, 'about-paragraphs');
+        // Use renderListWithoutSaving since we've already saved and removed the item from data structure
+        renderListWithoutSaving('about-paragraphs', aboutData.paragraphs, null, 'about-paragraphs');
       }
     }
     
@@ -1611,7 +1633,21 @@
       const container = document.getElementById(`paragraphs-${albumIndex}`);
       if (container) {
         const inputs = Array.from(container.querySelectorAll('input[type="text"]'));
-        const currentValues = inputs.map(input => input.value);
+        // Filter to only include inputs with valid data-item attribute (same logic as saveListValues)
+        const validInputs = inputs.filter(input => {
+          const itemIndex = input.getAttribute('data-item');
+          return itemIndex !== null;
+        });
+        // Sort by data-item index to ensure correct order
+        validInputs.sort((a, b) => {
+          const indexA = parseInt(a.getAttribute('data-item')) || 0;
+          const indexB = parseInt(b.getAttribute('data-item')) || 0;
+          return indexA - indexB;
+        });
+        const currentValues = validInputs.map(input => {
+          const val = input.value;
+          return (val !== null && val !== undefined) ? String(val) : '';
+        });
         
         // Update the data structure with current DOM values
         albumsData.albums[albumIndex].description.paragraphs = currentValues;
@@ -1620,8 +1656,8 @@
       // Add new empty paragraph
       albumsData.albums[albumIndex].description.paragraphs.push('');
       
-      // Re-render the list
-      renderList(`paragraphs-${albumIndex}`, albumsData.albums[albumIndex].description.paragraphs, albumIndex, 'paragraphs');
+      // Re-render the list - skip saving since we've already synced the DOM values to the data structure
+      renderListWithoutSaving(`paragraphs-${albumIndex}`, albumsData.albums[albumIndex].description.paragraphs, albumIndex, 'paragraphs');
     }
     
     function addCredit(albumIndex, creditType) {
@@ -1640,13 +1676,19 @@
       let currentValues = [];
       if (container) {
         const inputs = Array.from(container.querySelectorAll('input[type="text"]'));
+        // Filter to only include inputs with valid data-item attribute (same logic as saveListValues)
+        const validInputs = inputs.filter(input => {
+          const itemIndex = input.getAttribute('data-item');
+          // Check if data-item exists (even if it's "0")
+          return itemIndex !== null;
+        });
         // Sort by data-item index to ensure correct order - use getAttribute to handle "0" correctly
-        inputs.sort((a, b) => {
+        validInputs.sort((a, b) => {
           const indexA = parseInt(a.getAttribute('data-item')) || 0;
           const indexB = parseInt(b.getAttribute('data-item')) || 0;
           return indexA - indexB;
         });
-        currentValues = inputs.map(input => {
+        currentValues = validInputs.map(input => {
           const val = input.value;
           return (val !== null && val !== undefined) ? String(val) : '';
         });
@@ -1669,8 +1711,9 @@
       // Add new empty credit
       albumsData.albums[albumIndex].description.credits[creditType].push('');
       
-      // Re-render the list (renderList will call saveListValues, but we've already synced, so it's safe)
-      renderList(`${creditType}-${albumIndex}`, albumsData.albums[albumIndex].description.credits[creditType], albumIndex, `credits.${creditType}`);
+      // Re-render the list - skip saving since we've already synced the DOM values to the data structure
+      // and added the new credit, so we don't want saveListValues to overwrite with stale DOM values
+      renderListWithoutSaving(`${creditType}-${albumIndex}`, albumsData.albums[albumIndex].description.credits[creditType], albumIndex, `credits.${creditType}`);
     }
     
     function removeListItem(albumIndex, fieldPath, itemIndex) {
@@ -1698,7 +1741,8 @@
       
       if (target[paths[paths.length - 1]]) {
         target[paths[paths.length - 1]].splice(itemIndex, 1);
-        renderList(containerId, target[paths[paths.length - 1]], albumIndex, fieldPath);
+        // Use renderListWithoutSaving since we've already saved and removed the item from data structure
+        renderListWithoutSaving(containerId, target[paths[paths.length - 1]], albumIndex, fieldPath);
       }
     }
     
