@@ -315,7 +315,8 @@
           ],
           "production": [
             "Vocal recordings and additional mixing by Ami Ben Zvi at Pluto Studios ",
-            "test"
+            "test",
+            "test2"
           ],
           "coverArt": [
             "Photography by Johan Ljungsberg "
@@ -327,7 +328,8 @@
       "credits": {
         "production": [
           "",
-          "test"
+          "",
+          "test2"
         ]
       }
     }
