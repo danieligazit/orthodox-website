@@ -1424,12 +1424,32 @@
       
       // Debug logging - log the actual values being saved with detailed info
       const currentDataValue = (() => {
-        const paths = (fieldPath === 'paragraphs' ? 'description.paragraphs' : fieldPath).split('.');
+        // Handle about-paragraphs separately
+        if (fieldPath === 'about-paragraphs') {
+          return aboutData?.paragraphs;
+        }
+        
+        // Use the same path resolution logic as the save operation
+        let debugPath = fieldPath;
+        if (fieldPath === 'paragraphs') {
+          debugPath = 'description.paragraphs';
+        } else if (fieldPath.startsWith('credits.')) {
+          debugPath = 'description.' + fieldPath;
+        }
+        
+        const paths = debugPath.split('.');
         let target = albumsData.albums[albumIndex];
+        if (!target) return undefined;
+        
         for (let i = 0; i < paths.length - 1; i++) {
-          if (paths[i] === 'description') target = target?.description;
-          else if (paths[i] === 'credits') target = target?.credits;
-          else target = target?.[paths[i]];
+          if (paths[i] === 'description') {
+            target = target?.description;
+          } else if (paths[i] === 'credits') {
+            target = target?.credits;
+          } else {
+            target = target?.[paths[i]];
+          }
+          if (!target) return undefined;
         }
         return target?.[paths[paths.length - 1]];
       })();
@@ -1444,10 +1464,22 @@
         dataMatches: JSON.stringify(currentDataValue) === JSON.stringify(values)
       });
       
-      // Handle special case for 'paragraphs' field path
+      // Handle about-paragraphs separately (albumIndex is null)
+      if (fieldPath === 'about-paragraphs') {
+        if (!aboutData) {
+          aboutData = { paragraphs: [] };
+        }
+        aboutData.paragraphs = values;
+        return;
+      }
+      
+      // Handle special case for 'paragraphs' and 'credits.*' field paths
       let actualPath = fieldPath;
       if (fieldPath === 'paragraphs') {
         actualPath = 'description.paragraphs';
+      } else if (fieldPath.startsWith('credits.')) {
+        // Credits are nested under description, so prepend 'description.'
+        actualPath = 'description.' + fieldPath;
       }
       
       const paths = actualPath.split('.');
@@ -1474,6 +1506,7 @@
             albumsData.albums[albumIndex].description = target;
           }
         } else if (paths[i] === 'credits') {
+          // Credits are nested under description, ensure credits object exists
           if (!target.credits) {
             target.credits = {};
           }
