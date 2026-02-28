@@ -155,8 +155,8 @@ export function AlbumPage() {
     return null;
   };
 
-  // Get video info if video section exists (only when embed is supported)
-  const embedInfo = album.video ? getVideoEmbedInfo(album.video.url) : null;
+  // Get video info if video section exists with a URL (only when embed is supported)
+  const embedInfo = album.video?.url ? getVideoEmbedInfo(album.video.url) : null;
   const videoInfo = embedInfo ? {
     ...embedInfo,
     title: album.video!.title,
