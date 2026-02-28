@@ -43,7 +43,10 @@
       "category": "Category 1",
       "link": "https://www.pbs.org/wnet/nature/blog/dolphin-fact-sheet/",
       "image": "https://www.pbs.org/wnet/nature/files/2020/07/Dolphin-1280x720.png",
-      "excerpt": "Excerpt 1"
+      "excerpt": "Excerpt 1",
+      "video": {
+        "aspectRatio": "9/16"
+      }
     },
     {
       "urlPath": "turn-of-a-millstone",
@@ -88,7 +91,10 @@
       "category": "Category 2",
       "link": "https://www.reifelbirdsanctuary.com/mall.html",
       "image": "https://www.reifelbirdsanctuary.com/Site/themed_images/portfolio-large-12.jpg",
-      "excerpt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tincidunt, dui eget feugiat tristique, neque odio tempor ligula, placerat dignissim felis sem quis tortor. Aliquam metus ipsum, facilisis non libero eget, tristique vehicula enim. In posuere ipsum et urna placerat pellentesque. Morbi dolor velit, sagittis et congue sed, congue id erat. Cras id massa cursus, cursus massa sed, sodales lectus. Fusce porttitor, turpis quis tristique elementum, sem augue auctor sem, non dignissim nulla lacus nec tellus. Vestibulum dignissim bibendum sem eget consequat. Sed augue massa, iaculis ut tincidunt ac, facilisis at risus. Nunc laoreet lacinia tortor ac convallis."
+      "excerpt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tincidunt, dui eget feugiat tristique, neque odio tempor ligula, placerat dignissim felis sem quis tortor. Aliquam metus ipsum, facilisis non libero eget, tristique vehicula enim. In posuere ipsum et urna placerat pellentesque. Morbi dolor velit, sagittis et congue sed, congue id erat. Cras id massa cursus, cursus massa sed, sodales lectus. Fusce porttitor, turpis quis tristique elementum, sem augue auctor sem, non dignissim nulla lacus nec tellus. Vestibulum dignissim bibendum sem eget consequat. Sed augue massa, iaculis ut tincidunt ac, facilisis at risus. Nunc laoreet lacinia tortor ac convallis.",
+      "video": {
+        "aspectRatio": "9/16"
+      }
     },
     {
       "urlPath": "do-i-care",
@@ -127,7 +133,10 @@
       "category": "Category 1",
       "link": "https://www.pbs.org/wnet/nature/blog/dolphin-fact-sheet/",
       "image": "https://www.pbs.org/wnet/nature/files/2020/07/Dolphin-1280x720.png",
-      "excerpt": "Excerpt 1"
+      "excerpt": "Excerpt 1",
+      "video": {
+        "aspectRatio": "9/16"
+      }
     },
     {
       "id": "orth005",
@@ -169,7 +178,10 @@
       "category": "Category 1",
       "link": "https://www.pbs.org/wnet/nature/blog/dolphin-fact-sheet/",
       "image": "https://www.pbs.org/wnet/nature/files/2020/07/Dolphin-1280x720.png",
-      "excerpt": "Excerpt"
+      "excerpt": "Excerpt",
+      "video": {
+        "aspectRatio": "9/16"
+      }
     },
     {
       "id": "orth004",
@@ -226,7 +238,10 @@
       "category": "Category 2",
       "link": "https://www.reifelbirdsanctuary.com/mall.html",
       "image": "https://www.reifelbirdsanctuary.com/Site/themed_images/portfolio-large-12.jpg",
-      "excerpt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tincidunt, dui eget feugiat tristique, neque odio tempor ligula, placerat dignissim felis sem quis tortor. Aliquam metus ipsum, facilisis non libero eget, tristique vehicula enim. In posuere ipsum et urna placerat pellentesque. Morbi dolor velit, sagittis et congue sed, congue id erat. Cras id massa cursus, cursus massa sed, sodales lectus. Fusce porttitor, turpis quis tristique elementum, sem augue auctor sem, non dignissim nulla lacus nec tellus. Vestibulum dignissim bibendum sem eget consequat. Sed augue massa, iaculis ut tincidunt ac, facilisis at risus. Nunc laoreet lacinia tortor ac convallis."
+      "excerpt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tincidunt, dui eget feugiat tristique, neque odio tempor ligula, placerat dignissim felis sem quis tortor. Aliquam metus ipsum, facilisis non libero eget, tristique vehicula enim. In posuere ipsum et urna placerat pellentesque. Morbi dolor velit, sagittis et congue sed, congue id erat. Cras id massa cursus, cursus massa sed, sodales lectus. Fusce porttitor, turpis quis tristique elementum, sem augue auctor sem, non dignissim nulla lacus nec tellus. Vestibulum dignissim bibendum sem eget consequat. Sed augue massa, iaculis ut tincidunt ac, facilisis at risus. Nunc laoreet lacinia tortor ac convallis.",
+      "video": {
+        "aspectRatio": "9/16"
+      }
     },
     {
       "id": "orth003",
@@ -258,7 +273,10 @@
           "additional": []
         }
       },
-      "bandcampEmbedId": 3424865268
+      "bandcampEmbedId": 3424865268,
+      "video": {
+        "aspectRatio": "9/16"
+      }
     },
     {
       "id": "orth002",
@@ -292,7 +310,10 @@
           "additional": []
         }
       },
-      "bandcampEmbedId": 2784044891
+      "bandcampEmbedId": 2784044891,
+      "video": {
+        "aspectRatio": "9/16"
+      }
     },
     {
       "id": "orth001",
@@ -304,7 +325,7 @@
       "video": {
         "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
         "aspectRatio": "9/16",
-        "title": "I Do Care"
+        "title": "Det Blir Bättre Imorgon (Better Tomorrow)"
       },
       "description": {
         "paragraphs": [
@@ -329,14 +350,7 @@
           "additional": []
         }
       },
-      "bandcampEmbedId": 2204156015,
-      "credits": {
-        "production": [
-          "",
-          "",
-          "test2"
-        ]
-      }
+      "bandcampEmbedId": 2204156015
     }
   ]
 }
