@@ -1845,18 +1845,27 @@
     }
     
     function removeListItem(albumIndex, fieldPath, itemIndex) {
-      // Determine the container ID based on field path
+      // Determine the container ID based on field path (e.g. credits.artists -> artists)
       const lastPath = fieldPath.split('.').pop();
       const containerId = `${lastPath}-${albumIndex}`;
       
       // Save current values before removing
       saveListValues(containerId, albumIndex, fieldPath);
       
-      const paths = fieldPath.split('.');
+      // Credits are nested under description; use same path resolution as saveListValues
+      let actualPath = fieldPath;
+      if (fieldPath === 'paragraphs') {
+        actualPath = 'description.paragraphs';
+      } else if (fieldPath.startsWith('credits.')) {
+        actualPath = 'description.' + fieldPath;
+      }
+      
+      const paths = actualPath.split('.');
       let target = albumsData.albums[albumIndex];
       
       for (let i = 0; i < paths.length - 1; i++) {
         if (paths[i] === 'description') {
+          if (!target.description) return;
           target = target.description;
         } else if (paths[i] === 'credits') {
           if (!target.credits) return;
@@ -1867,10 +1876,10 @@
         }
       }
       
-      if (target[paths[paths.length - 1]]) {
-        target[paths[paths.length - 1]].splice(itemIndex, 1);
-        // Use renderListWithoutSaving since we've already saved and removed the item from data structure
-        renderListWithoutSaving(containerId, target[paths[paths.length - 1]], albumIndex, fieldPath);
+      const finalKey = paths[paths.length - 1];
+      if (target[finalKey] && Array.isArray(target[finalKey])) {
+        target[finalKey].splice(itemIndex, 1);
+        renderListWithoutSaving(containerId, target[finalKey], albumIndex, fieldPath);
       }
     }
     
