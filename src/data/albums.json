@@ -323,7 +323,7 @@
       "releaseDate": "2023-02-14",
       "cover": "i-do-care.jpg",
       "video": {
-        "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "url": "https://bandcamp.23video.com/64968580/94339689/e85b83ed0a3fdeaaa75ce25801192dbf/video_hd/1221412632-2024-02-08-131902-utc-6-video.mp4?uuid=6c8f8da1-3539-0651-a984-371ff909e762",
         "aspectRatio": "9/16",
         "title": "Det Blir Bättre Imorgon (Better Tomorrow)"
       },
@@ -342,7 +342,8 @@
           "production": [
             "Vocal recordings and additional mixing by Ami Ben Zvi at Pluto Studios ",
             "test",
-            "test2"
+            "test2",
+            "test3"
           ],
           "coverArt": [
             "Photography by Johan Ljungsberg "
@@ -350,7 +351,15 @@
           "additional": []
         }
       },
-      "bandcampEmbedId": 2204156015
+      "bandcampEmbedId": 2204156015,
+      "credits": {
+        "production": [
+          "",
+          "",
+          "",
+          "test3"
+        ]
+      }
     }
   ]
 }
