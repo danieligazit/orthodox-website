@@ -361,6 +361,26 @@
       resize: vertical;
     }
     
+    .form-section {
+      margin-bottom: 28px;
+      padding: 20px;
+      background: white;
+      border: 1px solid #e5e5e5;
+      border-radius: 6px;
+    }
+    .form-section:last-child {
+      margin-bottom: 0;
+    }
+    .form-section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e5e5e5;
+    }
     .form-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1222,109 +1242,121 @@
             ${album.urlPath ? `<a href="${BASE_URL}/album/${escapeHtml(album.urlPath)}" target="_blank" style="color: #0c5460; text-decoration: underline;">${BASE_URL}/album/${escapeHtml(album.urlPath)}</a>` : 'URL: Not set'}
           </div>
           
-          <div class="form-row">
-            <div class="form-group">
-              <label>ID <span style="color: #666; font-size: 12px;">(required, e.g., orth001, room001)</span></label>
-              <input type="text" data-field="id" data-index="${index}" value="${album.id || ''}" required pattern="[a-z]{3,4}[0-9]{3}" placeholder="orth001" onchange="validateAlbumId(${index}, this)" onblur="validateAlbumId(${index}, this)" style="${!album.id ? 'border-color: #dc3545;' : ''}">
-              <div id="id-error-${index}" style="color: #dc3545; font-size: 12px; margin-top: 5px; display: none;"></div>
-            </div>
-            <div class="form-group">
-              <label>Artist <span style="color: #dc3545;">*</span></label>
-              <input type="text" data-field="artist" data-index="${index}" value="${escapeHtml(album.artist || '')}" required style="${!album.artist ? 'border-color: #dc3545;' : ''}">
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label>Title <span style="color: #dc3545;">*</span></label>
-              <input type="text" data-field="title" data-index="${index}" value="${escapeHtml(album.title || '')}" required style="${!album.title ? 'border-color: #dc3545;' : ''}">
-            </div>
-            <div class="form-group"></div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label>URL Path <span style="color: #dc3545;">*</span> <span style="color: #666; font-size: 12px;">(used in album URL)</span></label>
-              <input type="text" data-field="urlPath" data-index="${index}" value="${escapeHtml(album.urlPath || '')}" placeholder="e.g., do-i-care" required pattern="[a-z0-9-]+" onchange="updateAlbumUrlPreview(${index})" style="${!album.urlPath ? 'border-color: #dc3545;' : ''}">
-              <div id="url-preview-${index}" style="margin-top: 5px; font-size: 12px; color: #666;">
-                ${album.urlPath ? `Full URL: <a href="${BASE_URL}/album/${escapeHtml(album.urlPath)}" target="_blank" style="color: #0c5460; text-decoration: underline;">${BASE_URL}/album/${escapeHtml(album.urlPath)}</a>` : 'Enter a URL path to see the full album URL'}
+          <div class="form-section">
+            <div class="form-section-title">General</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>ID <span style="color: #666; font-size: 12px;">(required, e.g., orth001, room001)</span></label>
+                <input type="text" data-field="id" data-index="${index}" value="${album.id || ''}" required pattern="[a-z]{3,4}[0-9]{3}" placeholder="orth001" onchange="validateAlbumId(${index}, this)" onblur="validateAlbumId(${index}, this)" style="${!album.id ? 'border-color: #dc3545;' : ''}">
+                <div id="id-error-${index}" style="color: #dc3545; font-size: 12px; margin-top: 5px; display: none;"></div>
+              </div>
+              <div class="form-group">
+                <label>Artist <span style="color: #dc3545;">*</span></label>
+                <input type="text" data-field="artist" data-index="${index}" value="${escapeHtml(album.artist || '')}" required style="${!album.artist ? 'border-color: #dc3545;' : ''}">
               </div>
             </div>
-            <div class="form-group">
-              <label>Release Date <span style="color: #dc3545;">*</span></label>
-              <input type="date" data-field="releaseDate" data-index="${index}" value="${album.releaseDate || ''}" required style="${!album.releaseDate ? 'border-color: #dc3545;' : ''}">
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label>Cover Image <span style="color: #dc3545;">*</span></label>
-              <div style="display: flex; gap: 10px; align-items: flex-start;">
-                <input type="text" data-field="cover" data-index="${index}" value="${escapeHtml(album.cover || '')}" required style="flex: 1; ${!album.cover ? 'border-color: #dc3545;' : ''}">
-                <input type="file" accept="image/*" data-index="${index}" id="cover-upload-${index}" style="display: none;" onchange="handleImageUpload(${index}, this)">
-                <button type="button" class="btn btn-small" onclick="document.getElementById('cover-upload-${index}').click()">Upload</button>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Title <span style="color: #dc3545;">*</span></label>
+                <input type="text" data-field="title" data-index="${index}" value="${escapeHtml(album.title || '')}" required style="${!album.title ? 'border-color: #dc3545;' : ''}">
               </div>
-              <div id="cover-preview-${index}" style="margin-top: 10px;">
-                ${album.cover ? `<img src="/orthodox-website/${album.cover}" alt="Cover preview" style="max-width: 200px; max-height: 200px; border: 1px solid #ddd; border-radius: 4px;" onerror="this.style.display='none'">` : ''}
+              <div class="form-group"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>URL Path <span style="color: #dc3545;">*</span> <span style="color: #666; font-size: 12px;">(used in album URL)</span></label>
+                <input type="text" data-field="urlPath" data-index="${index}" value="${escapeHtml(album.urlPath || '')}" placeholder="e.g., do-i-care" required pattern="[a-z0-9-]+" onchange="updateAlbumUrlPreview(${index})" style="${!album.urlPath ? 'border-color: #dc3545;' : ''}">
+                <div id="url-preview-${index}" style="margin-top: 5px; font-size: 12px; color: #666;">
+                  ${album.urlPath ? `Full URL: <a href="${BASE_URL}/album/${escapeHtml(album.urlPath)}" target="_blank" style="color: #0c5460; text-decoration: underline;">${BASE_URL}/album/${escapeHtml(album.urlPath)}</a>` : 'Enter a URL path to see the full album URL'}
+                </div>
               </div>
-              <div id="cover-upload-status-${index}" style="margin-top: 5px; font-size: 12px;"></div>
+              <div class="form-group">
+                <label>Release Date <span style="color: #dc3545;">*</span></label>
+                <input type="date" data-field="releaseDate" data-index="${index}" value="${album.releaseDate || ''}" required style="${!album.releaseDate ? 'border-color: #dc3545;' : ''}">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Cover Image <span style="color: #dc3545;">*</span></label>
+                <div style="display: flex; gap: 10px; align-items: flex-start;">
+                  <input type="text" data-field="cover" data-index="${index}" value="${escapeHtml(album.cover || '')}" required style="flex: 1; ${!album.cover ? 'border-color: #dc3545;' : ''}">
+                  <input type="file" accept="image/*" data-index="${index}" id="cover-upload-${index}" style="display: none;" onchange="handleImageUpload(${index}, this)">
+                  <button type="button" class="btn btn-small" onclick="document.getElementById('cover-upload-${index}').click()">Upload</button>
+                </div>
+                <div id="cover-preview-${index}" style="margin-top: 10px;">
+                  ${album.cover ? `<img src="/orthodox-website/${album.cover}" alt="Cover preview" style="max-width: 200px; max-height: 200px; border: 1px solid #ddd; border-radius: 4px;" onerror="this.style.display='none'">` : ''}
+                </div>
+                <div id="cover-upload-status-${index}" style="margin-top: 5px; font-size: 12px;"></div>
+              </div>
+              <div class="form-group">
+                <label>Bandcamp Embed ID</label>
+                <input type="number" data-field="bandcampEmbedId" data-index="${index}" value="${album.bandcampEmbedId || ''}">
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-section">
+            <div class="form-section-title">Video</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Video URL</label>
+                <input type="text" data-field="video.url" data-index="${index}" value="${escapeHtml(album.video?.url || '')}" placeholder="YouTube, Vimeo, or Bandcamp video URL">
+                <small style="color: #6c757d; font-size: 12px; display: block; margin-top: 4px;">
+                  Only YouTube, Vimeo, or Bandcamp (23video.com) are supported. For Bandcamp, paste the full iframe src URL.
+                </small>
+                <div id="video-url-error-${index}" style="color: #dc3545; font-size: 12px; margin-top: 5px; display: none;"></div>
+              </div>
+              <div class="form-group">
+                <label>Video Title</label>
+                <input type="text" data-field="video.title" data-index="${index}" value="${escapeHtml(album.video?.title || '')}" placeholder="Optional title for the video section">
+                <small style="color: #6c757d; font-size: 12px; display: block; margin-top: 4px;">
+                  Only shown for Vimeo and Bandcamp (YouTube displays its own title). Before first play: always visible. After play: visible only when hovering over the video.
+                </small>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Video Aspect Ratio</label>
+                <input type="text" data-field="video.aspectRatio" data-index="${index}" value="${escapeHtml(album.video?.aspectRatio || '9/16')}" placeholder="9/16">
+                <small style="color: #6c757d; font-size: 12px; display: block; margin-top: 4px;">
+                  Aspect ratio for the video (e.g., "9/16" for portrait, "16/9" for landscape). Default: 9/16
+                </small>
+              </div>
+              <div class="form-group"></div>
+            </div>
+          </div>
+          
+          <div class="form-section">
+            <div class="form-section-title">Description</div>
+            <div class="form-group">
+              <label>Description Paragraphs</label>
+              <div id="paragraphs-${index}"></div>
+              <button type="button" class="btn btn-small" onclick="addParagraph(${index})">Add Paragraph</button>
+            </div>
+          </div>
+          
+          <div class="form-section">
+            <div class="form-section-title">Credits</div>
+            <div class="form-group">
+              <label>Credits - Artists</label>
+              <div id="artists-${index}"></div>
+              <button type="button" class="btn btn-small" onclick="addCredit(${index}, 'artists')">Add Artist Credit</button>
             </div>
             <div class="form-group">
-              <label>Bandcamp Embed ID</label>
-              <input type="number" data-field="bandcampEmbedId" data-index="${index}" value="${album.bandcampEmbedId || ''}">
+              <label>Credits - Production</label>
+              <div id="production-${index}"></div>
+              <button type="button" class="btn btn-small" onclick="addCredit(${index}, 'production')">Add Production Credit</button>
             </div>
             <div class="form-group">
-              <label>Video URL</label>
-              <input type="text" data-field="video.url" data-index="${index}" value="${escapeHtml(album.video?.url || '')}" placeholder="YouTube, Vimeo, or Bandcamp video URL">
-              <small style="color: #6c757d; font-size: 12px; display: block; margin-top: 4px;">
-                Only YouTube, Vimeo, or Bandcamp (23video.com) are supported. For Bandcamp, paste the full iframe src URL.
-              </small>
-              <div id="video-url-error-${index}" style="color: #dc3545; font-size: 12px; margin-top: 5px; display: none;"></div>
+              <label>Credits - Cover Art</label>
+              <div id="coverArt-${index}"></div>
+              <button type="button" class="btn btn-small" onclick="addCredit(${index}, 'coverArt')">Add Cover Art Credit</button>
             </div>
             <div class="form-group">
-              <label>Video Title</label>
-              <input type="text" data-field="video.title" data-index="${index}" value="${escapeHtml(album.video?.title || '')}" placeholder="Optional title for the video section">
-              <small style="color: #6c757d; font-size: 12px; display: block; margin-top: 4px;">
-                Only shown for Vimeo and Bandcamp (YouTube displays its own title). Before first play: always visible. After play: visible only when hovering over the video.
-              </small>
+              <label>Credits - Additional</label>
+              <div id="additional-${index}"></div>
+              <button type="button" class="btn btn-small" onclick="addCredit(${index}, 'additional')">Add Additional Credit</button>
             </div>
-            <div class="form-group">
-              <label>Video Aspect Ratio</label>
-              <input type="text" data-field="video.aspectRatio" data-index="${index}" value="${escapeHtml(album.video?.aspectRatio || '9/16')}" placeholder="9/16">
-              <small style="color: #6c757d; font-size: 12px; display: block; margin-top: 4px;">
-                Aspect ratio for the video (e.g., "9/16" for portrait, "16/9" for landscape). Default: 9/16
-              </small>
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label>Description Paragraphs</label>
-            <div id="paragraphs-${index}"></div>
-            <button type="button" class="btn btn-small" onclick="addParagraph(${index})">Add Paragraph</button>
-          </div>
-          
-          <div class="form-group">
-            <label>Credits - Artists</label>
-            <div id="artists-${index}"></div>
-            <button type="button" class="btn btn-small" onclick="addCredit(${index}, 'artists')">Add Artist Credit</button>
-          </div>
-          
-          <div class="form-group">
-            <label>Credits - Production</label>
-            <div id="production-${index}"></div>
-            <button type="button" class="btn btn-small" onclick="addCredit(${index}, 'production')">Add Production Credit</button>
-          </div>
-          
-          <div class="form-group">
-            <label>Credits - Cover Art</label>
-            <div id="coverArt-${index}"></div>
-            <button type="button" class="btn btn-small" onclick="addCredit(${index}, 'coverArt')">Add Cover Art Credit</button>
-          </div>
-          
-          <div class="form-group">
-            <label>Credits - Additional</label>
-            <div id="additional-${index}"></div>
-            <button type="button" class="btn btn-small" onclick="addCredit(${index}, 'additional')">Add Additional Credit</button>
           </div>
         `;
         
