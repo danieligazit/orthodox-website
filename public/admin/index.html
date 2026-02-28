@@ -1273,6 +1273,28 @@
               <label>Bandcamp Embed ID</label>
               <input type="number" data-field="bandcampEmbedId" data-index="${index}" value="${album.bandcampEmbedId || ''}">
             </div>
+            <div class="form-group">
+              <label>Video URL</label>
+              <input type="text" data-field="video.url" data-index="${index}" value="${escapeHtml(album.video?.url || '')}" placeholder="YouTube, Vimeo, or Bandcamp video URL">
+              <small style="color: #6c757d; font-size: 12px; display: block; margin-top: 4px;">
+                Only YouTube, Vimeo, or Bandcamp (23video.com) are supported. For Bandcamp, paste the full iframe src URL.
+              </small>
+              <div id="video-url-error-${index}" style="color: #dc3545; font-size: 12px; margin-top: 5px; display: none;"></div>
+            </div>
+            <div class="form-group">
+              <label>Video Title</label>
+              <input type="text" data-field="video.title" data-index="${index}" value="${escapeHtml(album.video?.title || '')}" placeholder="Optional title for the video section">
+              <small style="color: #6c757d; font-size: 12px; display: block; margin-top: 4px;">
+                Only shown for Vimeo and Bandcamp (YouTube displays its own title). Before first play: always visible. After play: visible only when hovering over the video.
+              </small>
+            </div>
+            <div class="form-group">
+              <label>Video Aspect Ratio</label>
+              <input type="text" data-field="video.aspectRatio" data-index="${index}" value="${escapeHtml(album.video?.aspectRatio || '9/16')}" placeholder="9/16">
+              <small style="color: #6c757d; font-size: 12px; display: block; margin-top: 4px;">
+                Aspect ratio for the video (e.g., "9/16" for portrait, "16/9" for landscape). Default: 9/16
+              </small>
+            </div>
           </div>
           
           <div class="form-group">
@@ -1321,13 +1343,18 @@
         renderList(`additional-${index}`, album.description.credits?.additional || [], index, 'credits.additional');
       });
       
-      // Attach input listeners - only for top-level fields, not nested ones like credits
+      // Attach input listeners - only for top-level fields and video fields, not nested ones like credits
       container.querySelectorAll('input[data-field][data-index], textarea[data-field][data-index]').forEach(input => {
         const field = input.dataset.field;
         // Skip nested fields (like credits.artists) - those are handled by updateList
-        if (field && !field.includes('.')) {
+        // But allow video.* fields which are handled by updateAlbum
+        if (field && (!field.includes('.') || field.startsWith('video.'))) {
           input.addEventListener('change', updateAlbum);
         }
+      });
+      // Validate video URLs for albums that have one
+      albumsData.albums.forEach((album, i) => {
+        if (album.video?.url) validateVideoUrlForAlbum(i);
       });
     }
     
@@ -1341,11 +1368,19 @@
       // Save current input values before re-rendering
       // Read all inputs - use a more specific selector to ensure we get all inputs
       // Try multiple selectors to be thorough
+      // IMPORTANT: Use a snapshot of the container's children to avoid issues if container is being modified
       let inputs = Array.from(container.querySelectorAll('input[type="text"]'));
       
       // If no inputs found with that selector, try a broader search
       if (inputs.length === 0) {
         inputs = Array.from(container.querySelectorAll('input'));
+      }
+      
+      // Double-check: also try getting inputs from list-item divs to ensure we don't miss any
+      const listItems = Array.from(container.querySelectorAll('.list-item input[type="text"]'));
+      if (listItems.length > inputs.length) {
+        console.warn(`Found more inputs in .list-item containers (${listItems.length}) than direct query (${inputs.length}) for ${containerId}`);
+        inputs = listItems;
       }
       
       if (inputs.length === 0) {
@@ -1390,15 +1425,21 @@
       const values = validInputs.map((input, idx) => {
         // Get the value directly from the input element's value property
         // This is the most reliable way to get the current value
-        let val = input.value;
+        // Also check defaultValue as a fallback
+        let val = input.value !== null && input.value !== undefined ? input.value : (input.defaultValue || '');
         
-        // If value is null/undefined, use empty string
+        // If value is still null/undefined, use empty string
         if (val === null || val === undefined) {
           val = '';
         }
         
         // Convert to string to ensure we have a string value
         val = String(val);
+        
+        // Debug: Log all values being saved to help diagnose the issue
+        if (fieldPath.includes('credits')) {
+          console.log(`saveListValues: Reading credit input ${idx} (data-item=${input.getAttribute('data-item')}): "${val.substring(0, 50)}${val.length > 50 ? '...' : ''}" (length: ${val.length})`);
+        }
         
         // Debug: Log detailed info for suspicious values (first item only, and only if very short)
         if (val.length > 0 && val.length < 5 && idx === 0) {
@@ -1421,6 +1462,11 @@
         
         return val;
       });
+      
+      // Debug: Log summary of what we're saving
+      if (fieldPath.includes('credits')) {
+        console.log(`saveListValues: Saving ${values.length} credits for ${fieldPath} (album ${albumIndex}):`, values.map((v, i) => `[${i}]: "${v.substring(0, 30)}${v.length > 30 ? '...' : ''}"`).join(', '));
+      }
       
       // Debug logging - log the actual values being saved with detailed info
       const currentDataValue = (() => {
@@ -1521,7 +1567,24 @@
       
       // Replace the entire array with values from DOM
       const finalKey = paths[paths.length - 1];
+      
+      // Debug: Log what we're about to save
+      if (fieldPath.includes('credits')) {
+        console.log(`saveListValues: About to save ${values.length} values to ${actualPath} (finalKey: ${finalKey}):`, values);
+        console.log(`saveListValues: Current value before save:`, target[finalKey]);
+      }
+      
+      // Save the values array
       target[finalKey] = values;
+      
+      // Debug: Verify it was saved correctly
+      if (fieldPath.includes('credits')) {
+        console.log(`saveListValues: Value after save:`, target[finalKey]);
+        // Verify the save worked
+        if (target[finalKey] && target[finalKey].length !== values.length) {
+          console.error(`saveListValues: MISMATCH! Expected ${values.length} items, got ${target[finalKey].length}`);
+        }
+      }
     }
     
     function renderList(containerId, items, albumIndex, fieldPath) {
@@ -1789,14 +1852,48 @@
         return;
       }
       
-      // Skip nested fields (like credits.artists) - those should use updateList
-      if (field.includes('.')) {
-        console.warn('updateAlbum called for nested field, should use updateList:', field);
+      // Skip ID field - it's handled by validateAlbumId
+      if (field === 'id') {
         return;
       }
       
-      // Skip ID field - it's handled by validateAlbumId
-      if (field === 'id') {
+      // Handle nested fields (like video.url, video.title, video.aspectRatio)
+      if (field.includes('.')) {
+        const paths = field.split('.');
+        const value = event.target.type === 'number' 
+          ? (event.target.value ? parseFloat(event.target.value) : undefined) 
+          : event.target.value;
+        
+        let target = albumsData.albums[index];
+        
+        // Navigate through the path, creating objects as needed
+        for (let i = 0; i < paths.length - 1; i++) {
+          if (!target[paths[i]]) {
+            target[paths[i]] = {};
+          }
+          target = target[paths[i]];
+        }
+        
+        // Set the final value
+        const finalKey = paths[paths.length - 1];
+        if (value === '' || value === undefined || value === null) {
+          // If value is empty and this is the last field in the object, remove the parent object
+          delete target[finalKey];
+          // If parent object is now empty, remove it
+          if (Object.keys(target).length === 0 && paths.length > 1) {
+            const parentPath = paths.slice(0, -1);
+            let parentTarget = albumsData.albums[index];
+            for (let i = 0; i < parentPath.length - 1; i++) {
+              parentTarget = parentTarget[parentPath[i]];
+            }
+            delete parentTarget[parentPath[parentPath.length - 1]];
+          }
+        } else {
+          target[finalKey] = value;
+        }
+        if (field === 'video.url') {
+          validateVideoUrlForAlbum(index);
+        }
         return;
       }
       
@@ -2055,14 +2152,55 @@
       document.querySelectorAll('input[data-field][data-index], textarea[data-field][data-index]').forEach(input => {
         const field = input.dataset.field;
         const index = parseInt(input.dataset.index);
-        const value = input.type === 'number' 
-          ? (input.value ? parseInt(input.value) : undefined) 
-          : input.value;
         
         if (field === 'id') {
           // ID is handled separately with validation
           return;
         }
+        
+        // Handle nested fields (like video.url, video.title, video.aspectRatio)
+        if (field.includes('.')) {
+          const paths = field.split('.');
+          const value = input.type === 'number' 
+            ? (input.value ? parseFloat(input.value) : undefined) 
+            : input.value;
+          
+          if (!albumsData.albums[index]) return;
+          
+          let target = albumsData.albums[index];
+          
+          // Navigate through the path, creating objects as needed
+          for (let i = 0; i < paths.length - 1; i++) {
+            if (!target[paths[i]]) {
+              target[paths[i]] = {};
+            }
+            target = target[paths[i]];
+          }
+          
+          // Set the final value
+          const finalKey = paths[paths.length - 1];
+          if (value === '' || value === undefined || value === null) {
+            // If value is empty, remove the field
+            delete target[finalKey];
+            // If parent object is now empty, remove it
+            if (Object.keys(target).length === 0 && paths.length > 1) {
+              const parentPath = paths.slice(0, -1);
+              let parentTarget = albumsData.albums[index];
+              for (let i = 0; i < parentPath.length - 1; i++) {
+                parentTarget = parentTarget[parentPath[i]];
+              }
+              delete parentTarget[parentPath[parentPath.length - 1]];
+            }
+          } else {
+            target[finalKey] = value;
+          }
+          return;
+        }
+        
+        // Handle top-level fields
+        const value = input.type === 'number' 
+          ? (input.value ? parseInt(input.value) : undefined) 
+          : input.value;
         
         if (albumsData.albums[index]) {
           albumsData.albums[index][field] = value;
@@ -2333,6 +2471,21 @@
           showStatus(`Error: Duplicate URL paths found: ${duplicatePaths.join(', ')}. Please ensure all URL paths are unique.`, 'error');
           return;
         }
+        // Validate video URLs (YouTube, Vimeo, or Bandcamp only)
+        const invalidVideoAlbums = [];
+        albumsData.albums.forEach((album, index) => {
+          if (album.video?.url) {
+            const result = validateVideoUrl(album.video.url);
+            if (!result.valid) {
+              invalidVideoAlbums.push({ index: index + 1, message: result.message });
+            }
+          }
+        });
+        if (invalidVideoAlbums.length > 0) {
+          const msg = invalidVideoAlbums.map(({ index, message }) => `Album ${index}: ${message}`).join('; ');
+          showStatus(`Error: Invalid video URL. ${msg}`, 'error');
+          return;
+        }
         
         const saveBtn = document.getElementById('save-btn');
         const originalText = saveBtn.textContent;
@@ -2472,6 +2625,42 @@
       }
     });
     
+    function validateVideoUrl(url) {
+      if (!url || typeof url !== 'string' || url.trim() === '') return { valid: true };
+      const trimmed = url.trim();
+      const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+      if (youtubeRegex.test(trimmed)) return { valid: true };
+      const vimeoRegex = /(?:vimeo\.com\/)(\d+)/;
+      if (vimeoRegex.test(trimmed)) return { valid: true };
+      if (trimmed.includes('bandcamp') || trimmed.includes('23video.com')) return { valid: true };
+      return {
+        valid: false,
+        message: 'Video URL must be from YouTube, Vimeo, or Bandcamp (23video.com). Other platforms are not supported.'
+      };
+    }
+    function validateVideoUrlForAlbum(albumIndex) {
+      const album = albumsData.albums[albumIndex];
+      const url = album?.video?.url;
+      const errorDiv = document.getElementById(`video-url-error-${albumIndex}`);
+      const input = document.querySelector(`input[data-field="video.url"][data-index="${albumIndex}"]`);
+      if (!errorDiv || !input) return;
+      if (!url || url.trim() === '') {
+        errorDiv.style.display = 'none';
+        errorDiv.textContent = '';
+        input.style.borderColor = '';
+        return;
+      }
+      const result = validateVideoUrl(url);
+      if (result.valid) {
+        errorDiv.style.display = 'none';
+        errorDiv.textContent = '';
+        input.style.borderColor = '';
+      } else {
+        errorDiv.textContent = result.message;
+        errorDiv.style.display = 'block';
+        input.style.borderColor = '#dc3545';
+      }
+    }
     function validateAlbumId(albumIndex, input) {
       const newId = input.value.trim().toLowerCase();
       const errorDiv = document.getElementById(`id-error-${albumIndex}`);

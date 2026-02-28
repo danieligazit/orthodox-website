@@ -15,6 +15,11 @@ export interface Album {
     };
   };
   bandcampEmbedId?: number;
+  video?: {
+    url: string; // URL for video embed (Bandcamp, Vimeo, YouTube)
+    title?: string; // Optional title for the video section
+    aspectRatio?: string; // Aspect ratio (default: "9/16")
+  };
 }
 
 export interface PressItem {
