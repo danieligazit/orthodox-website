@@ -345,9 +345,7 @@
           ],
           "production": [
             "Vocal recordings and additional mixing by Ami Ben Zvi at Pluto Studios ",
-            "test",
-            "test2",
-            "test3"
+            "Mastered by James Ginzburg"
           ],
           "coverArt": [
             "Photography by Johan Ljungsberg "
@@ -355,7 +353,13 @@
           "additional": []
         }
       },
-      "bandcampEmbedId": 2204156015
+      "bandcampEmbedId": 2204156015,
+      "credits": {
+        "production": [
+          "",
+          "Mastered by James Ginzburg"
+        ]
+      }
     }
   ]
 }
