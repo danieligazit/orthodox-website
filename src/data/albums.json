@@ -278,7 +278,7 @@
       "bandcampEmbedId": 3424865268,
       "video": {
         "aspectRatio": "9/16",
-        "url": "https://bandcamp.com/video_frame?video_id=247891,237690,223445&band_id=1221412632",
+        "url": "//bandcamp.23video.com/9891472.ihtml/player.html?token=3479a8dc3ed14b3783691d5b698c788f&source=embed&photo_id=102695435",
         "title": "Days"
       }
     },
@@ -353,13 +353,7 @@
           "additional": []
         }
       },
-      "bandcampEmbedId": 2204156015,
-      "credits": {
-        "production": [
-          "",
-          "Mastered by James Ginzburg"
-        ]
-      }
+      "bandcampEmbedId": 2204156015
     }
   ]
 }
